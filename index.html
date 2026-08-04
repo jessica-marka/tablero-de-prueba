@@ -1,241 +1,129 @@
+<!-- +MARKA DEMO COMERCIAL v1.0 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>+Marka · Inteligencia Comercial en Punto de Venta</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<title>+Marka — Demo Comercial · Inteligencia de Campo</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <style>
-  :root{
-    --bg: #090D17;
-    --bg-alt: #0C1120;
-    --surface: #121729;
-    --surface-2: #171D33;
-    --border: #232B44;
-    --text: #EDF1F7;
-    --muted: #8993AC;
-    --muted-2: #626C89;
-    --gold: #D4A24C;
-    --gold-soft: rgba(212,162,76,0.14);
-    --green: #34D399;
-    --green-soft: rgba(52,211,153,0.14);
-    --amber: #FBBF24;
-    --amber-soft: rgba(251,191,36,0.14);
-    --red: #F87171;
-    --red-soft: rgba(248,113,113,0.14);
-    --radius: 14px;
-  }
-  *{box-sizing:border-box;}
-  html{scroll-behavior:smooth;}
-  body{
-    margin:0;
-    background:
-      radial-gradient(1100px 520px at 85% -8%, rgba(212,162,76,0.10), transparent 60%),
-      radial-gradient(900px 500px at -10% 10%, rgba(52,211,153,0.06), transparent 55%),
-      var(--bg);
-    color:var(--text);
-    font-family:'Inter',sans-serif;
-    -webkit-font-smoothing:antialiased;
-  }
-  h1,h2,h3,.display{font-family:'Space Grotesk',sans-serif;}
-  .mono{font-family:'JetBrains Mono',monospace;}
-  a{color:inherit;}
-  ::selection{background:var(--gold-soft); color:var(--text);}
-
-  /* ---------- LOADING / ERROR ---------- */
-  #loading-screen{
-    position:fixed; inset:0; z-index:999; background:var(--bg);
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
-    text-align:center; padding:24px;
-  }
-  #loading-screen .spinner{
-    width:34px; height:34px; border-radius:50%;
-    border:3px solid var(--border); border-top-color:var(--gold);
-    animation:spin 0.8s linear infinite;
-  }
-  @keyframes spin{ to{ transform:rotate(360deg); } }
-  #loading-screen p{color:var(--muted); font-size:14px; max-width:420px;}
-  #loading-screen .err{color:var(--red); font-size:13px; max-width:520px; white-space:pre-wrap; font-family:'JetBrains Mono',monospace;}
-  #app{display:none;}
-
-  /* ---------- NAV ---------- */
-  .nav{
-    position:sticky; top:0; z-index:50;
-    display:flex; align-items:center; justify-content:space-between;
-    padding:16px clamp(20px,5vw,56px);
-    background:rgba(9,13,23,0.82);
-    backdrop-filter:blur(10px);
-    border-bottom:1px solid var(--border);
-  }
-  .nav-brand{display:flex; align-items:center; gap:10px; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:18px; letter-spacing:0.2px;}
-  .nav-brand .mark{
-    width:28px; height:28px; border-radius:8px;
-    background:linear-gradient(135deg, var(--gold), #8a6a2c);
-    display:flex; align-items:center; justify-content:center;
-    color:#0A0E1A; font-weight:700; font-size:15px;
-  }
-  .nav-links{display:flex; gap:28px; font-size:13.5px; color:var(--muted);}
-  .nav-links a{text-decoration:none; transition:color .15s;}
-  .nav-links a:hover{color:var(--text);}
-  .nav-cta{
-    font-size:13px; font-weight:600; padding:9px 18px; border-radius:999px;
-    background:var(--gold); color:#1A1206; text-decoration:none;
-    box-shadow:0 0 0 1px rgba(212,162,76,0.4);
-    white-space:nowrap;
-    border:none; cursor:pointer; font-family:'Inter',sans-serif;
-  }
-  @media (max-width:860px){ .nav-links{display:none;} }
-
-  /* ---------- HERO ---------- */
-  .hero{
-    padding:88px clamp(20px,5vw,56px) 56px;
-    max-width:1240px; margin:0 auto;
-  }
-  .eyebrow{
-    display:inline-flex; align-items:center; gap:8px;
-    font-size:12.5px; letter-spacing:.06em; text-transform:uppercase;
-    color:var(--gold); font-weight:600; margin-bottom:22px;
-  }
-  .eyebrow::before{content:""; width:6px; height:6px; border-radius:50%; background:var(--gold); display:inline-block;}
-  .hero h1{
-    font-size:clamp(34px,4.4vw,58px); line-height:1.06; font-weight:700;
-    max-width:920px; margin:0 0 22px;
-    letter-spacing:-0.01em;
-  }
-  .hero h1 .accent{color:var(--gold);}
-  .hero p.lede{
-    font-size:17px; line-height:1.6; color:var(--muted); max-width:640px; margin:0 0 40px;
-  }
-  .hero-grid{
-    display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:8px;
-  }
-  @media (max-width:900px){ .hero-grid{grid-template-columns:repeat(2,1fr);} }
-
-  .stat-card{
-    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
-    padding:20px 20px 18px;
-    position:relative; overflow:hidden;
-  }
-  .stat-card .label{font-size:12px; color:var(--muted); font-weight:500; margin-bottom:10px; letter-spacing:.01em;}
-  .stat-card .value{font-family:'Space Grotesk',sans-serif; font-size:32px; font-weight:700; line-height:1;}
-  .stat-card .sub{font-size:12px; color:var(--muted-2); margin-top:8px;}
-  .stat-card .tag{
-    position:absolute; top:16px; right:16px; font-size:10.5px; font-weight:700;
-    padding:3px 8px; border-radius:999px; letter-spacing:.03em;
-  }
-  .tag-red{background:var(--red-soft); color:var(--red);}
-  .tag-amber{background:var(--amber-soft); color:var(--amber);}
-  .tag-green{background:var(--green-soft); color:var(--green);}
-
-  /* ---------- SECTIONS ---------- */
-  section.block{
-    max-width:1240px; margin:0 auto;
-    padding:64px clamp(20px,5vw,56px);
-    border-top:1px solid var(--border);
-  }
-  .block-head{margin-bottom:34px; max-width:720px;}
-  .block-kicker{font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted-2); font-weight:600; margin-bottom:10px;}
-  .block-head h2{font-size:clamp(24px,2.6vw,32px); font-weight:700; margin:0 0 10px; letter-spacing:-0.01em;}
-  .block-head p{color:var(--muted); font-size:15px; line-height:1.6; margin:0;}
-
-  .grid-2{display:grid; grid-template-columns:1.15fr .85fr; gap:20px;}
-  .grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
-  @media (max-width:900px){ .grid-2, .grid-3{grid-template-columns:1fr;} }
-
-  .panel{
-    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
-    padding:22px 22px 14px;
-  }
-  .panel h3{font-size:14.5px; font-weight:600; margin:0 0 4px;}
-  .panel .panel-sub{font-size:12.5px; color:var(--muted-2); margin-bottom:14px;}
-  .chart-wrap{position:relative; height:260px;}
-  .chart-wrap.tall{height:320px;}
-
-  /* ---------- ACTION / INSIGHT CARD (signature element) ---------- */
-  .insight{
-    display:flex; gap:16px;
-    background:var(--surface-2);
-    border:1px solid var(--border);
-    border-left:3px solid var(--gold);
-    border-radius:10px;
-    padding:18px 20px;
-    margin-top:18px;
-  }
-  .insight.sev-red{border-left-color:var(--red);}
-  .insight.sev-amber{border-left-color:var(--amber);}
-  .insight.sev-green{border-left-color:var(--green);}
-  .insight .stamp{
-    font-family:'JetBrains Mono',monospace; font-size:10.5px; font-weight:600;
-    letter-spacing:.05em; text-transform:uppercase; color:var(--gold);
-    white-space:nowrap; padding-top:2px; min-width:112px;
-  }
-  .insight.sev-red .stamp{color:var(--red);}
-  .insight.sev-amber .stamp{color:var(--amber);}
-  .insight.sev-green .stamp{color:var(--green);}
-  .insight .body p{margin:0; font-size:14px; line-height:1.55; color:var(--text);}
-  .insight .body strong{color:var(--gold); font-weight:600;}
-  .insight.sev-red .body strong{color:var(--red);}
-  .insight.sev-amber .body strong{color:var(--amber);}
-  .insight.sev-green .body strong{color:var(--green);}
-
-  /* ---------- TABLE ---------- */
-  .table-wrap{overflow-x:auto; border:1px solid var(--border); border-radius:var(--radius);}
-  table{width:100%; border-collapse:collapse; font-size:13.5px; min-width:720px;}
-  thead th{
-    text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.04em;
-    color:var(--muted-2); font-weight:600; padding:14px 16px; background:var(--surface-2);
-    border-bottom:1px solid var(--border);
-  }
-  tbody td{padding:13px 16px; border-bottom:1px solid var(--border); color:var(--text);}
-  tbody tr:last-child td{border-bottom:none;}
-  tbody tr:hover{background:rgba(255,255,255,0.02);}
-  .pill{
-    display:inline-block; padding:3px 10px; border-radius:999px; font-size:11.5px; font-weight:600;
-  }
-  .pill-action{background:var(--gold-soft); color:var(--gold);}
-  .num{font-family:'JetBrains Mono',monospace; font-size:13px;}
-
-  /* ---------- RANKING CADENAS ---------- */
-  .rank-list{display:flex; flex-direction:column; gap:10px;}
-  .rank-row{
-    display:grid; grid-template-columns:28px 1fr 90px 90px 70px; align-items:center; gap:14px;
-    padding:12px 16px; background:var(--surface); border:1px solid var(--border); border-radius:10px;
-  }
-  .rank-row .pos{font-family:'JetBrains Mono',monospace; color:var(--muted-2); font-size:13px;}
-  .rank-row .name{font-weight:600; font-size:14px;}
-  .rank-row .metric{font-size:12px; color:var(--muted); text-align:right;}
-  .rank-row .metric .n{font-family:'JetBrains Mono',monospace; color:var(--text); font-size:14px; display:block;}
-  .rank-row .score{
-    font-family:'JetBrains Mono',monospace; font-weight:700; font-size:15px; text-align:right;
-  }
-  .bar-track{grid-column:1 / -1; height:5px; border-radius:99px; background:var(--border); overflow:hidden; margin-top:2px;}
-  .bar-fill{height:100%; border-radius:99px;}
-  @media (max-width:640px){
-    .rank-row{grid-template-columns:22px 1fr 70px; }
-    .rank-row .metric:nth-of-type(2){display:none;}
-  }
-
-  /* ---------- FOOTER / CTA ---------- */
-  footer{
-    padding:70px clamp(20px,5vw,56px) 50px;
-    max-width:1240px; margin:0 auto;
-    border-top:1px solid var(--border);
-    display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-end; gap:26px;
-  }
-  footer h2{font-size:clamp(22px,2.8vw,30px); margin:0 0 12px; max-width:520px; font-weight:700;}
-  footer p{color:var(--muted); font-size:14px; max-width:460px; margin:0; line-height:1.6;}
-  .cta-btn{
-    font-size:14px; font-weight:600; padding:14px 26px; border-radius:999px;
-    background:var(--gold); color:#1A1206; text-decoration:none; white-space:nowrap;
-  }
-  .foot-note{width:100%; margin-top:40px; padding-top:24px; border-top:1px solid var(--border); font-size:12px; color:var(--muted-2); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;}
-
-  .kicker-num{font-family:'JetBrains Mono',monospace; color:var(--muted-2); font-size:12px;}
-  #refresh-note{font-size:11.5px; color:var(--muted-2);}
+:root{
+  --bg:#0d0c0c;--bg2:#161414;--bg3:#1e1b1b;--bg4:#262222;
+  --bd:rgba(255,255,255,.07);--bd2:rgba(255,255,255,.13);
+  --acc:#d4a24c;--acc2:#e8bd6f;--ad:rgba(212,162,76,.15);--ag:rgba(212,162,76,.4);
+  --teal:#3cb3a8;--td:rgba(60,179,168,.15);
+  --tx:#f2eeee;--tx2:#9c9494;--tx3:#5a5252;
+  --ok:#3cb3a8;--ok-d:rgba(60,179,168,.13);
+  --er:#c1502a;--er-d:rgba(193,80,42,.13);
+  --wa:#e8a045;--wa-d:rgba(232,160,69,.13);
+  --bl:#5b9bd5;--bl-d:rgba(91,155,213,.13);
+  --vi:#9b7fd4;--vi-d:rgba(155,127,212,.13);
+  --r:14px;--r2:9px;--sw:250px;--hh:58px;
+  --sh:0 8px 32px rgba(0,0,0,.6);--tr:.18s ease;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tx);font-size:14px;line-height:1.5}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:4px}
+button,input,select{font-family:'Outfit',sans-serif}
+.app{display:flex;height:100vh;width:100vw;overflow:hidden}
+.sidebar{width:var(--sw);min-width:var(--sw);background:var(--bg2);border-right:1px solid var(--bd);display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;position:relative;z-index:50;}
+.sidebar::after{content:'';position:absolute;top:0;right:0;bottom:0;width:1px;background:linear-gradient(to bottom,transparent,var(--ag) 35%,var(--ag) 65%,transparent);pointer-events:none;}
+.sb-brand{padding:22px 18px 18px;border-bottom:1px solid var(--bd)}
+.sb-logo{display:flex;align-items:center;gap:11px}
+.sb-ico{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--acc),#8a6a2c);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#1a1206;flex-shrink:0;box-shadow:0 4px 12px rgba(212,162,76,.4);}
+.sb-name{font-size:16px;font-weight:800;letter-spacing:-.3px}
+.sb-tag{font-size:9px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;margin-top:3px}
+.sb-live{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--tx3);padding:14px 24px 4px;border-bottom:1px solid var(--bd)}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--wa);animation:pulse 2s infinite;flex-shrink:0}
+.live-dot.on{background:var(--ok)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.sb-nav{padding:15px 16px;flex:1}
+.sb-sect{font-size:9px;color:var(--tx3);text-transform:uppercase;letter-spacing:1.6px;padding:21px 16px 6px;font-weight:700}
+.ni{display:flex;align-items:center;gap:10px;padding:14px 18px;border-radius:var(--r2);color:var(--tx2);font-size:12.5px;font-weight:500;cursor:pointer;transition:var(--tr);margin-bottom:3px;border:1px solid transparent;user-select:none;position:relative;}
+.ni i{width:15px;text-align:center;font-size:12px;flex-shrink:0}
+.ni:hover{background:rgba(255,255,255,.05);color:var(--tx)}
+.ni.active{background:var(--ad);color:var(--acc2);border-color:rgba(212,162,76,.25)}
+.ni.active::before{content:'';position:absolute;left:0;top:20%;bottom:20%;width:3px;background:var(--acc);border-radius:0 3px 3px 0}
+.ni-badge{margin-left:auto;background:var(--er);color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px}
+.ni-badge.wa{background:var(--wa);color:#1a1206}
+.ni-badge.ok{background:var(--ok)}
+.sb-bottom{padding:10px;border-top:1px solid var(--bd)}
+.sb-upd{font-size:10px;color:var(--tx3);padding:5px 10px;margin-bottom:2px}
+.rb-btn{display:flex;align-items:center;gap:8px;padding:14px 18px;border-radius:var(--r2);color:var(--tx3);font-size:12px;cursor:pointer;border:none;background:none;width:100%;transition:var(--tr)}
+.rb-btn:hover{background:var(--ad);color:var(--acc2)}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{height:var(--hh);background:var(--bg2);border-bottom:1px solid var(--bd);display:flex;align-items:center;padding:0 28px;gap:12px;flex-shrink:0;box-shadow:var(--sh);}
+.tb-title{font-size:16px;font-weight:800;letter-spacing:-.2px}
+.tb-sub{font-size:11px;color:var(--tx3)}
+.content{flex:1;overflow-y:auto;overflow-x:hidden;padding:28px 32px}
+.content > * + *{margin-top:22px}
+.page{display:none;flex-direction:column;gap:22px;animation:fadeup .2s ease-out}
+.page.active{display:flex}
+@keyframes fadeup{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.kpi-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media(max-width:1100px){.kpi-grid,.kpi-grid-3{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:20px 20px 16px;position:relative;transition:transform .2s ease,box-shadow .2s ease;}
+.kpi:hover{transform:translateY(-2px);box-shadow:0 10px 36px rgba(0,0,0,.4)}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r) var(--r) 0 0}
+.kpi.t-ok::before{background:linear-gradient(90deg,var(--ok),transparent 70%)}
+.kpi.t-er::before{background:linear-gradient(90deg,var(--er),transparent 70%)}
+.kpi.t-wa::before{background:linear-gradient(90deg,var(--wa),transparent 70%)}
+.kpi.t-acc::before{background:linear-gradient(90deg,var(--acc),transparent 70%)}
+.kpi.t-ok{background:linear-gradient(135deg,var(--ok-d) 0%,var(--bg2) 60%)}
+.kpi.t-er{background:linear-gradient(135deg,var(--er-d) 0%,var(--bg2) 60%)}
+.kpi.t-wa{background:linear-gradient(135deg,var(--wa-d) 0%,var(--bg2) 60%)}
+.kpi.t-acc{background:linear-gradient(135deg,var(--ad) 0%,var(--bg2) 60%)}
+.kpi-lbl{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.9px;font-weight:700;margin-bottom:14px}
+.kpi-val{font-size:30px;font-weight:900;line-height:1;margin-bottom:10px;letter-spacing:-1px}
+.kpi-sub{font-size:11px;color:var(--tx3);line-height:1.4}
+.card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);box-shadow:0 2px 12px rgba(0,0,0,.2)}
+.card-p{padding:22px 24px}
+.card-hdr{margin-bottom:16px}
+.card-title{font-size:14px;font-weight:700;letter-spacing:-.1px}
+.card-sub{font-size:11px;color:var(--tx2);margin-top:3px}
+.chart-h{position:relative;height:230px}
+.chart-h-lg{position:relative;height:300px}
+.grid-2{display:grid;grid-template-columns:1.15fr .85fr;gap:20px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media(max-width:1000px){.grid-2,.grid-3{grid-template-columns:1fr}}
+.tw{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.2)}
+.tf{padding:16px 22px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--bg3)}
+table{width:100%;border-collapse:collapse}
+th{padding:14px 20px;font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.7px;text-align:left;border-bottom:1px solid var(--bd);background:var(--bg3);white-space:nowrap}
+td{padding:14px 20px;font-size:12.5px;border-bottom:1px solid var(--bd);color:var(--tx)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+.pill{display:inline-flex;align-items:center;gap:3px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.pill.ok{background:var(--ok-d);color:var(--ok);border:1px solid rgba(60,179,168,.25)}
+.pill.er{background:var(--er-d);color:#e8815f;border:1px solid rgba(193,80,42,.25)}
+.pill.wa{background:var(--wa-d);color:var(--wa);border:1px solid rgba(232,160,69,.25)}
+.pill.acc{background:var(--ad);color:var(--acc2);border:1px solid rgba(212,162,76,.3)}
+.alert{padding:17px 22px;border-radius:var(--r);font-size:12.5px;display:flex;align-items:flex-start;gap:12px;line-height:1.6}
+.alert.er{background:var(--er-d);border:1px solid rgba(193,80,42,.2);color:#e8815f}
+.alert.wa{background:var(--wa-d);border:1px solid rgba(232,160,69,.2);color:var(--wa)}
+.alert.ok{background:var(--ok-d);border:1px solid rgba(60,179,168,.2);color:var(--ok)}
+.alert.acc{background:var(--ad);border:1px solid rgba(212,162,76,.25);color:var(--acc2)}
+.alert i{margin-top:2px}
+.theme-btn{width:32px;height:32px;border-radius:var(--r2);background:var(--bg3);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--tx2);font-size:13px;transition:var(--tr);flex-shrink:0}
+.theme-btn:hover{border-color:var(--acc);color:var(--acc)}
+.rank-row{display:grid;grid-template-columns:26px 1fr 80px 80px 60px;align-items:center;gap:12px;padding:12px 16px;background:var(--bg3);border:1px solid var(--bd);border-radius:var(--r2);margin-bottom:8px;}
+.rank-row .pos{font-family:monospace;color:var(--tx3);font-size:12px;}
+.rank-row .name{font-weight:600;font-size:13px;}
+.rank-row .metric{font-size:11px;color:var(--tx2);text-align:right;}
+.rank-row .metric b{display:block;color:var(--tx);font-size:13px;}
+.rank-row .score{font-weight:800;font-size:14px;text-align:right;}
+#loading-screen{position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:24px;}
+#loading-screen .spinner{width:34px;height:34px;border-radius:50%;border:3px solid var(--bd);border-top-color:var(--acc);animation:rot .8s linear infinite;}
+@keyframes rot{to{transform:rotate(360deg)}}
+#loading-screen p{color:var(--tx2);font-size:14px;max-width:420px;}
+#loading-screen .err{color:#e8815f;font-size:12.5px;max-width:560px;white-space:pre-wrap;font-family:monospace;text-align:left;background:var(--bg2);padding:14px;border-radius:var(--r2);border:1px solid var(--bd);}
+#app{display:none;}
 </style>
 </head>
 <body>
@@ -246,238 +134,164 @@
 </div>
 
 <div id="app">
+<div class="app">
 
-<nav class="nav">
-  <div class="nav-brand"><span class="mark">+M</span> +Marka</div>
-  <div class="nav-links">
-    <a href="#disponibilidad">Disponibilidad</a>
-    <a href="#oportunidad">Oportunidad comercial</a>
-    <a href="#ejecucion">Ejecución PDV</a>
-    <a href="#campo">Campo</a>
-    <a href="#cadenas">Cadenas</a>
-  </div>
-  <button class="nav-cta" onclick="location.reload()">↻ Actualizar datos</button>
-</nav>
-
-<section class="hero">
-  <div class="eyebrow">Panel comercial · datos en vivo desde Google Sheets</div>
-  <h1>Cada punto de disponibilidad perdido es venta que ya no vuelve. <span class="accent">Esto es lo que está pasando en su punto de venta.</span></h1>
-  <p class="lede">Relevamiento de <span class="mono" id="hero-skus">—</span> SKUs en <span class="mono" id="hero-locales">—</span> puntos de venta, con <span class="mono" id="hero-promotores">—</span> promotores en ruta. Esta es la fotografía real de la operación — y lo que +Marka propone accionar primero. <span id="refresh-note"></span></p>
-
-  <div class="hero-grid">
-    <div class="stat-card">
-      <div class="tag tag-red">Crítico</div>
-      <div class="label">Disponibilidad en góndola (OSA)</div>
-      <div class="value" id="k-osa">—%</div>
-      <div class="sub" id="k-osa-sub">quiebre góndola + quiebre total</div>
-    </div>
-    <div class="stat-card">
-      <div class="tag tag-amber">Atención</div>
-      <div class="label">Cumplimiento de planograma</div>
-      <div class="value" id="k-plano">—%</div>
-      <div class="sub">promedio de todas las auditorías</div>
-    </div>
-    <div class="stat-card">
-      <div class="tag tag-green">Sólido</div>
-      <div class="label">Cobertura de visitas</div>
-      <div class="value" id="k-cobertura">—%</div>
-      <div class="sub" id="k-ausentismo-sub">ausentismo del equipo</div>
-    </div>
-    <div class="stat-card">
-      <div class="tag tag-amber">Atención</div>
-      <div class="label">Material POP con problema</div>
-      <div class="value" id="k-pop">—%</div>
-      <div class="sub">dañado, desactualizado o faltante</div>
-    </div>
-  </div>
-</section>
-
-<section class="block" id="disponibilidad">
-  <div class="block-head">
-    <div class="block-kicker">01 · Disponibilidad y quiebres de stock</div>
-    <h2>¿Dónde se está perdiendo venta por falta de producto en góndola?</h2>
-    <p>La disponibilidad no es pareja: hay categorías y cadenas concentrando la mayor parte del problema. Ahí es donde una reposición más frecuente tiene el mayor retorno.</p>
-  </div>
-
-  <div class="grid-2">
-    <div class="panel">
-      <h3>OSA % por categoría</h3>
-      <div class="panel-sub">Porcentaje de relevamientos con producto disponible en góndola</div>
-      <div class="chart-wrap"><canvas id="chart-osa-categoria"></canvas></div>
-    </div>
-    <div class="panel">
-      <h3>OSA % por cadena</h3>
-      <div class="panel-sub">De menor a mayor disponibilidad</div>
-      <div class="chart-wrap"><canvas id="chart-osa-cadena"></canvas></div>
-    </div>
-  </div>
-
-  <div class="panel" style="margin-top:20px;">
-    <h3>Tendencia trimestral</h3>
-    <div class="panel-sub">OSA, cobertura de visitas y cumplimiento de planograma — mayo a julio</div>
-    <div class="chart-wrap tall"><canvas id="chart-tendencia"></canvas></div>
-  </div>
-
-  <div class="insight sev-red">
-    <div class="stamp">Acción sugerida</div>
-    <div class="body" id="insight-osa-categoria"></div>
-  </div>
-  <div class="insight sev-amber">
-    <div class="stamp">Acción sugerida</div>
-    <div class="body" id="insight-osa-cadena"></div>
-  </div>
-</section>
-
-<section class="block" id="oportunidad">
-  <div class="block-head">
-    <div class="block-kicker">02 · Oportunidad comercial inmediata</div>
-    <h2>Stock que ya está pago y en riesgo de perderse</h2>
-    <p>Estas unidades todavía se pueden vender. Son la diferencia entre una pérdida contable y una promoción bien timeada.</p>
-  </div>
-
-  <div class="grid-3">
-    <div class="stat-card">
-      <div class="label">Unidades próximas a vencer</div>
-      <div class="value" id="k-venc-unidades">—</div>
-      <div class="sub" id="k-venc-registros">en — relevamientos</div>
-    </div>
-    <div class="stat-card">
-      <div class="tag tag-red">En riesgo</div>
-      <div class="label">Valor comercial en riesgo</div>
-      <div class="value" id="k-venc-valor">Gs. —</div>
-      <div class="sub">si no se acciona antes del vencimiento</div>
-    </div>
-    <div class="stat-card">
-      <div class="label">Unidades averiadas relevadas</div>
-      <div class="value" id="k-averia-unidades">—</div>
-      <div class="sub" id="k-averia-registros">en — relevamientos</div>
-    </div>
-  </div>
-
-  <div class="grid-2" style="margin-top:20px;">
-    <div class="panel">
-      <h3>Top 10 oportunidades por valor en riesgo</h3>
-      <div class="panel-sub">Producto, local y acción comercial recomendada según volumen</div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Local</th><th>Producto</th><th>Unid.</th><th>Vence</th><th>Valor (Gs.)</th><th>Acción sugerida</th></tr></thead>
-          <tbody id="tabla-oportunidades"></tbody>
-        </table>
+<nav class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-logo">
+      <div class="sb-ico">+M</div>
+      <div>
+        <div class="sb-name">+Marka</div>
+        <div class="sb-tag">Demo comercial</div>
       </div>
     </div>
-    <div class="panel">
-      <h3>Motivo de las averías</h3>
-      <div class="panel-sub">Sobre <span id="averia-total-label">—</span> unidades averiadas relevadas</div>
-      <div class="chart-wrap"><canvas id="chart-averia"></canvas></div>
+  </div>
+  <div class="sb-live">
+    <span class="live-dot on" id="live-dot"></span>
+    <span id="live-txt">Datos en vivo</span>
+  </div>
+  <div class="sb-nav">
+    <div class="sb-sect">Visión general</div>
+    <div class="ni active" data-p="resumen" onclick="goPage('resumen',this)"><i class="fas fa-chart-pie"></i>Resumen</div>
+    <div class="sb-sect">Disponibilidad</div>
+    <div class="ni" data-p="disponibilidad" onclick="goPage('disponibilidad',this)"><i class="fas fa-boxes-stacked"></i>Quiebres de stock</div>
+    <div class="ni" data-p="oportunidad" onclick="goPage('oportunidad',this)"><i class="fas fa-tags"></i>Oportunidad comercial<span class="ni-badge acc" id="nb-venc">0</span></div>
+    <div class="sb-sect">Ejecución</div>
+    <div class="ni" data-p="ejecucion" onclick="goPage('ejecucion',this)"><i class="fas fa-clipboard-check"></i>Trade &amp; POP</div>
+    <div class="ni" data-p="cadenas" onclick="goPage('cadenas',this)"><i class="fas fa-ranking-star"></i>Ranking de cadenas</div>
+    <div class="sb-sect">Campo</div>
+    <div class="ni" data-p="campo" onclick="goPage('campo',this)"><i class="fas fa-route"></i>Productividad</div>
+  </div>
+  <div class="sb-bottom">
+    <div class="sb-upd" id="sb-upd"></div>
+    <button class="rb-btn" onclick="location.reload()"><i class="fas fa-sync-alt"></i>Actualizar ahora</button>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="tb-title" id="tb-title">Resumen</div>
+      <div class="tb-sub">+Marka · Panel comercial demo · Mayo – Julio 2026</div>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:16px;align-items:center">
+      <div class="theme-btn" onclick="document.body.classList.toggle('light')" title="Cambiar tema"><i class="fas fa-sun"></i></div>
     </div>
   </div>
+  <div class="content" id="content">
 
-  <div class="insight sev-green">
-    <div class="stamp">Acción sugerida</div>
-    <div class="body" id="insight-vencimientos"></div>
-  </div>
-</section>
-
-<section class="block" id="ejecucion">
-  <div class="block-head">
-    <div class="block-kicker">03 · Ejecución en punto de venta</div>
-    <h2>Cómo se ve la góndola cuando nadie de marketing está mirando</h2>
-    <p>Planograma, material POP y presión de la competencia — la parte de la operación que normalmente solo se ve cuando ya generó un reclamo.</p>
-  </div>
-
-  <div class="grid-2">
-    <div class="panel">
-      <h3>Cumplimiento de planograma por cadena</h3>
-      <div class="panel-sub">Promedio de auditorías, de menor a mayor</div>
-      <div class="chart-wrap"><canvas id="chart-planograma-cadena"></canvas></div>
+    <!-- ===================== RESUMEN ===================== -->
+    <div class="page active" data-page="resumen">
+      <div class="kpi-grid">
+        <div class="kpi t-er"><div class="kpi-lbl">Disponibilidad (OSA)</div><div class="kpi-val" id="k-osa">—%</div><div class="kpi-sub" id="k-osa-sub">quiebre góndola + total</div></div>
+        <div class="kpi t-wa"><div class="kpi-lbl">Cumplimiento planograma</div><div class="kpi-val" id="k-plano">—%</div><div class="kpi-sub">promedio de auditorías</div></div>
+        <div class="kpi t-ok"><div class="kpi-lbl">Cobertura de visitas</div><div class="kpi-val" id="k-cobertura">—%</div><div class="kpi-sub" id="k-ausentismo-sub">ausentismo del equipo</div></div>
+        <div class="kpi t-acc"><div class="kpi-lbl">Material POP con problema</div><div class="kpi-val" id="k-pop">—%</div><div class="kpi-sub">dañado, desactualizado o faltante</div></div>
+      </div>
+      <div class="card card-p">
+        <div class="card-hdr"><div class="card-title">Tendencia trimestral</div><div class="card-sub">OSA, cobertura y planograma — mayo a julio</div></div>
+        <div class="chart-h-lg"><canvas id="chart-tendencia"></canvas></div>
+      </div>
+      <div class="alert acc"><i class="fas fa-circle-info"></i><div id="insight-resumen">Cargando…</div></div>
     </div>
-    <div class="panel">
-      <h3>Estado del material POP</h3>
-      <div class="panel-sub">Sobre el total de auditorías realizadas</div>
-      <div class="chart-wrap"><canvas id="chart-pop"></canvas></div>
+
+    <!-- ===================== DISPONIBILIDAD ===================== -->
+    <div class="page" data-page="disponibilidad">
+      <div class="grid-2">
+        <div class="card card-p">
+          <div class="card-hdr"><div class="card-title">OSA % por categoría</div><div class="card-sub">Porcentaje de relevamientos con producto disponible</div></div>
+          <div class="chart-h"><canvas id="chart-osa-categoria"></canvas></div>
+        </div>
+        <div class="card card-p">
+          <div class="card-hdr"><div class="card-title">OSA % por cadena</div><div class="card-sub">De menor a mayor disponibilidad</div></div>
+          <div class="chart-h"><canvas id="chart-osa-cadena"></canvas></div>
+        </div>
+      </div>
+      <div class="card card-p">
+        <div class="card-hdr"><div class="card-title">SKUs con mayor problema de disponibilidad</div><div class="card-sub">Productos con muestra suficiente (≥4 relevamientos)</div></div>
+        <div class="chart-h-lg"><canvas id="chart-skus-quiebre"></canvas></div>
+      </div>
+      <div class="alert er"><i class="fas fa-triangle-exclamation"></i><div id="insight-osa"></div></div>
     </div>
-  </div>
 
-  <div class="grid-2" style="margin-top:20px;">
-    <div class="panel">
-      <h3>SKUs con mayor problema de disponibilidad</h3>
-      <div class="panel-sub">Productos con muestra suficiente (≥4 relevamientos)</div>
-      <div class="chart-wrap"><canvas id="chart-skus-quiebre"></canvas></div>
+    <!-- ===================== OPORTUNIDAD ===================== -->
+    <div class="page" data-page="oportunidad">
+      <div class="kpi-grid-3">
+        <div class="kpi t-acc"><div class="kpi-lbl">Unidades próximas a vencer</div><div class="kpi-val" id="k-venc-unidades">—</div><div class="kpi-sub" id="k-venc-registros">en — relevamientos</div></div>
+        <div class="kpi t-er"><div class="kpi-lbl">Valor comercial en riesgo</div><div class="kpi-val" id="k-venc-valor">Gs. —</div><div class="kpi-sub">si no se acciona antes del vencimiento</div></div>
+        <div class="kpi t-wa"><div class="kpi-lbl">Unidades averiadas</div><div class="kpi-val" id="k-averia-unidades">—</div><div class="kpi-sub" id="k-averia-registros">en — relevamientos</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="tw">
+          <div class="tf"><div class="card-title">Top 10 oportunidades por valor en riesgo</div></div>
+          <table>
+            <thead><tr><th>Local</th><th>Producto</th><th>Unid.</th><th>Vence</th><th>Valor (Gs.)</th><th>Acción</th></tr></thead>
+            <tbody id="tabla-oportunidades"></tbody>
+          </table>
+        </div>
+        <div class="card card-p">
+          <div class="card-hdr"><div class="card-title">Motivo de las averías</div><div class="card-sub">Sobre <span id="averia-total-label">—</span> unidades averiadas</div></div>
+          <div class="chart-h"><canvas id="chart-averia"></canvas></div>
+        </div>
+      </div>
+      <div class="alert acc"><i class="fas fa-lightbulb"></i><div id="insight-vencimientos"></div></div>
     </div>
-    <div class="panel">
-      <h3>Presencia de la competencia</h3>
-      <div class="panel-sub">Menciones en góndola durante las auditorías</div>
-      <div class="chart-wrap"><canvas id="chart-competencia"></canvas></div>
+
+    <!-- ===================== EJECUCION ===================== -->
+    <div class="page" data-page="ejecucion">
+      <div class="grid-2">
+        <div class="card card-p">
+          <div class="card-hdr"><div class="card-title">Cumplimiento de planograma por cadena</div><div class="card-sub">Promedio de auditorías, de menor a mayor</div></div>
+          <div class="chart-h"><canvas id="chart-planograma-cadena"></canvas></div>
+        </div>
+        <div class="card card-p">
+          <div class="card-hdr"><div class="card-title">Estado del material POP</div><div class="card-sub">Sobre el total de auditorías</div></div>
+          <div class="chart-h"><canvas id="chart-pop"></canvas></div>
+        </div>
+      </div>
+      <div class="card card-p">
+        <div class="card-hdr"><div class="card-title">Presencia de la competencia</div><div class="card-sub">Menciones en góndola durante las auditorías</div></div>
+        <div class="chart-h"><canvas id="chart-competencia"></canvas></div>
+      </div>
+      <div class="alert wa"><i class="fas fa-clipboard-list"></i><div id="insight-pop"></div></div>
     </div>
-  </div>
 
-  <div class="insight sev-amber">
-    <div class="stamp">Acción sugerida</div>
-    <div class="body" id="insight-pop"></div>
-  </div>
-</section>
-
-<section class="block" id="campo">
-  <div class="block-head">
-    <div class="block-kicker">04 · Productividad del equipo de campo</div>
-    <h2>La trazabilidad que normalmente no se ve</h2>
-    <p>Quién visitó qué local, cuándo y por cuánto tiempo — la base para gestionar al equipo con datos, no con reportes verbales.</p>
-  </div>
-
-  <div class="grid-3" style="margin-bottom:20px;">
-    <div class="stat-card">
-      <div class="label">Cobertura de visitas promedio</div>
-      <div class="value" id="k-campo-cobertura">—%</div>
+    <!-- ===================== CADENAS ===================== -->
+    <div class="page" data-page="cadenas">
+      <div class="card card-p">
+        <div class="card-hdr"><div class="card-title">Ranking de cadenas</div><div class="card-sub">Score compuesto: OSA + cumplimiento de planograma. De menor a mayor.</div></div>
+        <div id="ranking-cadenas"></div>
+      </div>
     </div>
-    <div class="stat-card">
-      <div class="label">Ausentismo del período</div>
-      <div class="value" id="k-campo-ausentismo">—%</div>
+
+    <!-- ===================== CAMPO ===================== -->
+    <div class="page" data-page="campo">
+      <div class="kpi-grid-3">
+        <div class="kpi t-ok"><div class="kpi-lbl">Cobertura promedio</div><div class="kpi-val" id="k-campo-cobertura">—%</div></div>
+        <div class="kpi t-wa"><div class="kpi-lbl">Ausentismo</div><div class="kpi-val" id="k-campo-ausentismo">—%</div></div>
+        <div class="kpi t-acc"><div class="kpi-lbl">Tiempo promedio por visita</div><div class="kpi-val" id="k-campo-tiempo">— min</div></div>
+      </div>
+      <div class="card card-p">
+        <div class="card-hdr"><div class="card-title">Cobertura promedio por promotor</div><div class="card-sub">De menor a mayor — dónde reforzar acompañamiento primero</div></div>
+        <div class="chart-h-lg"><canvas id="chart-promotores"></canvas></div>
+      </div>
+      <div class="alert ok"><i class="fas fa-user-check"></i><div id="insight-campo"></div></div>
     </div>
-    <div class="stat-card">
-      <div class="label">Tiempo promedio por visita</div>
-      <div class="value" id="k-campo-tiempo">— min</div>
-    </div>
-  </div>
 
-  <div class="panel">
-    <h3>Cobertura promedio por promotor</h3>
-    <div class="panel-sub">De menor a mayor — dónde reforzar acompañamiento primero</div>
-    <div class="chart-wrap tall"><canvas id="chart-promotores"></canvas></div>
   </div>
-
-  <div class="insight sev-green">
-    <div class="stamp">Acción sugerida</div>
-    <div class="body" id="insight-campo"></div>
-  </div>
-</section>
-
-<section class="block" id="cadenas">
-  <div class="block-head">
-    <div class="block-kicker">05 · Ranking de cadenas</div>
-    <h2>Dónde priorizar la próxima ronda de visitas</h2>
-    <p>Score compuesto entre disponibilidad y cumplimiento de planograma. De menor a mayor desempeño.</p>
-  </div>
-  <div class="rank-list" id="ranking-cadenas"></div>
-</section>
-
-<footer id="contacto">
-  <div>
-    <h2>Esta es la visibilidad que su operación no tiene hoy.</h2>
-    <p>+Marka convierte cada visita de campo en datos accionables — y cada dato, en una recomendación comercial concreta. Este panel se actualiza solo, con cada ronda de relevamiento cargada en la planilla.</p>
-  </div>
-  <a class="cta-btn" href="#">Agendar diagnóstico con +Marka</a>
-  <div class="foot-note">
-    <span>+Marka · Field Marketing &amp; Trade Execution</span>
-    <span class="kicker-num" id="foot-timestamp">Panel en vivo</span>
-  </div>
-</footer>
-
+</div>
+</div>
 </div>
 
 <script>
-// ============================================================
-// FUENTES DE DATOS: 6 pestañas publicadas de la misma planilla
-// ============================================================
+function goPage(p, el){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.querySelector(`.page[data-page="${p}"]`).classList.add('active');
+  document.querySelectorAll('.ni').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tb-title').textContent = el.textContent.trim();
+}
+
 const SHEET_URLS = {
   asistencia:   "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhX6oUNCWpHw5eq9bM0BxqiAjSHPsq5JWTxxArdiChZTOrkREjiWbhXS4r2yyoPw/pub?gid=846035120&single=true&output=csv",
   detalle:      "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhX6oUNCWpHw5eq9bM0BxqiAjSHPsq5JWTxxArdiChZTOrkREjiWbhXS4r2yyoPw/pub?gid=2102211601&single=true&output=csv",
@@ -489,68 +303,34 @@ const SHEET_URLS = {
 
 function fetchCSV(url) {
   return new Promise((resolve, reject) => {
-    Papa.parse(url, {
-      download: true,
-      header: true,
-      skipEmptyLines: true,
-      complete: (res) => resolve(res.data),
-      error: (err) => reject(err),
-    });
+    Papa.parse(url, { download: true, header: true, skipEmptyLines: true,
+      complete: (res) => resolve(res.data), error: (err) => reject(err) });
   });
 }
-
-function parseGs(str) {
-  if (!str) return 0;
-  const n = parseInt(String(str).replace(/[^\d]/g, ""), 10);
-  return isNaN(n) ? 0 : n;
-}
-function num(str) {
-  const n = parseFloat(str);
-  return isNaN(n) ? 0 : n;
-}
-function monthOf(fechaStr) {
-  if (!fechaStr) return null;
-  const parts = fechaStr.split("/");
-  if (parts.length < 2) return null;
-  return parseInt(parts[1], 10);
-}
+function parseGs(str) { if (!str) return 0; const n = parseInt(String(str).replace(/[^\d]/g, ""), 10); return isNaN(n) ? 0 : n; }
+function num(str) { const n = parseFloat(str); return isNaN(n) ? 0 : n; }
+function monthOf(fechaStr) { if (!fechaStr) return null; const p = fechaStr.split("/"); return p.length < 2 ? null : parseInt(p[1], 10); }
 function round1(x) { return Math.round(x * 10) / 10; }
 function fmtInt(n) { return new Intl.NumberFormat('es-PY').format(Math.round(n)); }
 function fmtGs(n) { return 'Gs. ' + new Intl.NumberFormat('es-PY').format(Math.round(n)); }
 
 function groupRatio(rows, keyFn, hitFn) {
   const groups = {};
-  rows.forEach(r => {
-    const k = keyFn(r);
-    if (!k) return;
-    if (!groups[k]) groups[k] = { total: 0, hit: 0 };
-    groups[k].total++;
-    if (hitFn(r)) groups[k].hit++;
-  });
+  rows.forEach(r => { const k = keyFn(r); if (!k) return; if (!groups[k]) groups[k] = { total: 0, hit: 0 }; groups[k].total++; if (hitFn(r)) groups[k].hit++; });
   const entries = Object.entries(groups).map(([k, v]) => [k, round1((v.hit / v.total) * 100)]);
   entries.sort((a, b) => a[1] - b[1]);
-  return { labels: entries.map(e => e[0]), values: entries.map(e => e[1]), raw: groups };
+  return { labels: entries.map(e => e[0]), values: entries.map(e => e[1]) };
 }
 function groupAvg(rows, keyFn, valFn) {
   const groups = {};
-  rows.forEach(r => {
-    const k = keyFn(r);
-    if (!k) return;
-    if (!groups[k]) groups[k] = { sum: 0, n: 0 };
-    groups[k].sum += valFn(r);
-    groups[k].n++;
-  });
+  rows.forEach(r => { const k = keyFn(r); if (!k) return; if (!groups[k]) groups[k] = { sum: 0, n: 0 }; groups[k].sum += valFn(r); groups[k].n++; });
   const entries = Object.entries(groups).map(([k, v]) => [k, round1(v.sum / v.n)]);
   entries.sort((a, b) => a[1] - b[1]);
-  return { labels: entries.map(e => e[0]), values: entries.map(e => e[1]), raw: groups };
+  return { labels: entries.map(e => e[0]), values: entries.map(e => e[1]) };
 }
 function groupCount(rows, keyFn) {
   const groups = {};
-  rows.forEach(r => {
-    const k = keyFn(r);
-    if (!k) return;
-    groups[k] = (groups[k] || 0) + 1;
-  });
+  rows.forEach(r => { const k = keyFn(r); if (!k) return; groups[k] = (groups[k] || 0) + 1; });
   const entries = Object.entries(groups).sort((a, b) => b[1] - a[1]);
   return { labels: entries.map(e => e[0]), values: entries.map(e => e[1]) };
 }
@@ -560,245 +340,137 @@ async function buildDashboard() {
   let asistencia, detalle, relevamiento, auditoria, locales, productos;
   try {
     [asistencia, detalle, relevamiento, auditoria, locales, productos] = await Promise.all([
-      fetchCSV(SHEET_URLS.asistencia),
-      fetchCSV(SHEET_URLS.detalle),
-      fetchCSV(SHEET_URLS.relevamiento),
-      fetchCSV(SHEET_URLS.auditoria),
-      fetchCSV(SHEET_URLS.locales),
-      fetchCSV(SHEET_URLS.productos),
+      fetchCSV(SHEET_URLS.asistencia), fetchCSV(SHEET_URLS.detalle), fetchCSV(SHEET_URLS.relevamiento),
+      fetchCSV(SHEET_URLS.auditoria), fetchCSV(SHEET_URLS.locales), fetchCSV(SHEET_URLS.productos),
     ]);
   } catch (err) {
     loadingMsg.textContent = "No se pudieron cargar los datos desde Google Sheets.";
-    const errBox = document.createElement("div");
-    errBox.className = "err";
-    errBox.textContent = "Verificá que las 6 pestañas sigan publicadas en la web (Archivo > Compartir > Publicar en la web) y que los links no hayan cambiado.\n\n" + err;
+    const errBox = document.createElement("div"); errBox.className = "err";
+    errBox.textContent = "Verificá que las 6 pestañas sigan publicadas en la web y que los links no hayan cambiado.\n\n" + err;
     document.getElementById("loading-screen").appendChild(errBox);
     return;
   }
 
-  // limpiar filas totalmente vacías que a veces trae el CSV publicado
   const clean = (rows) => rows.filter(r => Object.values(r).some(v => v !== "" && v != null));
-  asistencia = clean(asistencia);
-  detalle = clean(detalle);
-  relevamiento = clean(relevamiento);
-  auditoria = clean(auditoria);
-  locales = clean(locales);
-  productos = clean(productos);
+  asistencia = clean(asistencia); detalle = clean(detalle); relevamiento = clean(relevamiento);
+  auditoria = clean(auditoria); locales = clean(locales); productos = clean(productos);
 
-  // ---------------- validación de esquema ----------------
-  // detecta si algún link publicado corresponde a otra pestaña de la
-  // esperada (columnas clave ausentes), para no fallar en silencio.
   const esquemaEsperado = {
-    asistencia: ["ID_Registro", "Locales_Planificados", "Cobertura_%"],
-    detalle: ["ID_Visita", "ID_Registro", "Estado_Visita"],
-    relevamiento: ["ID_Relevamiento", "OSA", "Precio"],
-    auditoria: ["ID_Auditoría", "Cumplimiento_Planograma_%"],
-    locales: ["ID_Local", "Cadena", "Nombre_Local"],
-    productos: ["ID_SKU", "Marca", "Categoría"],
+    asistencia: ["ID_Registro", "Locales_Planificados", "Cobertura_%"], detalle: ["ID_Visita", "ID_Registro", "Estado_Visita"],
+    relevamiento: ["ID_Relevamiento", "OSA", "Precio"], auditoria: ["ID_Auditoría", "Cumplimiento_Planograma_%"],
+    locales: ["ID_Local", "Cadena", "Nombre_Local"], productos: ["ID_SKU", "Marca", "Categoría"],
   };
   const tablas = { asistencia, detalle, relevamiento, auditoria, locales, productos };
   const erroresEsquema = [];
   for (const [nombre, cols] of Object.entries(esquemaEsperado)) {
     const fila = tablas[nombre][0] || {};
     const faltantes = cols.filter(c => !(c in fila));
-    if (faltantes.length) erroresEsquema.push(`"${nombre}" (link de ${nombre}) no tiene las columnas esperadas [${faltantes.join(", ")}] — ¿el link corresponde a otra pestaña?`);
+    if (faltantes.length) erroresEsquema.push(`"${nombre}" no tiene las columnas esperadas [${faltantes.join(", ")}] — ¿el link corresponde a otra pestaña?`);
   }
   if (erroresEsquema.length) {
     loadingMsg.textContent = "Los links no coinciden con las tablas esperadas.";
-    const errBox = document.createElement("div");
-    errBox.className = "err";
-    errBox.textContent = erroresEsquema.join("\n");
+    const errBox = document.createElement("div"); errBox.className = "err"; errBox.textContent = erroresEsquema.join("\n");
     document.getElementById("loading-screen").appendChild(errBox);
     return;
   }
 
-  const localMap = {};
-  locales.forEach(l => { localMap[l.ID_Local] = l; });
+  const localMap = {}; locales.forEach(l => { localMap[l.ID_Local] = l; });
 
-  // ---------------- KPIs generales ----------------
   const totalRele = relevamiento.length;
   const osaDisp = relevamiento.filter(r => r.OSA === "Disponible").length;
   const osaQG = relevamiento.filter(r => r.OSA === "Quiebre Góndola").length;
   const osaQT = relevamiento.filter(r => r.OSA === "Quiebre Total").length;
-
-  const coberturaProm = relevamiento.length ? null : null; // placeholder, real calc below
   const coberturaValues = asistencia.map(a => num(a["Cobertura_%"]));
-  const coberturaPromReal = coberturaValues.reduce((a, b) => a + b, 0) / (coberturaValues.length || 1);
+  const coberturaProm = coberturaValues.reduce((a, b) => a + b, 0) / (coberturaValues.length || 1);
   const ausentes = asistencia.filter(a => a.Estado_Asistencia === "Ausente").length;
-
   const planoValues = auditoria.map(a => num(a["Cumplimiento_Planograma_%"]));
   const planoProm = planoValues.reduce((a, b) => a + b, 0) / (planoValues.length || 1);
-  const shelfValues = auditoria.map(a => num(a["Share_of_Shelf_%"]));
-  const shelfProm = shelfValues.reduce((a, b) => a + b, 0) / (shelfValues.length || 1);
-
   const popProblemas = auditoria.filter(a => ["Instalado - Dañado", "Instalado - Desactualizado", "No instalado"].includes(a.Estado_POP)).length;
-
-  const precioValues = relevamiento.map(r => parseGs(r.Precio));
-  const precioProm = precioValues.reduce((a, b) => a + b, 0) / (precioValues.length || 1);
-  const ofertasActivas = relevamiento.filter(r => r.Oferta === "Sí").length;
-
   const visitasRealizadas = detalle.filter(d => d.Estado_Visita === "Realizada");
   const tiempoValues = visitasRealizadas.map(d => num(d["Duración_Minutos"])).filter(v => v > 0);
   const tiempoProm = tiempoValues.reduce((a, b) => a + b, 0) / (tiempoValues.length || 1);
 
-  const promotoresDistintos = new Set(asistencia.map(a => a.ID_Promotor)).size;
-
   const kpis = {
-    osa_disponible: round1((osaDisp / totalRele) * 100),
-    osa_quiebre_gondola: round1((osaQG / totalRele) * 100),
-    osa_quiebre_total: round1((osaQT / totalRele) * 100),
-    cobertura_prom: round1(coberturaPromReal),
-    ausentismo: round1((ausentes / (asistencia.length || 1)) * 100),
-    planograma_prom: round1(planoProm),
-    share_of_shelf_prom: round1(shelfProm),
-    pop_problema: round1((popProblemas / (auditoria.length || 1)) * 100),
-    precio_promedio: Math.round(precioProm),
-    ofertas_activas_pct: round1((ofertasActivas / totalRele) * 100),
-    tiempo_prom_visita: round1(tiempoProm),
-    total_locales: locales.length,
-    total_skus: productos.length,
-    total_promotores: promotoresDistintos,
-    total_relevamientos: totalRele,
+    osa_disponible: round1((osaDisp / totalRele) * 100), osa_quiebre_gondola: round1((osaQG / totalRele) * 100), osa_quiebre_total: round1((osaQT / totalRele) * 100),
+    cobertura_prom: round1(coberturaProm), ausentismo: round1((ausentes / (asistencia.length || 1)) * 100),
+    planograma_prom: round1(planoProm), pop_problema: round1((popProblemas / (auditoria.length || 1)) * 100), tiempo_prom_visita: round1(tiempoProm),
   };
 
-  // ---------------- OSA por categoría / cadena ----------------
   const osaCategoria = groupRatio(relevamiento, r => r.Categoría, r => r.OSA === "Disponible");
   const osaCadena = groupRatio(relevamiento, r => (localMap[r.ID_Local] || {}).Cadena, r => r.OSA === "Disponible");
-
-  // ---------------- Planograma por cadena ----------------
   const planoCadena = groupAvg(auditoria, a => (localMap[a.ID_Local] || {}).Cadena, a => num(a["Cumplimiento_Planograma_%"]));
 
-  // ---------------- Tendencia mensual ----------------
-  const MESES = { 5: "Mayo", 6: "Junio", 7: "Julio" };
-  const mesesOrd = [5, 6, 7];
+  const MESES = { 5: "Mayo", 6: "Junio", 7: "Julio" }; const mesesOrd = [5, 6, 7];
   const tendencia = {
     labels: mesesOrd.map(m => MESES[m]),
-    osa: mesesOrd.map(m => {
-      const subset = relevamiento.filter(r => monthOf(r.Fecha) === m);
-      const disp = subset.filter(r => r.OSA === "Disponible").length;
-      return subset.length ? round1((disp / subset.length) * 100) : 0;
-    }),
-    cobertura: mesesOrd.map(m => {
-      const subset = asistencia.filter(a => monthOf(a.Fecha) === m).map(a => num(a["Cobertura_%"]));
-      return subset.length ? round1(subset.reduce((a, b) => a + b, 0) / subset.length) : 0;
-    }),
-    planograma: mesesOrd.map(m => {
-      const subset = auditoria.filter(a => monthOf(a.Fecha) === m).map(a => num(a["Cumplimiento_Planograma_%"]));
-      return subset.length ? round1(subset.reduce((a, b) => a + b, 0) / subset.length) : 0;
-    }),
+    osa: mesesOrd.map(m => { const s = relevamiento.filter(r => monthOf(r.Fecha) === m); const d = s.filter(r => r.OSA === "Disponible").length; return s.length ? round1((d / s.length) * 100) : 0; }),
+    cobertura: mesesOrd.map(m => { const s = asistencia.filter(a => monthOf(a.Fecha) === m).map(a => num(a["Cobertura_%"])); return s.length ? round1(s.reduce((a, b) => a + b, 0) / s.length) : 0; }),
+    planograma: mesesOrd.map(m => { const s = auditoria.filter(a => monthOf(a.Fecha) === m).map(a => num(a["Cumplimiento_Planograma_%"])); return s.length ? round1(s.reduce((a, b) => a + b, 0) / s.length) : 0; }),
   };
 
-  // ---------------- Estado POP ----------------
   const popEstado = groupCount(auditoria, a => a.Estado_POP);
-
-  // ---------------- Motivo de avería ----------------
   const motivoAveria = groupCount(relevamiento.filter(r => num(r.Unidades_Averiadas) > 0), r => r.Motivo_Averia);
-
-  // ---------------- Vencimientos y oportunidad comercial ----------------
   const proximos = relevamiento.filter(r => r["Próximos_a_Vencer"] === "Sí");
   const unidadesTotales = proximos.reduce((a, r) => a + num(r.Unidades_Por_Vencer), 0);
   const valorEnRiesgo = proximos.reduce((a, r) => a + num(r.Unidades_Por_Vencer) * parseGs(r.Precio), 0);
   const unidadesAveriadasTotales = relevamiento.reduce((a, r) => a + num(r.Unidades_Averiadas), 0);
   const registrosConAveria = relevamiento.filter(r => num(r.Unidades_Averiadas) > 0).length;
 
-  const topOportunidades = proximos
-    .map(r => ({
-      local: r.Nombre_Local, marca: r.Marca, producto: r.Producto,
-      unidades: num(r.Unidades_Por_Vencer), vence: r.Fecha_Vencimiento,
-      valor: num(r.Unidades_Por_Vencer) * parseGs(r.Precio),
-    }))
-    .sort((a, b) => b.valor - a.valor)
-    .slice(0, 10)
-    .map(o => {
-      let accion;
-      if (o.unidades >= 15) accion = "2x1 o combo promocional";
-      else if (o.unidades >= 8) accion = "Descuento + reubicación en punta de góndola";
-      else accion = "Reubicar en zona de alta circulación";
-      return { ...o, accion };
-    });
+  const topOportunidades = proximos.map(r => ({ local: r.Nombre_Local, marca: r.Marca, producto: r.Producto, unidades: num(r.Unidades_Por_Vencer), vence: r.Fecha_Vencimiento, valor: num(r.Unidades_Por_Vencer) * parseGs(r.Precio) }))
+    .sort((a, b) => b.valor - a.valor).slice(0, 10)
+    .map(o => { let accion; if (o.unidades >= 15) accion = "2x1 o combo"; else if (o.unidades >= 8) accion = "Descuento + punta de góndola"; else accion = "Reubicar en zona alta"; return { ...o, accion }; });
 
-  // ---------------- Ranking de promotores ----------------
   const rankingPromotores = groupAvg(asistencia, a => a.Nombre_Promotor, a => num(a["Cobertura_%"]));
 
-  // ---------------- Top SKUs con peor OSA (n>=4) ----------------
   const skuGroups = {};
-  relevamiento.forEach(r => {
-    const k = r.ID_SKU;
-    if (!skuGroups[k]) skuGroups[k] = { marca: r.Marca, producto: r.Producto, n: 0, disp: 0 };
-    skuGroups[k].n++;
-    if (r.OSA === "Disponible") skuGroups[k].disp++;
-  });
-  const topSkusQuiebre = Object.values(skuGroups)
-    .filter(s => s.n >= 4)
-    .map(s => ({ Marca: s.marca, Producto: s.producto, osa: round1((s.disp / s.n) * 100) }))
-    .sort((a, b) => a.osa - b.osa)
-    .slice(0, 8);
+  relevamiento.forEach(r => { const k = r.ID_SKU; if (!skuGroups[k]) skuGroups[k] = { marca: r.Marca, producto: r.Producto, n: 0, disp: 0 }; skuGroups[k].n++; if (r.OSA === "Disponible") skuGroups[k].disp++; });
+  const topSkusQuiebre = Object.values(skuGroups).filter(s => s.n >= 4).map(s => ({ Marca: s.marca, Producto: s.producto, osa: round1((s.disp / s.n) * 100) })).sort((a, b) => a.osa - b.osa).slice(0, 8);
 
-  // ---------------- Competencia ----------------
   const competencia = groupCount(auditoria, a => a.Marca_Competencia);
 
-  // ---------------- Ranking de cadenas ----------------
   const osaCadenaMap = {}; osaCadena.labels.forEach((l, i) => osaCadenaMap[l] = osaCadena.values[i]);
   const planoCadenaMap = {}; planoCadena.labels.forEach((l, i) => planoCadenaMap[l] = planoCadena.values[i]);
   const cadenasUnicas = [...new Set(locales.map(l => l.Cadena))];
-  const rankingCadenas = cadenasUnicas
-    .filter(c => osaCadenaMap[c] != null && planoCadenaMap[c] != null)
+  const rankingCadenas = cadenasUnicas.filter(c => osaCadenaMap[c] != null && planoCadenaMap[c] != null)
     .map(c => ({ cadena: c, osa: osaCadenaMap[c], planograma: planoCadenaMap[c], score: round1((osaCadenaMap[c] + planoCadenaMap[c]) / 2) }))
     .sort((a, b) => a.score - b.score);
 
-  // ============================================================
-  // RENDER
-  // ============================================================
-  document.getElementById("hero-skus").textContent = kpis.total_skus;
-  document.getElementById("hero-locales").textContent = kpis.total_locales;
-  document.getElementById("hero-promotores").textContent = kpis.total_promotores;
-
+  // ---------------- RENDER ----------------
   document.getElementById("k-osa").textContent = kpis.osa_disponible + "%";
-  document.getElementById("k-osa-sub").textContent = (kpis.osa_quiebre_gondola + kpis.osa_quiebre_total).toFixed(1) + "% de los relevamientos con quiebre";
+  document.getElementById("k-osa-sub").textContent = (kpis.osa_quiebre_gondola + kpis.osa_quiebre_total).toFixed(1) + "% con quiebre";
   document.getElementById("k-plano").textContent = kpis.planograma_prom + "%";
   document.getElementById("k-cobertura").textContent = kpis.cobertura_prom + "%";
   document.getElementById("k-ausentismo-sub").textContent = kpis.ausentismo + "% de ausentismo";
   document.getElementById("k-pop").textContent = kpis.pop_problema + "%";
+  document.getElementById("nb-venc").textContent = proximos.length;
 
-  Chart.defaults.font.family = "'Inter', sans-serif";
-  Chart.defaults.color = "#8993AC";
-  Chart.defaults.borderColor = "#232B44";
-  const GOLD = "#D4A24C", GREEN = "#34D399", AMBER = "#FBBF24", RED = "#F87171", BLUE = "#7DA6FF";
-  const gridOpt = () => ({ grid: { color: "#1B2338", drawTicks: false }, ticks: { color: "#8993AC", font: { size: 11 } } });
-  const colorForValue = (v, good = 80, warn = 65) => (v >= good ? GREEN : v >= warn ? AMBER : RED);
-
-  new Chart(document.getElementById("chart-osa-categoria"), {
-    type: "bar",
-    data: { labels: osaCategoria.labels, datasets: [{ data: osaCategoria.values, backgroundColor: osaCategoria.values.map(v => colorForValue(v)), borderRadius: 6, maxBarThickness: 34 }] },
-    options: { indexAxis: "y", plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.parsed.x + "% disponible" } } }, scales: { x: { min: 0, max: 100, ...gridOpt() }, y: { grid: { display: false }, ticks: { color: "#EDF1F7", font: { size: 12 } } } } },
-  });
-
-  new Chart(document.getElementById("chart-osa-cadena"), {
-    type: "bar",
-    data: { labels: osaCadena.labels, datasets: [{ data: osaCadena.values, backgroundColor: osaCadena.values.map(v => colorForValue(v)), borderRadius: 6, maxBarThickness: 34 }] },
-    options: { indexAxis: "y", plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.parsed.x + "% disponible" } } }, scales: { x: { min: 0, max: 100, ...gridOpt() }, y: { grid: { display: false }, ticks: { color: "#EDF1F7", font: { size: 12 } } } } },
-  });
+  Chart.defaults.font.family = "'Outfit', sans-serif"; Chart.defaults.color = "#9c9494"; Chart.defaults.borderColor = "#262222";
+  const ACC = "#d4a24c", OK = "#3cb3a8", WA = "#e8a045", ER = "#e8815f", BL = "#5b9bd5", GREY = "#4b4444";
+  const gridOpt = () => ({ grid: { color: "#262222", drawTicks: false }, ticks: { color: "#9c9494", font: { size: 11 } } });
+  const colorForValue = (v, good = 80, warn = 65) => (v >= good ? OK : v >= warn ? WA : ER);
 
   new Chart(document.getElementById("chart-tendencia"), {
     type: "line",
-    data: {
-      labels: tendencia.labels,
-      datasets: [
-        { label: "OSA %", data: tendencia.osa, borderColor: GOLD, backgroundColor: "rgba(212,162,76,.12)", tension: .35, fill: true, pointRadius: 4, pointBackgroundColor: GOLD },
-        { label: "Cobertura %", data: tendencia.cobertura, borderColor: GREEN, backgroundColor: "transparent", tension: .35, pointRadius: 4, pointBackgroundColor: GREEN },
-        { label: "Planograma %", data: tendencia.planograma, borderColor: BLUE, backgroundColor: "transparent", tension: .35, pointRadius: 4, pointBackgroundColor: BLUE },
-      ],
-    },
-    options: { plugins: { legend: { position: "top", align: "end", labels: { boxWidth: 10, boxHeight: 10, usePointStyle: true, color: "#8993AC", font: { size: 11.5 } } } }, scales: { y: { min: 0, max: 100, ...gridOpt() }, x: { grid: { display: false }, ticks: { color: "#8993AC" } } } },
+    data: { labels: tendencia.labels, datasets: [
+      { label: "OSA %", data: tendencia.osa, borderColor: ACC, backgroundColor: "rgba(212,162,76,.12)", tension: .35, fill: true, pointRadius: 4, pointBackgroundColor: ACC },
+      { label: "Cobertura %", data: tendencia.cobertura, borderColor: OK, backgroundColor: "transparent", tension: .35, pointRadius: 4, pointBackgroundColor: OK },
+      { label: "Planograma %", data: tendencia.planograma, borderColor: BL, backgroundColor: "transparent", tension: .35, pointRadius: 4, pointBackgroundColor: BL },
+    ]},
+    options: { plugins: { legend: { position: "top", align: "end", labels: { boxWidth: 10, boxHeight: 10, usePointStyle: true, color: "#9c9494", font: { size: 11.5 } } } }, scales: { y: { min: 0, max: 100, ...gridOpt() }, x: { grid: { display: false }, ticks: { color: "#9c9494" } } } },
   });
 
-  if (osaCategoria.values.length) {
+  if (tendencia.osa.length) {
     const idx = osaCategoria.values.indexOf(Math.min(...osaCategoria.values));
-    document.getElementById("insight-osa-categoria").innerHTML = `<p><strong>${osaCategoria.labels[idx]}</strong> es la categoría con menor disponibilidad (${osaCategoria.values[idx]}%), por debajo del promedio general (${kpis.osa_disponible}%). Priorizar frecuencia de reposición en esta categoría antes que en el resto del portafolio — es donde cada visita adicional rinde más.</p>`;
+    document.getElementById("insight-resumen").innerHTML = `<strong>${osaCategoria.labels[idx] || "—"}</strong> es la categoría con menor disponibilidad (${osaCategoria.values[idx] || 0}%). El cumplimiento de planograma promedio es ${kpis.planograma_prom}% y el ausentismo del equipo ${kpis.ausentismo}% — estas tres cifras juntas marcan dónde priorizar el próximo ciclo de visitas.`;
   }
+
+  new Chart(document.getElementById("chart-osa-categoria"), { type: "bar", data: { labels: osaCategoria.labels, datasets: [{ data: osaCategoria.values, backgroundColor: osaCategoria.values.map(v => colorForValue(v)), borderRadius: 6, maxBarThickness: 30 }] }, options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { min: 0, max: 100, ...gridOpt() }, y: { grid: { display: false }, ticks: { color: "#f2eeee", font: { size: 11.5 } } } } } });
+  new Chart(document.getElementById("chart-osa-cadena"), { type: "bar", data: { labels: osaCadena.labels, datasets: [{ data: osaCadena.values, backgroundColor: osaCadena.values.map(v => colorForValue(v)), borderRadius: 6, maxBarThickness: 30 }] }, options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { min: 0, max: 100, ...gridOpt() }, y: { grid: { display: false }, ticks: { color: "#f2eeee", font: { size: 11.5 } } } } } });
+  new Chart(document.getElementById("chart-skus-quiebre"), { type: "bar", data: { labels: topSkusQuiebre.map(s => s.Marca + " · " + s.Producto), datasets: [{ data: topSkusQuiebre.map(s => s.osa), backgroundColor: ER, borderRadius: 6, maxBarThickness: 22 }] }, options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { min: 0, max: 100, ...gridOpt() }, y: { grid: { display: false }, ticks: { color: "#f2eeee", font: { size: 10.5 } } } } } });
+
   if (osaCadena.values.length) {
     const idx = osaCadena.values.indexOf(Math.min(...osaCadena.values));
-    document.getElementById("insight-osa-cadena").innerHTML = `<p><strong>${osaCadena.labels[idx]}</strong> tiene la disponibilidad más baja de todas las cadenas (${osaCadena.values[idx]}%). Antes de sumar más puntos de venta, conviene estabilizar esta cadena: ahí es donde más se está perdiendo venta hoy.</p>`;
+    document.getElementById("insight-osa").innerHTML = `<strong>${osaCadena.labels[idx]}</strong> tiene la disponibilidad más baja de todas las cadenas (${osaCadena.values[idx]}%), por debajo del promedio general (${kpis.osa_disponible}%). Priorizar frecuencia de reposición ahí antes de sumar más puntos de venta.`;
   }
 
   document.getElementById("k-venc-unidades").textContent = fmtInt(unidadesTotales);
@@ -809,80 +481,37 @@ async function buildDashboard() {
   document.getElementById("averia-total-label").textContent = fmtInt(unidadesAveriadasTotales);
 
   const tbody = document.getElementById("tabla-oportunidades");
-  topOportunidades.forEach(o => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${o.local}</td><td>${o.marca} — ${o.producto}</td><td class="num">${o.unidades}</td><td class="num">${o.vence}</td><td class="num">${fmtInt(o.valor)}</td><td><span class="pill pill-action">${o.accion}</span></td>`;
-    tbody.appendChild(tr);
-  });
+  topOportunidades.forEach(o => { const tr = document.createElement("tr"); tr.innerHTML = `<td>${o.local}</td><td>${o.marca} — ${o.producto}</td><td>${o.unidades}</td><td>${o.vence}</td><td>${fmtInt(o.valor)}</td><td><span class="pill acc">${o.accion}</span></td>`; tbody.appendChild(tr); });
 
-  new Chart(document.getElementById("chart-averia"), {
-    type: "doughnut",
-    data: { labels: motivoAveria.labels, datasets: [{ data: motivoAveria.values, backgroundColor: [GOLD, GREEN, AMBER, RED, BLUE], borderColor: "#121729", borderWidth: 2 }] },
-    options: { cutout: "62%", plugins: { legend: { position: "bottom", labels: { boxWidth: 9, boxHeight: 9, color: "#8993AC", font: { size: 10.5 }, padding: 12 } } } },
-  });
+  new Chart(document.getElementById("chart-averia"), { type: "doughnut", data: { labels: motivoAveria.labels, datasets: [{ data: motivoAveria.values, backgroundColor: [ACC, OK, WA, ER, BL], borderColor: "#161414", borderWidth: 2 }] }, options: { cutout: "62%", plugins: { legend: { position: "bottom", labels: { boxWidth: 9, boxHeight: 9, color: "#9c9494", font: { size: 10 }, padding: 10 } } } } });
 
-  document.getElementById("insight-vencimientos").innerHTML = `<p>Hay <strong>${fmtInt(unidadesTotales)} unidades</strong> por vencer con un valor comercial de <strong>${fmtGs(valorEnRiesgo)}</strong> todavía en juego. Activar promociones dirigidas (2x1, combos, descuentos) sobre los ítems de la tabla antes de su fecha de vencimiento puede recuperar la mayor parte de ese valor en vez de perderlo como merma.</p>`;
+  document.getElementById("insight-vencimientos").innerHTML = `Hay <strong>${fmtInt(unidadesTotales)} unidades</strong> por vencer con un valor comercial de <strong>${fmtGs(valorEnRiesgo)}</strong> todavía en juego. Activar promociones dirigidas sobre los ítems de la tabla antes de su vencimiento puede recuperar la mayor parte de ese valor.`;
 
-  new Chart(document.getElementById("chart-planograma-cadena"), {
-    type: "bar",
-    data: { labels: planoCadena.labels, datasets: [{ data: planoCadena.values, backgroundColor: planoCadena.values.map(v => colorForValue(v, 80, 70)), borderRadius: 6, maxBarThickness: 34 }] },
-    options: { indexAxis: "y", plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.parsed.x + "% cumplimiento" } } }, scales: { x: { min: 0, max: 100, ...gridOpt() }, y: { grid: { display: false }, ticks: { color: "#EDF1F7", font: { size: 12 } } } } },
-  });
+  new Chart(document.getElementById("chart-planograma-cadena"), { type: "bar", data: { labels: planoCadena.labels, datasets: [{ data: planoCadena.values, backgroundColor: planoCadena.values.map(v => colorForValue(v, 80, 70)), borderRadius: 6, maxBarThickness: 30 }] }, options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { min: 0, max: 100, ...gridOpt() }, y: { grid: { display: false }, ticks: { color: "#f2eeee", font: { size: 11.5 } } } } } });
+  new Chart(document.getElementById("chart-pop"), { type: "doughnut", data: { labels: popEstado.labels, datasets: [{ data: popEstado.values, backgroundColor: [OK, WA, ER, GREY], borderColor: "#161414", borderWidth: 2 }] }, options: { cutout: "62%", plugins: { legend: { position: "bottom", labels: { boxWidth: 9, boxHeight: 9, color: "#9c9494", font: { size: 10 }, padding: 10 } } } } });
+  new Chart(document.getElementById("chart-competencia"), { type: "bar", data: { labels: competencia.labels, datasets: [{ data: competencia.values, backgroundColor: GREY, borderRadius: 6, maxBarThickness: 26 }] }, options: { plugins: { legend: { display: false } }, scales: { y: { ...gridOpt(), beginAtZero: true }, x: { grid: { display: false }, ticks: { color: "#9c9494", font: { size: 10.5 } } } } } });
 
-  new Chart(document.getElementById("chart-pop"), {
-    type: "doughnut",
-    data: { labels: popEstado.labels, datasets: [{ data: popEstado.values, backgroundColor: [GREEN, AMBER, RED, "#4B5673"], borderColor: "#121729", borderWidth: 2 }] },
-    options: { cutout: "62%", plugins: { legend: { position: "bottom", labels: { boxWidth: 9, boxHeight: 9, color: "#8993AC", font: { size: 10.5 }, padding: 12 } } } },
-  });
-
-  new Chart(document.getElementById("chart-skus-quiebre"), {
-    type: "bar",
-    data: { labels: topSkusQuiebre.map(s => s.Marca + " · " + s.Producto), datasets: [{ data: topSkusQuiebre.map(s => s.osa), backgroundColor: RED, borderRadius: 6, maxBarThickness: 24 }] },
-    options: { indexAxis: "y", plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.parsed.x + "% disponible" } } }, scales: { x: { min: 0, max: 100, ...gridOpt() }, y: { grid: { display: false }, ticks: { color: "#EDF1F7", font: { size: 10.5 } } } } },
-  });
-
-  new Chart(document.getElementById("chart-competencia"), {
-    type: "bar",
-    data: { labels: competencia.labels, datasets: [{ data: competencia.values, backgroundColor: "#4B5673", borderRadius: 6, maxBarThickness: 28 }] },
-    options: { plugins: { legend: { display: false } }, scales: { y: { ...gridOpt(), beginAtZero: true }, x: { grid: { display: false }, ticks: { color: "#8993AC", font: { size: 10.5 } } } } },
-  });
-
-  document.getElementById("insight-pop").innerHTML = `<p><strong>${kpis.pop_problema}%</strong> del material POP relevado tiene algún problema (dañado, desactualizado o directamente faltante). Cada punto de exhibición roto es un punto de venta que la competencia puede ocupar primero — conviene incluir el reemplazo de POP como tarea fija de la próxima ronda, no como excepción.</p>`;
+  document.getElementById("insight-pop").innerHTML = `<strong>${kpis.pop_problema}%</strong> del material POP relevado tiene algún problema (dañado, desactualizado o faltante). Incluir su reemplazo como tarea fija de la próxima ronda, no como excepción.`;
 
   document.getElementById("k-campo-cobertura").textContent = kpis.cobertura_prom + "%";
   document.getElementById("k-campo-ausentismo").textContent = kpis.ausentismo + "%";
   document.getElementById("k-campo-tiempo").textContent = kpis.tiempo_prom_visita + " min";
-
-  new Chart(document.getElementById("chart-promotores"), {
-    type: "bar",
-    data: { labels: rankingPromotores.labels, datasets: [{ data: rankingPromotores.values, backgroundColor: rankingPromotores.values.map(v => colorForValue(v, 90, 75)), borderRadius: 6, maxBarThickness: 26 }] },
-    options: { indexAxis: "y", plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.parsed.x + "% cobertura" } } }, scales: { x: { min: 0, max: 100, ...gridOpt() }, y: { grid: { display: false }, ticks: { color: "#EDF1F7", font: { size: 12 } } } } },
-  });
+  new Chart(document.getElementById("chart-promotores"), { type: "bar", data: { labels: rankingPromotores.labels, datasets: [{ data: rankingPromotores.values, backgroundColor: rankingPromotores.values.map(v => colorForValue(v, 90, 75)), borderRadius: 6, maxBarThickness: 24 }] }, options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { min: 0, max: 100, ...gridOpt() }, y: { grid: { display: false }, ticks: { color: "#f2eeee", font: { size: 11.5 } } } } } });
 
   if (rankingPromotores.labels.length >= 2) {
-    document.getElementById("insight-campo").innerHTML = `<p><strong>${rankingPromotores.labels[0]}</strong> y <strong>${rankingPromotores.labels[1]}</strong> tienen la cobertura más baja del equipo (${rankingPromotores.values[0]}% y ${rankingPromotores.values[1]}%). Un acompañamiento puntual — revisar ruta, carga horaria y motivos de ausencia — suele recuperar varios puntos de cobertura sin necesidad de sumar personal nuevo.</p>`;
+    document.getElementById("insight-campo").innerHTML = `<strong>${rankingPromotores.labels[0]}</strong> y <strong>${rankingPromotores.labels[1]}</strong> tienen la cobertura más baja del equipo (${rankingPromotores.values[0]}% y ${rankingPromotores.values[1]}%). Un acompañamiento puntual suele recuperar varios puntos sin sumar personal.`;
   }
 
   const rankWrap = document.getElementById("ranking-cadenas");
   const maxScore = Math.max(...rankingCadenas.map(c => c.score));
   rankingCadenas.forEach((c, i) => {
-    const row = document.createElement("div");
-    row.className = "rank-row";
-    const barColor = colorForValue(c.score, 80, 72);
-    row.innerHTML = `
-      <div class="pos">${String(i + 1).padStart(2, "0")}</div>
-      <div class="name">${c.cadena}</div>
-      <div class="metric">OSA<span class="n">${c.osa}%</span></div>
-      <div class="metric">Planograma<span class="n">${c.planograma}%</span></div>
-      <div class="score" style="color:${barColor}">${c.score}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${(c.score / maxScore * 100).toFixed(1)}%; background:${barColor};"></div></div>
-    `;
+    const row = document.createElement("div"); row.className = "rank-row";
+    const color = colorForValue(c.score, 80, 72);
+    row.innerHTML = `<div class="pos">${String(i + 1).padStart(2, "0")}</div><div class="name">${c.cadena}</div><div class="metric">OSA<b>${c.osa}%</b></div><div class="metric">Planograma<b>${c.planograma}%</b></div><div class="score" style="color:${color}">${c.score}</div>`;
     rankWrap.appendChild(row);
   });
 
-  document.getElementById("refresh-note").textContent = "";
-  document.getElementById("foot-timestamp").textContent = "Actualizado: " + new Date().toLocaleString("es-PY");
-
+  document.getElementById("sb-upd").textContent = "Actualizado: " + new Date().toLocaleString("es-PY");
   document.getElementById("loading-screen").style.display = "none";
   document.getElementById("app").style.display = "block";
 }

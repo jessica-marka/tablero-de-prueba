@@ -123,7 +123,27 @@ tr:hover td{background:rgba(255,255,255,.02)}
 @keyframes rot{to{transform:rotate(360deg)}}
 #loading-screen p{color:var(--tx2);font-size:14px;max-width:420px;}
 #loading-screen .err{color:#e8815f;font-size:12.5px;max-width:560px;white-space:pre-wrap;font-family:monospace;text-align:left;background:var(--bg2);padding:14px;border-radius:var(--r2);border:1px solid var(--bd);}
-#app{display:none;}
+.alert-card{display:flex;gap:14px;background:var(--bg3);border:1px solid var(--bd);border-left:4px solid var(--acc);border-radius:var(--r2);padding:16px 18px;}
+.alert-card.sev-critico{border-left-color:var(--er)}
+.alert-card.sev-atencion{border-left-color:var(--wa)}
+.alert-card.sev-positivo{border-left-color:var(--ok)}
+.alert-card .aic{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;}
+.alert-card.sev-critico .aic{background:var(--er-d);color:#e8815f}
+.alert-card.sev-atencion .aic{background:var(--wa-d);color:var(--wa)}
+.alert-card.sev-positivo .aic{background:var(--ok-d);color:var(--ok)}
+.alert-card .abody{flex:1;min-width:0}
+.alert-card .atitle{font-size:13.5px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.alert-card .adesc{font-size:12.5px;color:var(--tx2);line-height:1.55;margin-bottom:8px;}
+.alert-card .aaction{font-size:12px;background:var(--ad);color:var(--acc2);padding:6px 12px;border-radius:8px;display:inline-flex;align-items:center;gap:6px;}
+.sev-tag{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;padding:2px 8px;border-radius:20px;}
+.sev-tag.critico{background:var(--er-d);color:#e8815f}
+.sev-tag.atencion{background:var(--wa-d);color:var(--wa)}
+.sev-tag.positivo{background:var(--ok-d);color:var(--ok)}
+.exec-summary{font-size:14.5px;line-height:1.75;color:var(--tx)}
+.exec-summary b{color:var(--acc2)}
+.glossary{display:grid;grid-template-columns:repeat(2,1fr);gap:10px 24px;font-size:12px;color:var(--tx2);}
+.glossary b{color:var(--tx);font-size:12.5px;}
+@media(max-width:800px){.glossary{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -151,14 +171,15 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <span id="live-txt">Datos en vivo</span>
   </div>
   <div class="sb-nav">
-    <div class="sb-sect">Visión general</div>
-    <div class="ni active" data-p="resumen" onclick="goPage('resumen',this)"><i class="fas fa-chart-pie"></i>Resumen</div>
+    <div class="sb-sect">Diagnóstico</div>
+    <div class="ni active" data-p="alertas" onclick="goPage('alertas',this)"><i class="fas fa-bell"></i>Alertas y decisiones<span class="ni-badge" id="nb-alertas" style="display:none">0</span></div>
+    <div class="ni" data-p="resumen" onclick="goPage('resumen',this)"><i class="fas fa-chart-pie"></i>Resumen</div>
     <div class="sb-sect">Disponibilidad</div>
     <div class="ni" data-p="disponibilidad" onclick="goPage('disponibilidad',this)"><i class="fas fa-boxes-stacked"></i>Quiebres de stock</div>
     <div class="ni" data-p="oportunidad" onclick="goPage('oportunidad',this)"><i class="fas fa-tags"></i>Oportunidad comercial<span class="ni-badge acc" id="nb-venc">0</span></div>
     <div class="sb-sect">Ejecución</div>
     <div class="ni" data-p="ejecucion" onclick="goPage('ejecucion',this)"><i class="fas fa-clipboard-check"></i>Trade &amp; POP</div>
-    <div class="ni" data-p="cadenas" onclick="goPage('cadenas',this)"><i class="fas fa-ranking-star"></i>Ranking de cadenas</div>
+    <div class="ni" data-p="cadenas" onclick="goPage('cadenas',this)"><i class="fas fa-ranking-star"></i>Ranking de cadenas y locales</div>
     <div class="sb-sect">Campo</div>
     <div class="ni" data-p="campo" onclick="goPage('campo',this)"><i class="fas fa-route"></i>Productividad</div>
   </div>
@@ -171,7 +192,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
 <div class="main">
   <div class="topbar">
     <div>
-      <div class="tb-title" id="tb-title">Resumen</div>
+      <div class="tb-title" id="tb-title">Alertas y decisiones</div>
       <div class="tb-sub">+Marka · Panel comercial demo · Mayo – Julio 2026</div>
     </div>
     <div style="margin-left:auto;display:flex;gap:16px;align-items:center">
@@ -180,8 +201,28 @@ tr:hover td{background:rgba(255,255,255,.02)}
   </div>
   <div class="content" id="content">
 
+    <!-- ===================== ALERTAS (página de entrada) ===================== -->
+    <div class="page active" data-page="alertas">
+      <div class="card card-p">
+        <div class="card-hdr"><div class="card-title"><i class="fas fa-compass" style="color:var(--acc);margin-right:8px;"></i>En una frase, para la gerencia</div></div>
+        <div class="exec-summary" id="exec-summary">Analizando la operación…</div>
+      </div>
+      <div id="alertas-feed" style="display:flex;flex-direction:column;gap:12px;"></div>
+      <div class="card card-p">
+        <div class="card-hdr"><div class="card-title">Glosario rápido</div><div class="card-sub">Para leer el resto del panel sin necesitar conocer los términos técnicos</div></div>
+        <div class="glossary">
+          <div><b>Disponibilidad en góndola (OSA)</b> — de cada 100 visitas a un local, cuántas veces el cliente final encontró el producto en el estante, listo para comprar.</div>
+          <div><b>Quiebre de stock</b> — el producto no está en el estante en ese momento (puede haber en el depósito, o directamente no haber nada).</div>
+          <div><b>Cumplimiento de planograma</b> — qué tan bien está ordenada la góndola según lo acordado con la cadena (ubicación, orden, cantidad de espacio por producto).</div>
+          <div><b>Material POP</b> — carteles, exhibidores y elementos publicitarios en el punto de venta (folletos, colgantes, islas).</div>
+          <div><b>Cobertura de visitas</b> — de los locales que un promotor tenía planificado visitar, cuántos realmente visitó.</div>
+          <div><b>Share of Shelf</b> — qué porcentaje del espacio total de la góndola ocupa el producto frente a la competencia.</div>
+        </div>
+      </div>
+    </div>
+
     <!-- ===================== RESUMEN ===================== -->
-    <div class="page active" data-page="resumen">
+    <div class="page" data-page="resumen">
       <div class="kpi-grid">
         <div class="kpi t-er"><div class="kpi-lbl">Disponibilidad (OSA)</div><div class="kpi-val" id="k-osa">—%</div><div class="kpi-sub" id="k-osa-sub">quiebre góndola + total</div></div>
         <div class="kpi t-wa"><div class="kpi-lbl">Cumplimiento planograma</div><div class="kpi-val" id="k-plano">—%</div><div class="kpi-sub">promedio de auditorías</div></div>
@@ -261,6 +302,17 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <div class="card card-p">
         <div class="card-hdr"><div class="card-title">Ranking de cadenas</div><div class="card-sub">Score compuesto: OSA + cumplimiento de planograma. De menor a mayor.</div></div>
         <div id="ranking-cadenas"></div>
+      </div>
+      <div class="card card-p">
+        <div class="card-hdr"><div class="card-title">Top 8 locales que más necesitan atención</div><div class="card-sub">Los puntos de venta específicos con peor combinación de disponibilidad y planograma — acá es donde conviene mandar al supervisor primero</div></div>
+        <div id="ranking-locales"></div>
+      </div>
+      <div class="card card-p">
+        <div class="card-hdr"><div class="card-title">Diferencias de precio del mismo producto entre cadenas</div><div class="card-sub">Cuando la diferencia supera ~25%, puede ser una señal de guerra de precios o de un error de carga</div></div>
+        <div class="tw"><table>
+          <thead><tr><th>Producto</th><th>Precio más bajo</th><th>Precio más alto</th><th>Diferencia</th></tr></thead>
+          <tbody id="tabla-precios"></tbody>
+        </table></div>
       </div>
     </div>
 
@@ -435,7 +487,150 @@ async function buildDashboard() {
     .map(c => ({ cadena: c, osa: osaCadenaMap[c], planograma: planoCadenaMap[c], score: round1((osaCadenaMap[c] + planoCadenaMap[c]) / 2) }))
     .sort((a, b) => a.score - b.score);
 
+  // ---------------- NUEVO: ranking a nivel de LOCAL (no solo cadena) ----------------
+  const osaLocal = groupRatio(relevamiento, r => r.Nombre_Local, r => r.OSA === "Disponible");
+  const planoLocalRaw = {};
+  auditoria.forEach(a => { const nom = (localMap[a.ID_Local] || {}).Nombre_Local; if (!nom) return; if (!planoLocalRaw[nom]) planoLocalRaw[nom] = { sum: 0, n: 0 }; planoLocalRaw[nom].sum += num(a["Cumplimiento_Planograma_%"]); planoLocalRaw[nom].n++; });
+  const osaLocalMap = {}; osaLocal.labels.forEach((l, i) => osaLocalMap[l] = osaLocal.values[i]);
+  const rankingLocales = Object.keys(osaLocalMap)
+    .filter(nom => planoLocalRaw[nom])
+    .map(nom => {
+      const plano = round1(planoLocalRaw[nom].sum / planoLocalRaw[nom].n);
+      const local = locales.find(l => l.Nombre_Local === nom) || {};
+      return { local: nom, cadena: local.Cadena || "—", ciudad: local.Ciudad || "—", osa: osaLocalMap[nom], planograma: plano, score: round1((osaLocalMap[nom] + plano) / 2) };
+    })
+    .sort((a, b) => a.score - b.score)
+    .slice(0, 8);
+
+  // ---------------- NUEVO: diferencias de precio del mismo SKU entre cadenas (guerra de precios) ----------------
+  const precioPorSku = {};
+  relevamiento.forEach(r => {
+    const k = r.ID_SKU; const cad = (localMap[r.ID_Local] || {}).Cadena; const precio = parseGs(r.Precio);
+    if (!precio || !cad) return;
+    if (!precioPorSku[k]) precioPorSku[k] = { marca: r.Marca, producto: r.Producto, precios: {} };
+    if (!precioPorSku[k].precios[cad] || precio < precioPorSku[k].precios[cad]) precioPorSku[k].precios[cad] = precio;
+  });
+  const variacionPrecios = Object.values(precioPorSku)
+    .map(s => {
+      const vals = Object.values(s.precios);
+      if (vals.length < 2) return null;
+      const min = Math.min(...vals), max = Math.max(...vals);
+      return { producto: s.marca + " — " + s.producto, min, max, diffPct: round1(((max - min) / min) * 100) };
+    })
+    .filter(Boolean)
+    .sort((a, b) => b.diffPct - a.diffPct)
+    .slice(0, 8);
+
+  // ---------------- NUEVO: concentración del riesgo de vencimiento (Pareto) ----------------
+  const oportunidadesOrdenadas = proximos.map(r => num(r.Unidades_Por_Vencer) * parseGs(r.Precio)).sort((a, b) => b - a);
+  let acumulado = 0, nParaMitad = 0;
+  for (let i = 0; i < oportunidadesOrdenadas.length; i++) {
+    acumulado += oportunidadesOrdenadas[i];
+    if (acumulado >= valorEnRiesgo * 0.5 && nParaMitad === 0) nParaMitad = i + 1;
+  }
+
+  // ---------------- NUEVO: correlación cobertura del promotor <-> disponibilidad de su territorio ----------------
+  const promotorTerritorioOsa = {};
+  Object.entries(rankingPromotores.labels.reduce((acc, l, i) => { acc[l] = rankingPromotores.values[i]; return acc; }, {})).forEach(([prom, cobertura]) => {
+    const localesDelProm = new Set(detalle.filter(d => d.Nombre_Promotor === prom && d.Estado_Visita === "Realizada").map(d => d.ID_Local));
+    const releTerritorio = relevamiento.filter(r => localesDelProm.has(r.ID_Local));
+    if (releTerritorio.length < 4) return;
+    const osaTerritorio = round1((releTerritorio.filter(r => r.OSA === "Disponible").length / releTerritorio.length) * 100);
+    promotorTerritorioOsa[prom] = { cobertura, osaTerritorio, n: releTerritorio.length };
+  });
+
+  // ---------------- MOTOR DE ALERTAS ----------------
+  const alertas = [];
+  const deltaOsa = round1(tendencia.osa[2] - tendencia.osa[0]);
+  const deltaPlano = round1(tendencia.planograma[2] - tendencia.planograma[0]);
+
+  if (rankingCadenas.length && rankingCadenas[0].osa < 70) {
+    alertas.push({ sev: "critico", icon: "fa-triangle-exclamation", title: `${rankingCadenas[0].cadena}: el cliente no encuentra el producto casi 1 de cada 3 veces`,
+      desc: `En esta cadena la disponibilidad en góndola es de solo ${rankingCadenas[0].osa}%. Es la peor de todas las cadenas relevadas — cada visita que un cliente hace y no encuentra el producto es una venta que se pierde ahí mismo, sin aviso.`,
+      action: `Priorizar reposición y seguimiento semanal en ${rankingCadenas[0].cadena}` });
+  }
+  if (rankingLocales.length && rankingLocales[0].score < 65) {
+    alertas.push({ sev: "critico", icon: "fa-store-slash", title: `Un local puntual está arrastrando el promedio: ${rankingLocales[0].local}`,
+      desc: `Este local combina baja disponibilidad (${rankingLocales[0].osa}%) y bajo cumplimiento de exhibición (${rankingLocales[0].planograma}%). No es un problema de la cadena en general, es específico de este punto de venta.`,
+      action: `Visita de diagnóstico presencial en ${rankingLocales[0].local}` });
+  }
+  if (deltaOsa <= -5) {
+    alertas.push({ sev: "critico", icon: "fa-arrow-trend-down", title: `La disponibilidad viene empeorando mes a mes`,
+      desc: `En mayo la disponibilidad general era ${tendencia.osa[0]}% y en julio bajó a ${tendencia.osa[2]}% — una caída de ${Math.abs(deltaOsa)} puntos en el trimestre. Si la tendencia sigue, el problema se agrava solo, sin que nadie lo note hasta que ya generó pérdidas grandes.`,
+      action: "Revisar qué cambió operativamente entre mayo y julio (rutas, frecuencia de visita, proveedor)" });
+  } else if (deltaOsa >= 5) {
+    alertas.push({ sev: "positivo", icon: "fa-arrow-trend-up", title: `La disponibilidad viene mejorando mes a mes`,
+      desc: `Pasó de ${tendencia.osa[0]}% en mayo a ${tendencia.osa[2]}% en julio (+${deltaOsa} puntos). Vale la pena identificar qué se hizo distinto para sostenerlo.`,
+      action: "Documentar y repetir lo que funcionó este trimestre" });
+  }
+  if (valorEnRiesgo > 0) {
+    const nivelVenc = valorEnRiesgo > 3000000 ? "critico" : "atencion";
+    alertas.push({ sev: nivelVenc, icon: "fa-clock", title: `Hay ${fmtGs(valorEnRiesgo)} en productos que están por vencerse`,
+      desc: `Son ${fmtInt(unidadesTotales)} unidades repartidas en ${proximos.length} puntos. Lo más eficiente: con solo los primeros ${nParaMitad || "pocos"} productos de la lista de oportunidades ya se cubre la mitad de ese valor — no hace falta accionar sobre todo el listado a la vez.`,
+      action: "Lanzar 2x1 o combos sobre el Top 10 de la sección Oportunidad Comercial esta semana" });
+  }
+  if (kpis.pop_problema >= 35) {
+    alertas.push({ sev: "atencion", icon: "fa-image", title: `Más de 1 de cada 3 exhibiciones tiene un problema visual`,
+      desc: `El ${kpis.pop_problema}% del material publicitario (carteles, exhibidores, folletos) está dañado, desactualizado o directamente no está instalado. Esto afecta la percepción de marca incluso cuando el producto sí está disponible.`,
+      action: "Sumar el reemplazo de material POP como tarea fija de cada visita, no como excepción" });
+  }
+  if (kpis.ausentismo >= 12) {
+    const filasAusente = asistencia.filter(a => a.Estado_Asistencia === "Ausente");
+    const promLocalesPorAusencia = filasAusente.length ? Math.round(filasAusente.reduce((a, r) => a + num(r.Locales_Planificados), 0) / filasAusente.length) : 0;
+    alertas.push({ sev: "atencion", icon: "fa-user-clock", title: `El ausentismo del equipo de campo es alto`,
+      desc: `${kpis.ausentismo}% de las jornadas planificadas terminaron en ausencia del promotor. Cada ausencia deja, en promedio, ${promLocalesPorAusencia} locales sin visitar ese día.`,
+      action: "Revisar carga horaria y motivos de ausencia recurrentes por promotor" });
+  }
+  const promProblema = Object.entries(promotorTerritorioOsa).sort((a, b) => a[1].osaTerritorio - b[1].osaTerritorio)[0];
+  if (promProblema && promProblema[1].osaTerritorio < kpis.osa_disponible - 10 && promProblema[1].cobertura < 85) {
+    alertas.push({ sev: "atencion", icon: "fa-people-arrows", title: `Los locales que visita ${promProblema[0]} tienen peor disponibilidad que el promedio`,
+      desc: `En su territorio la disponibilidad es ${promProblema[1].osaTerritorio}%, contra ${kpis.osa_disponible}% del promedio general, y su cobertura de visitas es ${promProblema[1].cobertura}%. No podemos afirmar que uno cause el otro, pero la coincidencia amerita revisar juntos la ruta y la carga de trabajo.`,
+      action: `Acompañar en campo a ${promProblema[0]} durante una semana` });
+  }
+  if (variacionPrecios.length && variacionPrecios[0].diffPct >= 25) {
+    alertas.push({ sev: "atencion", icon: "fa-tags", title: `Hay diferencias de precio grandes entre cadenas para el mismo producto`,
+      desc: `"${variacionPrecios[0].producto}" se vende desde ${fmtGs(variacionPrecios[0].min)} hasta ${fmtGs(variacionPrecios[0].max)} según la cadena — una diferencia de ${variacionPrecios[0].diffPct}%. Puede ser una estrategia deliberada de alguna cadena, o un error de carga que vale la pena confirmar.`,
+      action: "Confirmar con el equipo comercial si la diferencia de precio es intencional" });
+  }
+  if (rankingCadenas.length && rankingCadenas[rankingCadenas.length - 1].score >= 88) {
+    const mejor = rankingCadenas[rankingCadenas.length - 1];
+    alertas.push({ sev: "positivo", icon: "fa-medal", title: `${mejor.cadena} es el estándar a replicar`,
+      desc: `Con ${mejor.osa}% de disponibilidad y ${mejor.planograma}% de cumplimiento de planograma, es la cadena con mejor desempeño combinado. Vale la pena entender qué se hace distinto ahí.`,
+      action: `Usar ${mejor.cadena} como caso de referencia en la próxima reunión de equipo` });
+  }
+
+  const sevOrder = { critico: 0, atencion: 1, positivo: 2 };
+  alertas.sort((a, b) => sevOrder[a.sev] - sevOrder[b.sev]);
+  const nCriticas = alertas.filter(a => a.sev === "critico").length;
+
   // ---------------- RENDER ----------------
+  document.getElementById("nb-alertas").textContent = nCriticas;
+  document.getElementById("nb-alertas").style.display = nCriticas > 0 ? "inline-block" : "none";
+
+  document.getElementById("exec-summary").innerHTML =
+    `La operación releva <b>${fmtInt(totalRele)} controles</b> en <b>${locales.length} locales</b> durante el trimestre. ` +
+    `Hoy el cliente encuentra el producto en góndola el <b>${kpis.osa_disponible}% de las veces</b>` +
+    (deltaOsa < 0 ? `, y esa cifra viene <b>bajando</b> (${deltaOsa} puntos desde mayo)` : deltaOsa > 0 ? `, y viene <b>mejorando</b> (+${deltaOsa} puntos desde mayo)` : `, estable en el trimestre`) +
+    `. Hay <b>${fmtGs(valorEnRiesgo)}</b> en productos por vencer que todavía se pueden recuperar con una promoción a tiempo, y el ${kpis.pop_problema}% de las exhibiciones tiene algún problema visual. ` +
+    `${nCriticas > 0 ? `Se detectaron <b>${nCriticas} alerta${nCriticas > 1 ? "s" : ""} crítica${nCriticas > 1 ? "s" : ""}</b> que conviene resolver esta semana.` : "No hay alertas críticas abiertas en este momento."}`;
+
+  const feed = document.getElementById("alertas-feed");
+  const iconSev = { critico: "fa-circle-exclamation", atencion: "fa-triangle-exclamation", positivo: "fa-circle-check" };
+  alertas.forEach(a => {
+    const div = document.createElement("div");
+    div.className = `alert-card sev-${a.sev}`;
+    div.innerHTML = `<div class="aic"><i class="fas ${a.icon || iconSev[a.sev]}"></i></div>
+      <div class="abody">
+        <div class="atitle"><span class="sev-tag ${a.sev}">${a.sev}</span>${a.title}</div>
+        <div class="adesc">${a.desc}</div>
+        <div class="aaction"><i class="fas fa-arrow-right"></i>${a.action}</div>
+      </div>`;
+    feed.appendChild(div);
+  });
+  if (!alertas.length) {
+    feed.innerHTML = `<div class="alert ok"><i class="fas fa-circle-check"></i><div>No se detectaron situaciones que requieran atención inmediata con los datos actuales.</div></div>`;
+  }
+
   document.getElementById("k-osa").textContent = kpis.osa_disponible + "%";
   document.getElementById("k-osa-sub").textContent = (kpis.osa_quiebre_gondola + kpis.osa_quiebre_total).toFixed(1) + "% con quiebre";
   document.getElementById("k-plano").textContent = kpis.planograma_prom + "%";
@@ -509,6 +704,21 @@ async function buildDashboard() {
     const color = colorForValue(c.score, 80, 72);
     row.innerHTML = `<div class="pos">${String(i + 1).padStart(2, "0")}</div><div class="name">${c.cadena}</div><div class="metric">OSA<b>${c.osa}%</b></div><div class="metric">Planograma<b>${c.planograma}%</b></div><div class="score" style="color:${color}">${c.score}</div>`;
     rankWrap.appendChild(row);
+  });
+
+  const rankLocalWrap = document.getElementById("ranking-locales");
+  rankingLocales.forEach((l, i) => {
+    const row = document.createElement("div"); row.className = "rank-row";
+    const color = colorForValue(l.score, 80, 65);
+    row.innerHTML = `<div class="pos">${String(i + 1).padStart(2, "0")}</div><div class="name">${l.local}<div style="font-size:10.5px;color:var(--tx3);font-weight:400;">${l.cadena} · ${l.ciudad}</div></div><div class="metric">OSA<b>${l.osa}%</b></div><div class="metric">Planograma<b>${l.planograma}%</b></div><div class="score" style="color:${color}">${l.score}</div>`;
+    rankLocalWrap.appendChild(row);
+  });
+
+  const tPrecios = document.getElementById("tabla-precios");
+  variacionPrecios.forEach(p => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${p.producto}</td><td>${fmtGs(p.min)}</td><td>${fmtGs(p.max)}</td><td><span class="pill ${p.diffPct >= 25 ? "er" : "wa"}">${p.diffPct}%</span></td>`;
+    tPrecios.appendChild(tr);
   });
 
   document.getElementById("sb-upd").textContent = "Actualizado: " + new Date().toLocaleString("es-PY");

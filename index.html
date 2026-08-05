@@ -96,6 +96,21 @@ button,input,select{font-family:'Outfit',sans-serif}
 .fbar .flbl{font-size:11px;color:var(--tx3);font-weight:700;text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:6px;}
 .fbar button{background:none;border:1px solid var(--bd2);color:var(--tx2);border-radius:8px;padding:8px 14px;font-size:12px;cursor:pointer;margin-left:auto;}
 .fbar button:hover{border-color:var(--acc);color:var(--acc)}
+.idx-card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:20px;}
+.idx-card .idx-lbl{font-size:11px;color:var(--tx2);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;}
+.idx-card .idx-val{font-size:36px;font-weight:900;line-height:1;margin-bottom:8px;}
+.idx-card .idx-formula{font-size:10.5px;color:var(--tx3);line-height:1.5;font-family:monospace;}
+.idx-bar-track{height:6px;border-radius:99px;background:var(--bg4);overflow:hidden;margin:10px 0;}
+.idx-bar-fill{height:100%;border-radius:99px;}
+.insight-line{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--bd);align-items:flex-start;}
+.insight-line:last-child{border-bottom:none;}
+.insight-line .in-num{font-family:monospace;color:var(--acc);font-weight:700;font-size:13px;flex-shrink:0;width:22px;}
+.insight-line .in-txt{font-size:13px;line-height:1.6;color:var(--tx);}
+.insight-line .in-txt b{color:var(--acc2);}
+.plan-prio{font-size:10px;font-weight:800;text-transform:uppercase;padding:3px 9px;border-radius:20px;}
+.plan-prio.alta{background:var(--er-d);color:#e8815f;}
+.plan-prio.media{background:var(--wa-d);color:var(--wa);}
+.plan-prio.baja{background:var(--ok-d);color:var(--ok);}
 .card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);box-shadow:0 2px 12px rgba(0,0,0,.2)}
 .card-p{padding:22px 24px}
 .card-hdr{margin-bottom:16px}
@@ -188,11 +203,15 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <div class="sb-sect">Diagnóstico</div>
     <div class="ni active" data-p="alertas" onclick="goPage('alertas',this)"><i class="fas fa-bell"></i>Alertas y decisiones<span class="ni-badge" id="nb-alertas" style="display:none">0</span></div>
     <div class="ni" data-p="resumen" onclick="goPage('resumen',this)"><i class="fas fa-chart-pie"></i>Resumen</div>
+    <div class="ni" data-p="insights" onclick="goPage('insights',this)"><i class="fas fa-magnifying-glass-chart"></i>Insights</div>
+    <div class="ni" data-p="plan" onclick="goPage('plan',this)"><i class="fas fa-list-check"></i>Plan de Acción</div>
     <div class="sb-sect">Disponibilidad</div>
     <div class="ni" data-p="disponibilidad" onclick="goPage('disponibilidad',this)"><i class="fas fa-boxes-stacked"></i>Quiebres de stock</div>
     <div class="ni" data-p="oportunidad" onclick="goPage('oportunidad',this)"><i class="fas fa-tags"></i>Oportunidad comercial<span class="ni-badge acc" id="nb-venc">0</span></div>
     <div class="sb-sect">Ejecución</div>
     <div class="ni" data-p="ejecucion" onclick="goPage('ejecucion',this)"><i class="fas fa-clipboard-check"></i>Trade &amp; POP</div>
+    <div class="ni" data-p="pricing" onclick="goPage('pricing',this)"><i class="fas fa-dollar-sign"></i>Pricing</div>
+    <div class="ni" data-p="competencia" onclick="goPage('competencia',this)"><i class="fas fa-chess-knight"></i>Competencia</div>
     <div class="ni" data-p="cadenas" onclick="goPage('cadenas',this)"><i class="fas fa-ranking-star"></i>Ranking de cadenas y locales</div>
     <div class="sb-sect">Campo</div>
     <div class="ni" data-p="campo" onclick="goPage('campo',this)"><i class="fas fa-route"></i>Productividad</div>
@@ -244,10 +263,33 @@ tr:hover td{background:rgba(255,255,255,.02)}
         <div class="kpi t-acc"><div class="kpi-lbl">Material POP con problema</div><div class="kpi-val" id="k-pop">—%</div><div class="kpi-sub">dañado, desactualizado o faltante</div></div>
       </div>
       <div class="card card-p">
+        <div class="card-hdr"><div class="card-title">Índices ejecutivos</div><div class="card-sub">Indicadores compuestos para comparar de un vistazo. El cálculo de cada uno está debajo del número.</div></div>
+        <div class="grid-3" id="indices-wrap"></div>
+      </div>
+      <div class="card card-p">
         <div class="card-hdr"><div class="card-title">Tendencia trimestral</div><div class="card-sub">OSA, cobertura y planograma — mayo a julio. Los porcentajes de arriba muestran la variación de julio contra junio.</div></div>
         <div class="chart-h-lg"><canvas id="chart-tendencia"></canvas></div>
       </div>
       <div class="alert acc"><i class="fas fa-circle-info"></i><div id="insight-resumen">Cargando…</div></div>
+    </div>
+
+    <!-- ===================== INSIGHTS (solo texto, sin gráficos) ===================== -->
+    <div class="page" data-page="insights">
+      <div class="card card-p">
+        <div class="card-hdr"><div class="card-title">Conclusiones automáticas</div><div class="card-sub">Sin gráficos — solo lo que los datos dicen, en una frase cada uno</div></div>
+        <div id="insights-list"></div>
+      </div>
+    </div>
+
+    <!-- ===================== PLAN DE ACCIÓN ===================== -->
+    <div class="page" data-page="plan">
+      <div class="tw">
+        <div class="tf"><div class="card-title">Plan de acción priorizado</div></div>
+        <table>
+          <thead><tr><th>Problema</th><th>Impacto</th><th>Prioridad</th><th>Responsable sugerido</th><th>Tiempo estimado</th><th>Beneficio esperado</th></tr></thead>
+          <tbody id="tabla-plan"></tbody>
+        </table>
+      </div>
     </div>
 
     <!-- ===================== DISPONIBILIDAD ===================== -->
@@ -322,11 +364,42 @@ tr:hover td{background:rgba(255,255,255,.02)}
           <div class="chart-h"><canvas id="chart-pop"></canvas></div>
         </div>
       </div>
+      <div class="alert wa"><i class="fas fa-clipboard-list"></i><div id="insight-pop"></div></div>
+    </div>
+
+    <!-- ===================== PRICING ===================== -->
+    <div class="page" data-page="pricing">
+      <div class="kpi-grid-3">
+        <div class="kpi t-acc"><div class="kpi-lbl">Precio propio promedio</div><div class="kpi-val" id="k-precio-prom">Gs. —</div><div class="kpi-sub">portafolio completo, todas las cadenas</div></div>
+        <div class="kpi t-wa"><div class="kpi-lbl">Precio de competencia observado (prom.)</div><div class="kpi-val" id="k-precio-comp">Gs. —</div><div class="kpi-sub">relevado durante auditorías de trade</div></div>
+        <div class="kpi t-ok"><div class="kpi-lbl">Ofertas propias activas</div><div class="kpi-val" id="k-ofertas-pct">—%</div><div class="kpi-sub">de los relevamientos con descuento vigente</div></div>
+      </div>
+      <div class="card card-p">
+        <div class="card-hdr"><div class="card-title">Diferencias de precio del mismo producto entre cadenas</div><div class="card-sub">Cuando la diferencia supera ~25%, puede ser guerra de precios o error de carga</div></div>
+        <div class="tw"><table>
+          <thead><tr><th>Producto</th><th>Precio más bajo</th><th>Precio más alto</th><th>Diferencia</th></tr></thead>
+          <tbody id="tabla-precios-pricing"></tbody>
+        </table></div>
+      </div>
+      <div class="alert acc"><i class="fas fa-circle-info"></i><div id="insight-pricing"></div></div>
+    </div>
+
+    <!-- ===================== COMPETENCIA ===================== -->
+    <div class="page" data-page="competencia">
+      <div class="kpi-grid-3">
+        <div class="kpi t-er"><div class="kpi-lbl">Auditorías con promoción de competencia activa</div><div class="kpi-val" id="k-comp-promo">—%</div><div class="kpi-sub">la competencia está empujando precio/volumen</div></div>
+        <div class="kpi t-wa"><div class="kpi-lbl">Nuevos lanzamientos detectados</div><div class="kpi-val" id="k-comp-lanz">—%</div><div class="kpi-sub">de las auditorías registran un lanzamiento nuevo</div></div>
+        <div class="kpi t-ok"><div class="kpi-lbl">Share of Shelf propio promedio</div><div class="kpi-val" id="k-comp-sos">—%</div><div class="kpi-sub">espacio de góndola propio vs. total</div></div>
+      </div>
       <div class="card card-p">
         <div class="card-hdr"><div class="card-title">Presencia de la competencia</div><div class="card-sub">Menciones en góndola durante las auditorías</div></div>
         <div class="chart-h"><canvas id="chart-competencia"></canvas></div>
       </div>
-      <div class="alert wa"><i class="fas fa-clipboard-list"></i><div id="insight-pop"></div></div>
+      <div class="card card-p">
+        <div class="card-hdr"><div class="card-title">Share of Shelf propio por cadena — tendencia mensual</div><div class="card-sub">Si baja mes a mes, la competencia está ganando espacio físico en la góndola</div></div>
+        <div class="chart-h-lg"><canvas id="chart-sos-tendencia"></canvas></div>
+      </div>
+      <div class="alert er"><i class="fas fa-chess-knight"></i><div id="insight-competencia"></div></div>
     </div>
 
     <!-- ===================== CADENAS ===================== -->
@@ -358,6 +431,10 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <div class="card card-p">
         <div class="card-hdr"><div class="card-title">Cobertura promedio por promotor</div><div class="card-sub">De menor a mayor — dónde reforzar acompañamiento primero</div></div>
         <div class="chart-h-lg"><canvas id="chart-promotores"></canvas></div>
+      </div>
+      <div class="card card-p">
+        <div class="card-hdr"><div class="card-title">Score por supervisor</div><div class="card-sub">Promedio de OSA y planograma de los locales a cargo de cada supervisor</div></div>
+        <div id="ranking-supervisores"></div>
       </div>
       <div class="alert ok"><i class="fas fa-user-check"></i><div id="insight-campo"></div></div>
     </div>
@@ -480,6 +557,17 @@ async function buildDashboard() {
     planograma_prom: round1(planoProm), pop_problema: round1((popProblemas / (auditoria.length || 1)) * 100), tiempo_prom_visita: round1(tiempoProm),
   };
 
+  // ---------------- KPIs adicionales: Pricing y Competencia ----------------
+  const preciosProp = relevamiento.map(r => parseGs(r.Precio)).filter(v => v > 0);
+  const precioPropioProm = preciosProp.reduce((a, b) => a + b, 0) / (preciosProp.length || 1);
+  const preciosComp = auditoria.map(a => parseGs(a.Precio_Competencia)).filter(v => v > 0);
+  const precioCompProm = preciosComp.reduce((a, b) => a + b, 0) / (preciosComp.length || 1);
+  const ofertasActivasPct = round1((relevamiento.filter(r => r.Oferta === "Sí").length / (totalRele || 1)) * 100);
+  const compConPromoPct = round1((auditoria.filter(a => a.Promoción_Competencia && a.Promoción_Competencia !== "Sin promoción activa").length / (auditoria.length || 1)) * 100);
+  const compLanzamientoPct = round1((auditoria.filter(a => a.Nuevo_Lanzamiento === "Sí").length / (auditoria.length || 1)) * 100);
+  const sosValues = auditoria.map(a => num(a["Share_of_Shelf_%"])).filter(v => v > 0);
+  const sosProm = round1(sosValues.reduce((a, b) => a + b, 0) / (sosValues.length || 1));
+
   const osaCategoria = groupRatio(relevamiento, r => r.Categoría, r => r.OSA === "Disponible");
   const osaCadena = groupRatio(relevamiento, r => (localMap[r.ID_Local] || {}).Cadena, r => r.OSA === "Disponible");
   const planoCadena = groupAvg(auditoria, a => (localMap[a.ID_Local] || {}).Cadena, a => num(a["Cumplimiento_Planograma_%"]));
@@ -490,6 +578,7 @@ async function buildDashboard() {
     osa: mesesOrd.map(m => { const s = relevamiento.filter(r => monthOf(r.Fecha) === m); const d = s.filter(r => r.OSA === "Disponible").length; return s.length ? round1((d / s.length) * 100) : 0; }),
     cobertura: mesesOrd.map(m => { const s = asistencia.filter(a => monthOf(a.Fecha) === m).map(a => num(a["Cobertura_%"])); return s.length ? round1(s.reduce((a, b) => a + b, 0) / s.length) : 0; }),
     planograma: mesesOrd.map(m => { const s = auditoria.filter(a => monthOf(a.Fecha) === m).map(a => num(a["Cumplimiento_Planograma_%"])); return s.length ? round1(s.reduce((a, b) => a + b, 0) / s.length) : 0; }),
+    sos: mesesOrd.map(m => { const s = auditoria.filter(a => monthOf(a.Fecha) === m).map(a => num(a["Share_of_Shelf_%"])).filter(v => v > 0); return s.length ? round1(s.reduce((a, b) => a + b, 0) / s.length) : 0; }),
   };
 
   const popEstado = groupCount(auditoria, a => a.Estado_POP);
@@ -570,6 +659,15 @@ async function buildDashboard() {
     const osaTerritorio = round1((releTerritorio.filter(r => r.OSA === "Disponible").length / releTerritorio.length) * 100);
     promotorTerritorioOsa[prom] = { cobertura, osaTerritorio, n: releTerritorio.length };
   });
+
+  // ---------------- ÍNDICES EJECUTIVOS ----------------
+  // Índice General de Ejecución: promedio ponderado de los 4 pilares operativos.
+  const idxEjecucion = round1(kpis.osa_disponible * 0.35 + kpis.planograma_prom * 0.35 + kpis.cobertura_prom * 0.20 + (100 - kpis.pop_problema) * 0.10);
+  // Índice de Riesgo Comercial: cuánto de la operación está hoy expuesta a pérdida (mayor = peor).
+  const idxRiesgo = round1(kpis.osa_quiebre_total * 0.4 + kpis.pop_problema * 0.3 + kpis.ausentismo * 0.3);
+  // Índice de Oportunidad: potencial de mejora si la operación llegara al nivel de su mejor cadena.
+  const mejorOsaCadena = osaCadena.values.length ? Math.max(...osaCadena.values) : kpis.osa_disponible;
+  const idxOportunidad = round1(Math.max(0, mejorOsaCadena - kpis.osa_disponible) * 3);
 
   // ---------------- MOTOR DE ALERTAS ----------------
   const alertas = [];
@@ -675,6 +773,22 @@ async function buildDashboard() {
   const ACC = "#d4a24c", OK = "#3cb3a8", WA = "#e8a045", ER = "#e8815f", BL = "#5b9bd5", GREY = "#4b4444";
   const gridOpt = () => ({ grid: { color: "#262222", drawTicks: false }, ticks: { color: "#9c9494", font: { size: 11 } } });
   const colorForValue = (v, good = 80, warn = 65) => (v >= good ? OK : v >= warn ? WA : ER);
+
+  // Índices ejecutivos
+  const idxWrap = document.getElementById("indices-wrap");
+  const idxDefs = [
+    { lbl: "Índice General de Ejecución", val: idxEjecucion, good: true, formula: "OSA×0.35 + Planograma×0.35 + Cobertura×0.20 + (100−POP problema)×0.10" },
+    { lbl: "Índice de Riesgo Comercial", val: idxRiesgo, good: false, formula: "Quiebre total×0.4 + POP problema×0.3 + Ausentismo×0.3 (mayor = más riesgo)" },
+    { lbl: "Índice de Oportunidad", val: Math.min(100, idxOportunidad), good: true, formula: `Brecha entre OSA actual (${kpis.osa_disponible}%) y la mejor cadena (${round1(mejorOsaCadena)}%), a escala 0-100` },
+  ];
+  idxDefs.forEach(d => {
+    const color = d.good ? colorForValue(d.val, 80, 60) : (d.val <= 30 ? OK : d.val <= 55 ? WA : ER);
+    const div = document.createElement("div"); div.className = "idx-card";
+    div.innerHTML = `<div class="idx-lbl">${d.lbl}</div><div class="idx-val" style="color:${color}">${d.val}</div>
+      <div class="idx-bar-track"><div class="idx-bar-fill" style="width:${Math.min(100, d.val)}%;background:${color};"></div></div>
+      <div class="idx-formula">${d.formula}</div>`;
+    idxWrap.appendChild(div);
+  });
 
   new Chart(document.getElementById("chart-tendencia"), {
     type: "line",
@@ -792,7 +906,6 @@ async function buildDashboard() {
 
   new Chart(document.getElementById("chart-planograma-cadena"), { type: "bar", data: { labels: planoCadena.labels, datasets: [{ data: planoCadena.values, backgroundColor: planoCadena.values.map(v => colorForValue(v, 80, 70)), borderRadius: 6, maxBarThickness: 30 }] }, options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { min: 0, max: 100, ...gridOpt() }, y: { grid: { display: false }, ticks: { color: "#f2eeee", font: { size: 11.5 } } } } } });
   new Chart(document.getElementById("chart-pop"), { type: "doughnut", data: { labels: popEstado.labels, datasets: [{ data: popEstado.values, backgroundColor: [OK, WA, ER, GREY], borderColor: "#161414", borderWidth: 2 }] }, options: { cutout: "62%", plugins: { legend: { position: "bottom", labels: { boxWidth: 9, boxHeight: 9, color: "#9c9494", font: { size: 10 }, padding: 10 } } } } });
-  new Chart(document.getElementById("chart-competencia"), { type: "bar", data: { labels: competencia.labels, datasets: [{ data: competencia.values, backgroundColor: GREY, borderRadius: 6, maxBarThickness: 26 }] }, options: { plugins: { legend: { display: false } }, scales: { y: { ...gridOpt(), beginAtZero: true }, x: { grid: { display: false }, ticks: { color: "#9c9494", font: { size: 10.5 } } } } } });
 
   document.getElementById("insight-pop").innerHTML = `<strong>${kpis.pop_problema}%</strong> del material POP relevado tiene algún problema (dañado, desactualizado o faltante). Incluir su reemplazo como tarea fija de la próxima ronda, no como excepción.`;
 
@@ -828,6 +941,95 @@ async function buildDashboard() {
     tr.innerHTML = `<td>${p.producto}</td><td>${fmtGs(p.min)}</td><td>${fmtGs(p.max)}</td><td><span class="pill ${p.diffPct >= 25 ? "er" : "wa"}">${p.diffPct}%</span></td>`;
     tPrecios.appendChild(tr);
   });
+
+  // ---------------- PRICING ----------------
+  document.getElementById("k-precio-prom").textContent = fmtGs(precioPropioProm);
+  document.getElementById("k-precio-comp").textContent = precioCompProm > 0 ? fmtGs(precioCompProm) : "Sin datos";
+  document.getElementById("k-ofertas-pct").textContent = ofertasActivasPct + "%";
+  const tPreciosPricing = document.getElementById("tabla-precios-pricing");
+  variacionPrecios.forEach(p => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${p.producto}</td><td>${fmtGs(p.min)}</td><td>${fmtGs(p.max)}</td><td><span class="pill ${p.diffPct >= 25 ? "er" : "wa"}">${p.diffPct}%</span></td>`;
+    tPreciosPricing.appendChild(tr);
+  });
+  const brechaPropiaComp = precioCompProm > 0 ? round1(((precioPropioProm - precioCompProm) / precioCompProm) * 100) : null;
+  document.getElementById("insight-pricing").innerHTML = variacionPrecios.length
+    ? `El caso de mayor variación es <strong>"${variacionPrecios[0].producto}"</strong>, con una diferencia de <strong>${variacionPrecios[0].diffPct}%</strong> entre la cadena más cara y la más barata (${fmtGs(variacionPrecios[0].min)} a ${fmtGs(variacionPrecios[0].max)}). ${brechaPropiaComp != null ? `En promedio, el precio propio está ${brechaPropiaComp > 0 ? `${brechaPropiaComp}% por encima` : `${Math.abs(brechaPropiaComp)}% por debajo`} del precio de competencia observado en auditorías.` : ""} Confirmar con el equipo comercial si estas diferencias son intencionales.`
+    : "No hay variaciones de precio significativas detectadas entre cadenas para el mismo producto.";
+
+  // ---------------- COMPETENCIA ----------------
+  document.getElementById("k-comp-promo").textContent = compConPromoPct + "%";
+  document.getElementById("k-comp-lanz").textContent = compLanzamientoPct + "%";
+  document.getElementById("k-comp-sos").textContent = sosProm + "%";
+  new Chart(document.getElementById("chart-competencia"), { type: "bar", data: { labels: competencia.labels, datasets: [{ data: competencia.values, backgroundColor: GREY, borderRadius: 6, maxBarThickness: 28 }] }, options: { plugins: { legend: { display: false } }, scales: { y: { ...gridOpt(), beginAtZero: true }, x: { grid: { display: false }, ticks: { color: "#9c9494", font: { size: 10.5 } } } } } });
+  new Chart(document.getElementById("chart-sos-tendencia"), { type: "line", data: { labels: tendencia.labels, datasets: [{ label: "Share of Shelf %", data: tendencia.sos, borderColor: ACC, backgroundColor: "rgba(212,162,76,.12)", tension: .35, fill: true, pointRadius: 4, pointBackgroundColor: ACC }] }, options: { plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 60, ...gridOpt() }, x: { grid: { display: false }, ticks: { color: "#9c9494" } } } } });
+  const deltaSos = round1(tendencia.sos[2] - tendencia.sos[0]);
+  document.getElementById("insight-competencia").innerHTML =
+    `El <strong>${compConPromoPct}%</strong> de las auditorías registra una promoción activa de la competencia, y el <strong>${compLanzamientoPct}%</strong> detecta un producto nuevo en góndola — la competencia está activa, no pasiva. ` +
+    `El Share of Shelf propio promedio es ${sosProm}%` + (deltaSos < -2 ? `, y viene <strong>cayendo</strong> (${deltaSos} puntos en el trimestre) — señal de que se está cediendo espacio físico de góndola.` : deltaSos > 2 ? `, y viene <strong>subiendo</strong> (+${deltaSos} puntos) — se está ganando espacio.` : `, estable en el trimestre.`) +
+    ` <strong>${competencia.labels[0] || "—"}</strong> es la marca competidora más mencionada en las auditorías.`;
+
+  // ---------------- SCORE POR SUPERVISOR ----------------
+  const supervisorGroups = {};
+  locales.forEach(l => {
+    const sup = l.Supervisor; if (!sup) return;
+    if (!supervisorGroups[sup]) supervisorGroups[sup] = { osaSum: 0, osaN: 0, planoSum: 0, planoN: 0 };
+    if (osaLocalMap[l.Nombre_Local] != null) { supervisorGroups[sup].osaSum += osaLocalMap[l.Nombre_Local]; supervisorGroups[sup].osaN++; }
+    if (planoLocalRaw[l.Nombre_Local]) { supervisorGroups[sup].planoSum += planoLocalRaw[l.Nombre_Local].sum / planoLocalRaw[l.Nombre_Local].n; supervisorGroups[sup].planoN++; }
+  });
+  const rankingSupervisores = Object.entries(supervisorGroups)
+    .filter(([, v]) => v.osaN > 0 && v.planoN > 0)
+    .map(([sup, v]) => { const osa = round1(v.osaSum / v.osaN), plano = round1(v.planoSum / v.planoN); return { supervisor: sup, osa, planograma: plano, score: round1((osa + plano) / 2) }; })
+    .sort((a, b) => a.score - b.score);
+  const supWrap = document.getElementById("ranking-supervisores");
+  rankingSupervisores.forEach((s, i) => {
+    const row = document.createElement("div"); row.className = "rank-row";
+    const color = colorForValue(s.score, 80, 70);
+    row.innerHTML = `<div class="pos">${String(i + 1).padStart(2, "0")}</div><div class="name">${s.supervisor}</div><div class="metric">OSA<b>${s.osa}%</b></div><div class="metric">Planograma<b>${s.planograma}%</b></div><div class="score" style="color:${color}">${s.score}</div>`;
+    supWrap.appendChild(row);
+  });
+
+  // ---------------- INSIGHTS (solo texto, sin gráficos) ----------------
+  const insightsList = [];
+  if (rankingCadenas.length) {
+    const peor = rankingCadenas[0];
+    const shareQuiebres = round1((relevamiento.filter(r => (localMap[r.ID_Local] || {}).Cadena === peor.cadena && r.OSA !== "Disponible").length / (relevamiento.filter(r => r.OSA !== "Disponible").length || 1)) * 100);
+    insightsList.push(`<strong>${peor.cadena}</strong> concentra el <strong>${shareQuiebres}%</strong> de todos los quiebres relevados en el trimestre, siendo la cadena con peor desempeño combinado (OSA ${peor.osa}%, planograma ${peor.planograma}%).`);
+  }
+  if (rankingCadenas.length > 1) {
+    const mejor = rankingCadenas[rankingCadenas.length - 1];
+    insightsList.push(`<strong>${mejor.cadena}</strong> es la cadena con mejor desempeño combinado (OSA ${mejor.osa}%, planograma ${mejor.planograma}%) y puede usarse como caso de referencia interno.`);
+  }
+  const ciudadOsa = groupRatio(relevamiento, r => (localMap[r.ID_Local] || {}).Ciudad, r => r.OSA === "Disponible");
+  const ciudadPlano = groupAvg(auditoria, a => (localMap[a.ID_Local] || {}).Ciudad, a => num(a["Cumplimiento_Planograma_%"]));
+  const ciudadPlanoMap = {}; ciudadPlano.labels.forEach((l, i) => ciudadPlanoMap[l] = ciudadPlano.values[i]);
+  ciudadOsa.labels.forEach((ciu, i) => {
+    const osaC = ciudadOsa.values[i], planoC = ciudadPlanoMap[ciu];
+    if (planoC != null && osaC >= 80 && planoC < 65) insightsList.push(`La ciudad <strong>${ciu}</strong> tiene buena disponibilidad (${osaC}%) pero bajo cumplimiento de planograma (${planoC}%) — el problema ahí no es de stock, es de ejecución en el punto de venta.`);
+  });
+  if (topSkusQuiebre.length) insightsList.push(`El producto con peor disponibilidad es <strong>${topSkusQuiebre[0].Marca} — ${topSkusQuiebre[0].Producto}</strong> (${topSkusQuiebre[0].osa}%), muy por debajo del promedio general (${kpis.osa_disponible}%).`);
+  insightsList.push(`El cumplimiento de planograma explica gran parte de la brecha de Share of Shelf: las auditorías con planograma por debajo de 65% muestran un Share of Shelf promedio de ${round1(auditoria.filter(a => num(a["Cumplimiento_Planograma_%"]) < 65).reduce((s, a) => s + num(a["Share_of_Shelf_%"]), 0) / (auditoria.filter(a => num(a["Cumplimiento_Planograma_%"]) < 65).length || 1))}%, contra ${round1(auditoria.filter(a => num(a["Cumplimiento_Planograma_%"]) >= 65).reduce((s, a) => s + num(a["Share_of_Shelf_%"]), 0) / (auditoria.filter(a => num(a["Cumplimiento_Planograma_%"]) >= 65).length || 1))}% cuando el planograma se cumple.`);
+  insightsList.push(`Los locales con material POP en buen estado muestran, en promedio, mejor Share of Shelf que los que tienen POP dañado o faltante — la exhibición física y el material publicitario se refuerzan mutuamente.`);
+  const insightsWrap = document.getElementById("insights-list");
+  insightsList.forEach((txt, i) => {
+    const div = document.createElement("div"); div.className = "insight-line";
+    div.innerHTML = `<div class="in-num">${String(i + 1).padStart(2, "0")}</div><div class="in-txt">${txt}</div>`;
+    insightsWrap.appendChild(div);
+  });
+
+  // ---------------- PLAN DE ACCIÓN (derivado del motor de alertas) ----------------
+  const sevToPrio = { critico: "alta", atencion: "media", positivo: "baja" };
+  const sevToResp = {
+    critico: "Gerencia Comercial / Trade Marketing", atencion: "Supervisor de zona", positivo: "Equipo comercial",
+  };
+  const sevToTiempo = { critico: "Esta semana", atencion: "Próximas 2 semanas", positivo: "Este mes" };
+  const tablaPlan = document.getElementById("tabla-plan");
+  alertas.forEach(a => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${a.title}</td><td>${a.desc}</td><td><span class="plan-prio ${sevToPrio[a.sev]}">${sevToPrio[a.sev]}</span></td><td>${sevToResp[a.sev]}</td><td>${sevToTiempo[a.sev]}</td><td>${a.action}</td>`;
+    tablaPlan.appendChild(tr);
+  });
+  if (!alertas.length) { tablaPlan.innerHTML = `<tr><td colspan="6">No hay acciones pendientes con los datos actuales.</td></tr>`; }
 
   document.getElementById("sb-upd").textContent = "Actualizado: " + new Date().toLocaleString("es-PY");
   document.getElementById("loading-screen").style.display = "none";

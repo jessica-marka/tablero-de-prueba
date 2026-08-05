@@ -215,6 +215,9 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <div class="ni" data-p="cadenas" onclick="goPage('cadenas',this)"><i class="fas fa-ranking-star"></i>Ranking de cadenas y locales</div>
     <div class="sb-sect">Campo</div>
     <div class="ni" data-p="campo" onclick="goPage('campo',this)"><i class="fas fa-route"></i>Productividad</div>
+    <div class="ni" data-p="incidencias" onclick="goPage('incidencias',this)"><i class="fas fa-triangle-exclamation"></i>Incidencias<span class="ni-badge" id="nb-incidencias" style="display:none">0</span></div>
+    <div class="sb-sect">Gestión del servicio</div>
+    <div class="ni" data-p="roi" onclick="goPage('roi',this)"><i class="fas fa-coins"></i>Costo &amp; ROI</div>
   </div>
   <div class="sb-bottom">
     <div class="sb-upd" id="sb-upd"></div>
@@ -439,6 +442,16 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <div class="alert ok"><i class="fas fa-user-check"></i><div id="insight-campo"></div></div>
     </div>
 
+    <!-- ===================== INCIDENCIAS ===================== -->
+    <div class="page" data-page="incidencias">
+      <div id="incidencias-content"></div>
+    </div>
+
+    <!-- ===================== COSTO & ROI ===================== -->
+    <div class="page" data-page="roi">
+      <div id="roi-content"></div>
+    </div>
+
   </div>
 </div>
 </div>
@@ -454,12 +467,15 @@ function goPage(p, el){
 }
 
 const SHEET_URLS = {
-  asistencia:   "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhX6oUNCWpHw5eq9bM0BxqiAjSHPsq5JWTxxArdiChZTOrkREjiWbhXS4r2yyoPw/pub?gid=846035120&single=true&output=csv",
-  detalle:      "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhX6oUNCWpHw5eq9bM0BxqiAjSHPsq5JWTxxArdiChZTOrkREjiWbhXS4r2yyoPw/pub?gid=2102211601&single=true&output=csv",
-  relevamiento: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhX6oUNCWpHw5eq9bM0BxqiAjSHPsq5JWTxxArdiChZTOrkREjiWbhXS4r2yyoPw/pub?gid=1768230276&single=true&output=csv",
-  auditoria:    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhX6oUNCWpHw5eq9bM0BxqiAjSHPsq5JWTxxArdiChZTOrkREjiWbhXS4r2yyoPw/pub?gid=2053143404&single=true&output=csv",
-  locales:      "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhX6oUNCWpHw5eq9bM0BxqiAjSHPsq5JWTxxArdiChZTOrkREjiWbhXS4r2yyoPw/pub?gid=1941948129&single=true&output=csv",
-  productos:    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhX6oUNCWpHw5eq9bM0BxqiAjSHPsq5JWTxxArdiChZTOrkREjiWbhXS4r2yyoPw/pub?gid=2048619236&single=true&output=csv",
+  asistencia:   "https://docs.google.com/spreadsheets/d/e/2PACX-1vRo4CmnwJPirqJAMi4DF_1qMkPxdLZNHFn8S2si0_mj0tubXGsCZdSwU9aoj6JzNA/pub?gid=574287760&single=true&output=csv",
+  detalle:      "https://docs.google.com/spreadsheets/d/e/2PACX-1vRo4CmnwJPirqJAMi4DF_1qMkPxdLZNHFn8S2si0_mj0tubXGsCZdSwU9aoj6JzNA/pub?gid=421859561&single=true&output=csv",
+  relevamiento: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRo4CmnwJPirqJAMi4DF_1qMkPxdLZNHFn8S2si0_mj0tubXGsCZdSwU9aoj6JzNA/pub?gid=1598723449&single=true&output=csv",
+  auditoria:    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRo4CmnwJPirqJAMi4DF_1qMkPxdLZNHFn8S2si0_mj0tubXGsCZdSwU9aoj6JzNA/pub?gid=1328835885&single=true&output=csv",
+  locales:      "https://docs.google.com/spreadsheets/d/e/2PACX-1vRo4CmnwJPirqJAMi4DF_1qMkPxdLZNHFn8S2si0_mj0tubXGsCZdSwU9aoj6JzNA/pub?gid=1462666713&single=true&output=csv",
+  productos:    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRo4CmnwJPirqJAMi4DF_1qMkPxdLZNHFn8S2si0_mj0tubXGsCZdSwU9aoj6JzNA/pub?gid=1182464534&single=true&output=csv",
+  incidencias:  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRo4CmnwJPirqJAMi4DF_1qMkPxdLZNHFn8S2si0_mj0tubXGsCZdSwU9aoj6JzNA/pub?gid=253572383&single=true&output=csv",
+  costos:       "https://docs.google.com/spreadsheets/d/e/2PACX-1vRo4CmnwJPirqJAMi4DF_1qMkPxdLZNHFn8S2si0_mj0tubXGsCZdSwU9aoj6JzNA/pub?gid=1310831359&single=true&output=csv",
+  metas:        "https://docs.google.com/spreadsheets/d/e/2PACX-1vRo4CmnwJPirqJAMi4DF_1qMkPxdLZNHFn8S2si0_mj0tubXGsCZdSwU9aoj6JzNA/pub?gid=1735062354&single=true&output=csv",
 };
 
 function fetchCSV(url) {
@@ -475,8 +491,24 @@ function num(str) { const n = parseFloat(str); return isNaN(n) ? 0 : n; }
 function osaOf(r) { return r["Diponibilidad en gondola"] !== undefined ? r["Diponibilidad en gondola"] : osaOf(r); }
 // Ídem para "Facing", ahora publicado como "Caras visibles".
 function facingOf(r) { return r["Caras visibles"] !== undefined ? r["Caras visibles"] : r.Facing; }
-function monthOf(fechaStr) { if (!fechaStr) return null; const p = fechaStr.split("/"); return p.length < 2 ? null : parseInt(p[1], 10); }
-function weekOf(fechaStr) { if (!fechaStr) return null; const p = fechaStr.split("/"); if (p.length < 1) return null; const dia = parseInt(p[0], 10); return Math.ceil(dia / 7); }
+// Soporta ambos formatos de fecha que la planilla ha usado: ISO "YYYY-MM-DD"
+// y "D/M/YYYY". Se detecta por el separador presente en el string.
+function parseFechaParts(fechaStr) {
+  if (!fechaStr) return null;
+  if (fechaStr.includes("-")) {
+    const [y, m, d] = fechaStr.split("-").map(Number);
+    if (!y || !m || !d) return null;
+    return { anio: y, mes: m, dia: d };
+  }
+  if (fechaStr.includes("/")) {
+    const [d, m, y] = fechaStr.split("/").map(Number);
+    if (!y || !m || !d) return null;
+    return { anio: y, mes: m, dia: d };
+  }
+  return null;
+}
+function monthOf(fechaStr) { const p = parseFechaParts(fechaStr); return p ? p.mes : null; }
+function weekOf(fechaStr) { const p = parseFechaParts(fechaStr); return p ? Math.ceil(p.dia / 7) : null; }
 function round1(x) { return Math.round(x * 10) / 10; }
 function fmtInt(n) { return new Intl.NumberFormat('es-PY').format(Math.round(n)); }
 function fmtGs(n) { return 'Gs. ' + new Intl.NumberFormat('es-PY').format(Math.round(n)); }
@@ -522,9 +554,26 @@ async function buildDashboard() {
   asistencia = clean(asistencia); detalle = clean(detalle); relevamiento = clean(relevamiento);
   auditoria = clean(auditoria); locales = clean(locales); productos = clean(productos);
 
+  // Tablas opcionales (Incidencias, Costos, Metas): si fallan o no calzan el
+  // esquema esperado, el dashboard sigue funcionando sin esas secciones en
+  // vez de romper todo — no queremos que un problema en un dato secundario
+  // tumbe el diagnóstico principal.
+  let incidencias = [], costos = [], metas = [];
+  try {
+    const [incRaw, costRaw, metRaw] = await Promise.all([
+      fetchCSV(SHEET_URLS.incidencias), fetchCSV(SHEET_URLS.costos), fetchCSV(SHEET_URLS.metas),
+    ]);
+    const incC = clean(incRaw), costC = clean(costRaw), metC = clean(metRaw);
+    incidencias = (incC[0] && "ID_Incidencia" in incC[0]) ? incC : [];
+    costos = (costC[0] && "Concepto" in costC[0]) ? costC : [];
+    metas = (metC[0] && "Indicador" in metC[0]) ? metC : [];
+  } catch (err) {
+    console.warn("Tablas opcionales (Incidencias/Costos/Metas) no disponibles:", err);
+  }
+
   const esquemaEsperado = {
     asistencia: ["ID_Registro", "Locales_Planificados", "Cobertura_%"], detalle: ["ID_Visita", "ID_Registro", "Estado_Visita"],
-    relevamiento: ["ID_Relevamiento", "Diponibilidad en gondola", "Precio"], auditoria: ["ID_Auditoría", "Cumplimiento_Planograma_%"],
+    relevamiento: ["ID_Relevamiento", "Precio"], auditoria: ["ID_Auditoría", "Cumplimiento_Planograma_%"],
     locales: ["ID_Local", "Cadena", "Nombre_Local"], productos: ["ID_SKU", "Marca", "Categoría"],
   };
   const tablas = { asistencia, detalle, relevamiento, auditoria, locales, productos };
@@ -533,6 +582,12 @@ async function buildDashboard() {
     const fila = tablas[nombre][0] || {};
     const faltantes = cols.filter(c => !(c in fila));
     if (faltantes.length) erroresEsquema.push(`"${nombre}" no tiene las columnas esperadas [${faltantes.join(", ")}] — ¿el link corresponde a otra pestaña?`);
+  }
+  // La columna de disponibilidad cambió de nombre entre versiones de la planilla
+  // ("OSA" o "Diponibilidad en gondola") — se acepta cualquiera de las dos.
+  const filaRele = relevamiento[0] || {};
+  if (!("OSA" in filaRele) && !("Diponibilidad en gondola" in filaRele)) {
+    erroresEsquema.push(`"relevamiento" no tiene ni "OSA" ni "Diponibilidad en gondola" — ¿el link corresponde a otra pestaña?`);
   }
   if (erroresEsquema.length) {
     loadingMsg.textContent = "Los links no coinciden con las tablas esperadas.";
@@ -553,9 +608,13 @@ async function buildDashboard() {
   const planoValues = auditoria.map(a => num(a["Cumplimiento_Planograma_%"]));
   const planoProm = planoValues.reduce((a, b) => a + b, 0) / (planoValues.length || 1);
   const popProblemas = auditoria.filter(a => ["Instalado - Dañado", "Instalado - Desactualizado", "No instalado"].includes(a.Estado_POP)).length;
+  const popBuenEstado = auditoria.filter(a => a.Estado_POP === "Instalado - Buen estado").length;
+  const popBuenEstadoPct = round1((popBuenEstado / (auditoria.length || 1)) * 100);
   const visitasRealizadas = detalle.filter(d => d.Estado_Visita === "Realizada");
   const tiempoValues = visitasRealizadas.map(d => num(d["Duración_Minutos"])).filter(v => v > 0);
   const tiempoProm = tiempoValues.reduce((a, b) => a + b, 0) / (tiempoValues.length || 1);
+  const npsValues = visitasRealizadas.map(d => num(d.NPS_Encargado)).filter(v => v > 0);
+  const npsProm = round1(npsValues.reduce((a, b) => a + b, 0) / (npsValues.length || 1));
 
   const kpis = {
     osa_disponible: round1((osaDisp / totalRele) * 100), osa_quiebre_gondola: round1((osaQG / totalRele) * 100), osa_quiebre_total: round1((osaQT / totalRele) * 100),
@@ -1053,6 +1112,107 @@ async function buildDashboard() {
     tablaPlan.appendChild(tr);
   });
   if (!alertas.length) { tablaPlan.innerHTML = `<tr><td colspan="6">No hay acciones pendientes con los datos actuales.</td></tr>`; }
+
+  // ---------------- INCIDENCIAS ----------------
+  const incContent = document.getElementById("incidencias-content");
+  if (!incidencias.length) {
+    incContent.innerHTML = `<div class="alert wa"><i class="fas fa-circle-info"></i><div>No hay datos de incidencias disponibles en este momento (la pestaña puede no estar publicada o el esquema no coincide). El resto del panel funciona con normalidad.</div></div>`;
+  } else {
+    const altaGravedad = incidencias.filter(i => i.Gravedad === "Alta").length;
+    const abiertas = incidencias.filter(i => i.Estado === "Abierta").length;
+    const tipoCount = groupCount(incidencias, i => i.Tipo);
+    document.getElementById("nb-incidencias").textContent = abiertas;
+    document.getElementById("nb-incidencias").style.display = abiertas > 0 ? "inline-block" : "none";
+
+    let html = `<div class="kpi-grid-3">
+      <div class="kpi t-er"><div class="kpi-lbl">Incidencias registradas</div><div class="kpi-val">${incidencias.length}</div><div class="kpi-sub">en el período relevado</div></div>
+      <div class="kpi t-wa"><div class="kpi-lbl">Gravedad alta</div><div class="kpi-val">${altaGravedad}</div><div class="kpi-sub">${round1((altaGravedad/incidencias.length)*100)}% del total</div></div>
+      <div class="kpi t-acc"><div class="kpi-lbl">Abiertas (sin resolver)</div><div class="kpi-val">${abiertas}</div><div class="kpi-sub">requieren seguimiento</div></div>
+    </div>
+    <div class="card card-p" style="margin-top:20px;">
+      <div class="card-hdr"><div class="card-title">Incidencias por tipo</div><div class="card-sub">Motivo más frecuente primero</div></div>
+      <div class="chart-h"><canvas id="chart-incidencias"></canvas></div>
+    </div>
+    <div class="tw" style="margin-top:20px;">
+      <div class="tf"><div class="card-title">Incidencias de gravedad alta o abiertas</div></div>
+      <table><thead><tr><th>Fecha</th><th>Local</th><th>Tipo</th><th>Gravedad</th><th>Estado</th></tr></thead><tbody>`;
+    incidencias.filter(i => i.Gravedad === "Alta" || i.Estado === "Abierta").slice(0, 15).forEach(i => {
+      const nomLocal = (localMap[i.ID_Local] || {}).Nombre_Local || i.ID_Local;
+      const gravClass = i.Gravedad === "Alta" ? "er" : i.Gravedad === "Media" ? "wa" : "ok";
+      const estClass = i.Estado === "Abierta" ? "er" : i.Estado === "En seguimiento" ? "wa" : "ok";
+      html += `<tr><td>${i.Fecha}</td><td>${nomLocal}</td><td>${i.Tipo}</td><td><span class="pill ${gravClass}">${i.Gravedad}</span></td><td><span class="pill ${estClass}">${i.Estado}</span></td></tr>`;
+    });
+    html += `</tbody></table></div>`;
+    incContent.innerHTML = html;
+    new Chart(document.getElementById("chart-incidencias"), { type: "bar", data: { labels: tipoCount.labels, datasets: [{ data: tipoCount.values, backgroundColor: GREY, borderRadius: 6, maxBarThickness: 28 }] }, options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { ...gridOpt(), beginAtZero: true }, y: { grid: { display: false }, ticks: { color: "#f2eeee", font: { size: 11 } } } } } });
+  }
+
+  // ---------------- COSTO & ROI ----------------
+  const roiContent = document.getElementById("roi-content");
+  const costoMap = {}; costos.forEach(c => costoMap[c.Concepto] = parseGs(c.Costo_Unitario_Gs));
+  if (!costos.length) {
+    roiContent.innerHTML = `<div class="alert wa"><i class="fas fa-circle-info"></i><div>No hay datos de costos operativos disponibles en este momento. El resto del panel funciona con normalidad.</div></div>`;
+  } else {
+    const costoVisita = costoMap["Costo por visita a PDV"] || 0;
+    const costoAuditoria = costoMap["Costo de auditoría de trade"] || 0;
+    const costoPromotorMes = costoMap["Costo mensual promedio por promotor (sueldo + viáticos)"] || 0;
+    const costoTransporteJornada = costoMap["Costo de combustible/transporte por jornada"] || 0;
+    const nPromotores = new Set(asistencia.map(a => a.ID_Promotor)).size;
+    const nJornadas = asistencia.length;
+
+    const costoVisitas = visitasRealizadas.length * costoVisita;
+    const costoAuditorias = auditoria.length * costoAuditoria;
+    const costoPromotores = nPromotores * costoPromotorMes;
+    const costoTransporte = nJornadas * costoTransporteJornada;
+    const costoTotal = costoVisitas + costoAuditorias + costoPromotores + costoTransporte;
+    const valorProtegido = valorEnRiesgo;
+    const ratioRoi = costoTotal > 0 ? round1(valorProtegido / costoTotal) : 0;
+
+    let html = `<div class="kpi-grid-3">
+      <div class="kpi t-acc"><div class="kpi-lbl">Costo estimado del servicio</div><div class="kpi-val">${fmtGs(costoTotal)}</div><div class="kpi-sub">en el período relevado (promotores + visitas + auditorías + transporte)</div></div>
+      <div class="kpi t-ok"><div class="kpi-lbl">Valor comercial protegido</div><div class="kpi-val">${fmtGs(valorProtegido)}</div><div class="kpi-sub">en productos por vencer que aún se pueden recuperar</div></div>
+      <div class="kpi t-wa"><div class="kpi-lbl">Relación valor / costo</div><div class="kpi-val">${ratioRoi}×</div><div class="kpi-sub">por cada Gs. 1 invertido en el servicio</div></div>
+    </div>
+    <div class="card card-p" style="margin-top:20px;">
+      <div class="card-hdr"><div class="card-title">Desglose del costo estimado</div><div class="card-sub">Basado en las tarifas internas de +Marka y el volumen real de actividad del período</div></div>
+      <div class="tw"><table><thead><tr><th>Concepto</th><th>Cálculo</th><th>Costo estimado</th></tr></thead><tbody>
+        <tr><td>Visitas realizadas</td><td>${visitasRealizadas.length} × ${fmtGs(costoVisita)}</td><td>${fmtGs(costoVisitas)}</td></tr>
+        <tr><td>Auditorías de trade</td><td>${auditoria.length} × ${fmtGs(costoAuditoria)}</td><td>${fmtGs(costoAuditorias)}</td></tr>
+        <tr><td>Equipo de promotores</td><td>${nPromotores} × ${fmtGs(costoPromotorMes)}</td><td>${fmtGs(costoPromotores)}</td></tr>
+        <tr><td>Transporte / combustible</td><td>${nJornadas} jornadas × ${fmtGs(costoTransporteJornada)}</td><td>${fmtGs(costoTransporte)}</td></tr>
+      </tbody></table></div>
+    </div>
+    <div class="alert acc" style="margin-top:20px;"><i class="fas fa-circle-info"></i><div>Este cálculo compara el costo operativo del servicio contra el valor de los productos por vencer que todavía se pueden recuperar con una acción comercial a tiempo. No incluye el valor de los quiebres evitados ni de la mejora de exhibición, que son beneficios adicionales no cuantificados acá — el ratio real de retorno es, como mínimo, este número.</div></div>`;
+
+    if (metas.length) {
+      const calcularValorActual = (indicador) => {
+        const mapa = {
+          "OSA (Disponibilidad en góndola)": { val: kpis.osa_disponible, mayorEsMejor: true },
+          "Cumplimiento de Planograma": { val: kpis.planograma_prom, mayorEsMejor: true },
+          "Cobertura de Visitas": { val: kpis.cobertura_prom, mayorEsMejor: true },
+          "Ausentismo máximo aceptable": { val: kpis.ausentismo, mayorEsMejor: false },
+          "Material POP en buen estado": { val: popBuenEstadoPct, mayorEsMejor: true },
+          "Share of Shelf mínimo": { val: sosProm, mayorEsMejor: true },
+          "Tiempo máximo promedio por visita": { val: kpis.tiempo_prom_visita, mayorEsMejor: false },
+          "NPS mínimo del encargado de local": { val: npsProm, mayorEsMejor: true },
+        };
+        return mapa[indicador] || null;
+      };
+      let metasHtml = `<div class="tw" style="margin-top:20px;"><div class="tf"><div class="card-title">Cumplimiento de metas de servicio</div></div>
+        <table><thead><tr><th>Indicador</th><th>Actual</th><th>Objetivo</th><th>Estado</th></tr></thead><tbody>`;
+      metas.forEach(m => {
+        const info = calcularValorActual(m.Indicador);
+        if (!info) return;
+        const objetivo = num(m.Objetivo);
+        const cumple = info.mayorEsMejor ? info.val >= objetivo : info.val <= objetivo;
+        metasHtml += `<tr><td>${m.Indicador}</td><td>${info.val}${m.Unidad === "%" ? "%" : " " + (m.Unidad || "")}</td><td>${objetivo}${m.Unidad === "%" ? "%" : " " + (m.Unidad || "")}</td><td><span class="pill ${cumple ? "ok" : "er"}">${cumple ? "Cumple" : "No cumple"}</span></td></tr>`;
+      });
+      metasHtml += `</tbody></table></div>`;
+      roiContent.innerHTML = html + metasHtml;
+    } else {
+      roiContent.innerHTML = html;
+    }
+  }
 
   document.getElementById("sb-upd").textContent = "Actualizado: " + new Date().toLocaleString("es-PY");
   document.getElementById("loading-screen").style.display = "none";

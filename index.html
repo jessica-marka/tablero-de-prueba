@@ -470,6 +470,11 @@ function fetchCSV(url) {
 }
 function parseGs(str) { if (!str) return 0; const n = parseInt(String(str).replace(/[^\d]/g, ""), 10); return isNaN(n) ? 0 : n; }
 function num(str) { const n = parseFloat(str); return isNaN(n) ? 0 : n; }
+// La planilla renombró la columna de disponibilidad a "Diponibilidad en gondola" (tal cual,
+// con ese typo). Este helper la lee de forma resiliente por si en el futuro vuelve a "OSA".
+function osaOf(r) { return r["Diponibilidad en gondola"] !== undefined ? r["Diponibilidad en gondola"] : osaOf(r); }
+// Ídem para "Facing", ahora publicado como "Caras visibles".
+function facingOf(r) { return r["Caras visibles"] !== undefined ? r["Caras visibles"] : r.Facing; }
 function monthOf(fechaStr) { if (!fechaStr) return null; const p = fechaStr.split("/"); return p.length < 2 ? null : parseInt(p[1], 10); }
 function round1(x) { return Math.round(x * 10) / 10; }
 function fmtInt(n) { return new Intl.NumberFormat('es-PY').format(Math.round(n)); }
@@ -518,7 +523,7 @@ async function buildDashboard() {
 
   const esquemaEsperado = {
     asistencia: ["ID_Registro", "Locales_Planificados", "Cobertura_%"], detalle: ["ID_Visita", "ID_Registro", "Estado_Visita"],
-    relevamiento: ["ID_Relevamiento", "OSA", "Precio"], auditoria: ["ID_Auditoría", "Cumplimiento_Planograma_%"],
+    relevamiento: ["ID_Relevamiento", "Diponibilidad en gondola", "Precio"], auditoria: ["ID_Auditoría", "Cumplimiento_Planograma_%"],
     locales: ["ID_Local", "Cadena", "Nombre_Local"], productos: ["ID_SKU", "Marca", "Categoría"],
   };
   const tablas = { asistencia, detalle, relevamiento, auditoria, locales, productos };
@@ -538,9 +543,9 @@ async function buildDashboard() {
   const localMap = {}; locales.forEach(l => { localMap[l.ID_Local] = l; });
 
   const totalRele = relevamiento.length;
-  const osaDisp = relevamiento.filter(r => r.OSA === "Disponible").length;
-  const osaQG = relevamiento.filter(r => r.OSA === "Quiebre Góndola").length;
-  const osaQT = relevamiento.filter(r => r.OSA === "Quiebre Total").length;
+  const osaDisp = relevamiento.filter(r => osaOf(r) === "Disponible").length;
+  const osaQG = relevamiento.filter(r => osaOf(r) === "Quiebre Góndola").length;
+  const osaQT = relevamiento.filter(r => osaOf(r) === "Quiebre Total").length;
   const coberturaValues = asistencia.map(a => num(a["Cobertura_%"]));
   const coberturaProm = coberturaValues.reduce((a, b) => a + b, 0) / (coberturaValues.length || 1);
   const ausentes = asistencia.filter(a => a.Estado_Asistencia === "Ausente").length;
@@ -568,14 +573,14 @@ async function buildDashboard() {
   const sosValues = auditoria.map(a => num(a["Share_of_Shelf_%"])).filter(v => v > 0);
   const sosProm = round1(sosValues.reduce((a, b) => a + b, 0) / (sosValues.length || 1));
 
-  const osaCategoria = groupRatio(relevamiento, r => r.Categoría, r => r.OSA === "Disponible");
-  const osaCadena = groupRatio(relevamiento, r => (localMap[r.ID_Local] || {}).Cadena, r => r.OSA === "Disponible");
+  const osaCategoria = groupRatio(relevamiento, r => r.Categoría, r => osaOf(r) === "Disponible");
+  const osaCadena = groupRatio(relevamiento, r => (localMap[r.ID_Local] || {}).Cadena, r => osaOf(r) === "Disponible");
   const planoCadena = groupAvg(auditoria, a => (localMap[a.ID_Local] || {}).Cadena, a => num(a["Cumplimiento_Planograma_%"]));
 
   const MESES = { 5: "Mayo", 6: "Junio", 7: "Julio" }; const mesesOrd = [5, 6, 7];
   const tendencia = {
     labels: mesesOrd.map(m => MESES[m]),
-    osa: mesesOrd.map(m => { const s = relevamiento.filter(r => monthOf(r.Fecha) === m); const d = s.filter(r => r.OSA === "Disponible").length; return s.length ? round1((d / s.length) * 100) : 0; }),
+    osa: mesesOrd.map(m => { const s = relevamiento.filter(r => monthOf(r.Fecha) === m); const d = s.filter(r => osaOf(r) === "Disponible").length; return s.length ? round1((d / s.length) * 100) : 0; }),
     cobertura: mesesOrd.map(m => { const s = asistencia.filter(a => monthOf(a.Fecha) === m).map(a => num(a["Cobertura_%"])); return s.length ? round1(s.reduce((a, b) => a + b, 0) / s.length) : 0; }),
     planograma: mesesOrd.map(m => { const s = auditoria.filter(a => monthOf(a.Fecha) === m).map(a => num(a["Cumplimiento_Planograma_%"])); return s.length ? round1(s.reduce((a, b) => a + b, 0) / s.length) : 0; }),
     sos: mesesOrd.map(m => { const s = auditoria.filter(a => monthOf(a.Fecha) === m).map(a => num(a["Share_of_Shelf_%"])).filter(v => v > 0); return s.length ? round1(s.reduce((a, b) => a + b, 0) / s.length) : 0; }),
@@ -596,7 +601,7 @@ async function buildDashboard() {
   const rankingPromotores = groupAvg(asistencia, a => a.Nombre_Promotor, a => num(a["Cobertura_%"]));
 
   const skuGroups = {};
-  relevamiento.forEach(r => { const k = r.ID_SKU; if (!skuGroups[k]) skuGroups[k] = { marca: r.Marca, producto: r.Producto, n: 0, disp: 0 }; skuGroups[k].n++; if (r.OSA === "Disponible") skuGroups[k].disp++; });
+  relevamiento.forEach(r => { const k = r.ID_SKU; if (!skuGroups[k]) skuGroups[k] = { marca: r.Marca, producto: r.Producto, n: 0, disp: 0 }; skuGroups[k].n++; if (osaOf(r) === "Disponible") skuGroups[k].disp++; });
   const topSkusQuiebre = Object.values(skuGroups).filter(s => s.n >= 4).map(s => ({ Marca: s.marca, Producto: s.producto, osa: round1((s.disp / s.n) * 100) })).sort((a, b) => a.osa - b.osa).slice(0, 8);
 
   const competencia = groupCount(auditoria, a => a.Marca_Competencia);
@@ -609,7 +614,7 @@ async function buildDashboard() {
     .sort((a, b) => a.score - b.score);
 
   // ---------------- NUEVO: ranking a nivel de LOCAL (no solo cadena) ----------------
-  const osaLocal = groupRatio(relevamiento, r => r.Nombre_Local, r => r.OSA === "Disponible");
+  const osaLocal = groupRatio(relevamiento, r => r.Nombre_Local, r => osaOf(r) === "Disponible");
   const planoLocalRaw = {};
   auditoria.forEach(a => { const nom = (localMap[a.ID_Local] || {}).Nombre_Local; if (!nom) return; if (!planoLocalRaw[nom]) planoLocalRaw[nom] = { sum: 0, n: 0 }; planoLocalRaw[nom].sum += num(a["Cumplimiento_Planograma_%"]); planoLocalRaw[nom].n++; });
   const osaLocalMap = {}; osaLocal.labels.forEach((l, i) => osaLocalMap[l] = osaLocal.values[i]);
@@ -656,7 +661,7 @@ async function buildDashboard() {
     const localesDelProm = new Set(detalle.filter(d => d.Nombre_Promotor === prom && d.Estado_Visita === "Realizada").map(d => d.ID_Local));
     const releTerritorio = relevamiento.filter(r => localesDelProm.has(r.ID_Local));
     if (releTerritorio.length < 4) return;
-    const osaTerritorio = round1((releTerritorio.filter(r => r.OSA === "Disponible").length / releTerritorio.length) * 100);
+    const osaTerritorio = round1((releTerritorio.filter(r => osaOf(r) === "Disponible").length / releTerritorio.length) * 100);
     promotorTerritorioOsa[prom] = { cobertura, osaTerritorio, n: releTerritorio.length };
   });
 
@@ -822,10 +827,10 @@ async function buildDashboard() {
     if (f.categoria) rows = rows.filter(r => r.Categoría === f.categoria);
     if (f.mes !== "todos") rows = rows.filter(r => monthOf(r.Fecha) === Number(f.mes));
 
-    const osaCatF = groupRatio(rows, r => r.Categoría, r => r.OSA === "Disponible");
-    const osaCadF = groupRatio(rows, r => (localMap[r.ID_Local] || {}).Cadena, r => r.OSA === "Disponible");
+    const osaCatF = groupRatio(rows, r => r.Categoría, r => osaOf(r) === "Disponible");
+    const osaCadF = groupRatio(rows, r => (localMap[r.ID_Local] || {}).Cadena, r => osaOf(r) === "Disponible");
     const skuGroupsF = {};
-    rows.forEach(r => { const k = r.ID_SKU; if (!skuGroupsF[k]) skuGroupsF[k] = { marca: r.Marca, producto: r.Producto, n: 0, disp: 0 }; skuGroupsF[k].n++; if (r.OSA === "Disponible") skuGroupsF[k].disp++; });
+    rows.forEach(r => { const k = r.ID_SKU; if (!skuGroupsF[k]) skuGroupsF[k] = { marca: r.Marca, producto: r.Producto, n: 0, disp: 0 }; skuGroupsF[k].n++; if (osaOf(r) === "Disponible") skuGroupsF[k].disp++; });
     const topSkusF = Object.values(skuGroupsF).filter(s => s.n >= 4).map(s => ({ Marca: s.marca, Producto: s.producto, osa: round1((s.disp / s.n) * 100) })).sort((a, b) => a.osa - b.osa).slice(0, 8);
 
     if (chartOsaCat) chartOsaCat.destroy();
@@ -837,7 +842,7 @@ async function buildDashboard() {
 
     // heatmap cadena x categoría (siempre muestra todas las cadenas/categorías, solo cambia el color según el filtro de mes/cadena/categoría aplicado a los datos de fondo)
     const heatData = {};
-    rows.forEach(r => { const cad = (localMap[r.ID_Local] || {}).Cadena, cat = r.Categoría; if (!cad || !cat) return; const key = cad + "|" + cat; if (!heatData[key]) heatData[key] = { n: 0, disp: 0 }; heatData[key].n++; if (r.OSA === "Disponible") heatData[key].disp++; });
+    rows.forEach(r => { const cad = (localMap[r.ID_Local] || {}).Cadena, cat = r.Categoría; if (!cad || !cat) return; const key = cad + "|" + cat; if (!heatData[key]) heatData[key] = { n: 0, disp: 0 }; heatData[key].n++; if (osaOf(r) === "Disponible") heatData[key].disp++; });
     let html = '<table class="heat-table"><tr><td></td>' + categoriasList.map(c => `<td class="heat-hdr">${c}</td>`).join("") + "</tr>";
     cadenasList.forEach(cad => {
       html += `<tr><td class="heat-row-lbl">${cad}</td>`;
@@ -855,7 +860,7 @@ async function buildDashboard() {
 
     // tabla de productos: agrupado por categoría + producto, peor disponibilidad primero
     const prodGroups = {};
-    rows.forEach(r => { const key = r.Categoría + "|" + r.Marca + " — " + r.Producto; if (!prodGroups[key]) prodGroups[key] = { categoria: r.Categoría, producto: r.Marca + " — " + r.Producto, n: 0, disp: 0, valorRiesgo: 0 }; prodGroups[key].n++; if (r.OSA === "Disponible") prodGroups[key].disp++; if (r["Próximos_a_Vencer"] === "Sí") prodGroups[key].valorRiesgo += num(r.Unidades_Por_Vencer) * parseGs(r.Precio); });
+    rows.forEach(r => { const key = r.Categoría + "|" + r.Marca + " — " + r.Producto; if (!prodGroups[key]) prodGroups[key] = { categoria: r.Categoría, producto: r.Marca + " — " + r.Producto, n: 0, disp: 0, valorRiesgo: 0 }; prodGroups[key].n++; if (osaOf(r) === "Disponible") prodGroups[key].disp++; if (r["Próximos_a_Vencer"] === "Sí") prodGroups[key].valorRiesgo += num(r.Unidades_Por_Vencer) * parseGs(r.Precio); });
     const prodRows = Object.values(prodGroups).filter(p => p.n >= 2).map(p => ({ ...p, osa: round1((p.disp / p.n) * 100) })).sort((a, b) => a.osa - b.osa).slice(0, 25);
     const tbodyProd = document.getElementById("tabla-productos");
     tbodyProd.innerHTML = "";
@@ -993,14 +998,14 @@ async function buildDashboard() {
   const insightsList = [];
   if (rankingCadenas.length) {
     const peor = rankingCadenas[0];
-    const shareQuiebres = round1((relevamiento.filter(r => (localMap[r.ID_Local] || {}).Cadena === peor.cadena && r.OSA !== "Disponible").length / (relevamiento.filter(r => r.OSA !== "Disponible").length || 1)) * 100);
+    const shareQuiebres = round1((relevamiento.filter(r => (localMap[r.ID_Local] || {}).Cadena === peor.cadena && osaOf(r) !== "Disponible").length / (relevamiento.filter(r => osaOf(r) !== "Disponible").length || 1)) * 100);
     insightsList.push(`<strong>${peor.cadena}</strong> concentra el <strong>${shareQuiebres}%</strong> de todos los quiebres relevados en el trimestre, siendo la cadena con peor desempeño combinado (OSA ${peor.osa}%, planograma ${peor.planograma}%).`);
   }
   if (rankingCadenas.length > 1) {
     const mejor = rankingCadenas[rankingCadenas.length - 1];
     insightsList.push(`<strong>${mejor.cadena}</strong> es la cadena con mejor desempeño combinado (OSA ${mejor.osa}%, planograma ${mejor.planograma}%) y puede usarse como caso de referencia interno.`);
   }
-  const ciudadOsa = groupRatio(relevamiento, r => (localMap[r.ID_Local] || {}).Ciudad, r => r.OSA === "Disponible");
+  const ciudadOsa = groupRatio(relevamiento, r => (localMap[r.ID_Local] || {}).Ciudad, r => osaOf(r) === "Disponible");
   const ciudadPlano = groupAvg(auditoria, a => (localMap[a.ID_Local] || {}).Ciudad, a => num(a["Cumplimiento_Planograma_%"]));
   const ciudadPlanoMap = {}; ciudadPlano.labels.forEach((l, i) => ciudadPlanoMap[l] = ciudadPlano.values[i]);
   ciudadOsa.labels.forEach((ciu, i) => {

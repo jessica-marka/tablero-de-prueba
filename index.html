@@ -226,7 +226,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
   <div class="topbar">
     <div>
       <div class="tb-title" id="tb-title">Alertas y decisiones</div>
-      <div class="tb-sub">+Marka · Panel comercial demo · Mayo – Julio 2026</div>
+      <div class="tb-sub">+Marka · Panel comercial demo · Julio 2026</div>
     </div>
     <div style="margin-left:auto;display:flex;gap:16px;align-items:center">
       <div class="theme-btn" onclick="document.body.classList.toggle('light')" title="Cambiar tema"><i class="fas fa-sun"></i></div>
@@ -267,7 +267,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
         <div class="grid-3" id="indices-wrap"></div>
       </div>
       <div class="card card-p">
-        <div class="card-hdr"><div class="card-title">Tendencia trimestral</div><div class="card-sub">OSA, cobertura y planograma — mayo a julio. Los porcentajes de arriba muestran la variación de julio contra junio.</div></div>
+        <div class="card-hdr"><div class="card-title">Tendencia semanal</div><div class="card-sub">OSA, cobertura y planograma — semana a semana dentro de julio. Los porcentajes de arriba muestran la variación de la última semana contra la anterior.</div></div>
         <div class="chart-h-lg"><canvas id="chart-tendencia"></canvas></div>
       </div>
       <div class="alert acc"><i class="fas fa-circle-info"></i><div id="insight-resumen">Cargando…</div></div>
@@ -298,7 +298,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
         <div class="flbl"><i class="fas fa-filter"></i>Filtrar</div>
         <select id="f-cadena"><option value="">Todas las cadenas</option></select>
         <select id="f-categoria"><option value="">Todas las categorías</option></select>
-        <select id="f-mes"><option value="todos">Todo el trimestre</option><option value="5">Mayo</option><option value="6">Junio</option><option value="7">Julio</option></select>
+        <select id="f-mes"><option value="todos">Todo el mes</option><option value="1">Semana 1</option><option value="2">Semana 2</option><option value="3">Semana 3</option><option value="4">Semana 4</option><option value="5">Semana 5</option></select>
         <button id="f-clear"><i class="fas fa-xmark" style="margin-right:6px;"></i>Limpiar</button>
       </div>
       <div class="grid-2">
@@ -396,7 +396,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
         <div class="chart-h"><canvas id="chart-competencia"></canvas></div>
       </div>
       <div class="card card-p">
-        <div class="card-hdr"><div class="card-title">Share of Shelf propio por cadena — tendencia mensual</div><div class="card-sub">Si baja mes a mes, la competencia está ganando espacio físico en la góndola</div></div>
+        <div class="card-hdr"><div class="card-title">Share of Shelf propio por cadena — tendencia semanal</div><div class="card-sub">Si baja semana a semana, la competencia está ganando espacio físico en la góndola</div></div>
         <div class="chart-h-lg"><canvas id="chart-sos-tendencia"></canvas></div>
       </div>
       <div class="alert er"><i class="fas fa-chess-knight"></i><div id="insight-competencia"></div></div>
@@ -476,6 +476,7 @@ function osaOf(r) { return r["Diponibilidad en gondola"] !== undefined ? r["Dipo
 // Ídem para "Facing", ahora publicado como "Caras visibles".
 function facingOf(r) { return r["Caras visibles"] !== undefined ? r["Caras visibles"] : r.Facing; }
 function monthOf(fechaStr) { if (!fechaStr) return null; const p = fechaStr.split("/"); return p.length < 2 ? null : parseInt(p[1], 10); }
+function weekOf(fechaStr) { if (!fechaStr) return null; const p = fechaStr.split("/"); if (p.length < 1) return null; const dia = parseInt(p[0], 10); return Math.ceil(dia / 7); }
 function round1(x) { return Math.round(x * 10) / 10; }
 function fmtInt(n) { return new Intl.NumberFormat('es-PY').format(Math.round(n)); }
 function fmtGs(n) { return 'Gs. ' + new Intl.NumberFormat('es-PY').format(Math.round(n)); }
@@ -577,13 +578,14 @@ async function buildDashboard() {
   const osaCadena = groupRatio(relevamiento, r => (localMap[r.ID_Local] || {}).Cadena, r => osaOf(r) === "Disponible");
   const planoCadena = groupAvg(auditoria, a => (localMap[a.ID_Local] || {}).Cadena, a => num(a["Cumplimiento_Planograma_%"]));
 
-  const MESES = { 5: "Mayo", 6: "Junio", 7: "Julio" }; const mesesOrd = [5, 6, 7];
+  const MESES = { 5: "Mayo", 6: "Junio", 7: "Julio" };
+  const semanasOrd = [...new Set(relevamiento.map(r => weekOf(r.Fecha)).filter(w => w != null))].sort((a, b) => a - b);
   const tendencia = {
-    labels: mesesOrd.map(m => MESES[m]),
-    osa: mesesOrd.map(m => { const s = relevamiento.filter(r => monthOf(r.Fecha) === m); const d = s.filter(r => osaOf(r) === "Disponible").length; return s.length ? round1((d / s.length) * 100) : 0; }),
-    cobertura: mesesOrd.map(m => { const s = asistencia.filter(a => monthOf(a.Fecha) === m).map(a => num(a["Cobertura_%"])); return s.length ? round1(s.reduce((a, b) => a + b, 0) / s.length) : 0; }),
-    planograma: mesesOrd.map(m => { const s = auditoria.filter(a => monthOf(a.Fecha) === m).map(a => num(a["Cumplimiento_Planograma_%"])); return s.length ? round1(s.reduce((a, b) => a + b, 0) / s.length) : 0; }),
-    sos: mesesOrd.map(m => { const s = auditoria.filter(a => monthOf(a.Fecha) === m).map(a => num(a["Share_of_Shelf_%"])).filter(v => v > 0); return s.length ? round1(s.reduce((a, b) => a + b, 0) / s.length) : 0; }),
+    labels: semanasOrd.map(s => "Semana " + s),
+    osa: semanasOrd.map(s => { const rs = relevamiento.filter(r => weekOf(r.Fecha) === s); const d = rs.filter(r => osaOf(r) === "Disponible").length; return rs.length ? round1((d / rs.length) * 100) : 0; }),
+    cobertura: semanasOrd.map(s => { const rs = asistencia.filter(a => weekOf(a.Fecha) === s).map(a => num(a["Cobertura_%"])); return rs.length ? round1(rs.reduce((a, b) => a + b, 0) / rs.length) : 0; }),
+    planograma: semanasOrd.map(s => { const rs = auditoria.filter(a => weekOf(a.Fecha) === s).map(a => num(a["Cumplimiento_Planograma_%"])); return rs.length ? round1(rs.reduce((a, b) => a + b, 0) / rs.length) : 0; }),
+    sos: semanasOrd.map(s => { const rs = auditoria.filter(a => weekOf(a.Fecha) === s).map(a => num(a["Share_of_Shelf_%"])).filter(v => v > 0); return rs.length ? round1(rs.reduce((a, b) => a + b, 0) / rs.length) : 0; }),
   };
 
   const popEstado = groupCount(auditoria, a => a.Estado_POP);
@@ -676,8 +678,9 @@ async function buildDashboard() {
 
   // ---------------- MOTOR DE ALERTAS ----------------
   const alertas = [];
-  const deltaOsa = round1(tendencia.osa[2] - tendencia.osa[0]);
-  const deltaPlano = round1(tendencia.planograma[2] - tendencia.planograma[0]);
+  const nSem = tendencia.osa.length;
+  const deltaOsa = nSem >= 2 ? round1(tendencia.osa[nSem - 1] - tendencia.osa[0]) : 0;
+  const deltaPlano = nSem >= 2 ? round1(tendencia.planograma[nSem - 1] - tendencia.planograma[0]) : 0;
 
   if (rankingCadenas.length && rankingCadenas[0].osa < 70) {
     alertas.push({ sev: "critico", icon: "fa-triangle-exclamation", title: `${rankingCadenas[0].cadena}: el cliente no encuentra el producto casi 1 de cada 3 veces`,
@@ -690,13 +693,13 @@ async function buildDashboard() {
       action: `Visita de diagnóstico presencial en ${rankingLocales[0].local}` });
   }
   if (deltaOsa <= -5) {
-    alertas.push({ sev: "critico", icon: "fa-arrow-trend-down", title: `La disponibilidad viene empeorando mes a mes`,
-      desc: `En mayo la disponibilidad general era ${tendencia.osa[0]}% y en julio bajó a ${tendencia.osa[2]}% — una caída de ${Math.abs(deltaOsa)} puntos en el trimestre. Si la tendencia sigue, el problema se agrava solo, sin que nadie lo note hasta que ya generó pérdidas grandes.`,
+    alertas.push({ sev: "critico", icon: "fa-arrow-trend-down", title: `La disponibilidad viene empeorando semana a semana`,
+      desc: `En la primera semana del mes la disponibilidad general era ${tendencia.osa[0]}% y en la última bajó a ${tendencia.osa[nSem - 1]}% — una caída de ${Math.abs(deltaOsa)} puntos dentro del mes. Si la tendencia sigue, el problema se agrava solo, sin que nadie lo note hasta que ya generó pérdidas grandes.`,
       action: "Revisar qué cambió operativamente entre mayo y julio (rutas, frecuencia de visita, proveedor)" });
   } else if (deltaOsa >= 5) {
-    alertas.push({ sev: "positivo", icon: "fa-arrow-trend-up", title: `La disponibilidad viene mejorando mes a mes`,
-      desc: `Pasó de ${tendencia.osa[0]}% en mayo a ${tendencia.osa[2]}% en julio (+${deltaOsa} puntos). Vale la pena identificar qué se hizo distinto para sostenerlo.`,
-      action: "Documentar y repetir lo que funcionó este trimestre" });
+    alertas.push({ sev: "positivo", icon: "fa-arrow-trend-up", title: `La disponibilidad viene mejorando semana a semana`,
+      desc: `Pasó de ${tendencia.osa[0]}% en la primera semana a ${tendencia.osa[nSem - 1]}% en la última (+${deltaOsa} puntos). Vale la pena identificar qué se hizo distinto para sostenerlo.`,
+      action: "Documentar y repetir lo que funcionó esta semana" });
   }
   if (valorEnRiesgo > 0) {
     const nivelVenc = valorEnRiesgo > 3000000 ? "critico" : "atencion";
@@ -743,9 +746,9 @@ async function buildDashboard() {
   document.getElementById("nb-alertas").style.display = nCriticas > 0 ? "inline-block" : "none";
 
   document.getElementById("exec-summary").innerHTML =
-    `La operación releva <b>${fmtInt(totalRele)} controles</b> en <b>${locales.length} locales</b> durante el trimestre. ` +
+    `La operación releva <b>${fmtInt(totalRele)} controles</b> en <b>${locales.length} locales</b> durante el mes. ` +
     `Hoy el cliente encuentra el producto en góndola el <b>${kpis.osa_disponible}% de las veces</b>` +
-    (deltaOsa < 0 ? `, y esa cifra viene <b>bajando</b> (${deltaOsa} puntos desde mayo)` : deltaOsa > 0 ? `, y viene <b>mejorando</b> (+${deltaOsa} puntos desde mayo)` : `, estable en el trimestre`) +
+    (deltaOsa < 0 ? `, y esa cifra viene <b>bajando</b> (${deltaOsa} puntos desde la primera semana)` : deltaOsa > 0 ? `, y viene <b>mejorando</b> (+${deltaOsa} puntos desde la primera semana)` : `, estable en el mes`) +
     `. Hay <b>${fmtGs(valorEnRiesgo)}</b> en productos por vencer que todavía se pueden recuperar con una promoción a tiempo, y el ${kpis.pop_problema}% de las exhibiciones tiene algún problema visual. ` +
     `${nCriticas > 0 ? `Se detectaron <b>${nCriticas} alerta${nCriticas > 1 ? "s" : ""} crítica${nCriticas > 1 ? "s" : ""}</b> que conviene resolver esta semana.` : "No hay alertas críticas abiertas en este momento."}`;
 
@@ -825,7 +828,7 @@ async function buildDashboard() {
     let rows = relevamiento;
     if (f.cadena) rows = rows.filter(r => (localMap[r.ID_Local] || {}).Cadena === f.cadena);
     if (f.categoria) rows = rows.filter(r => r.Categoría === f.categoria);
-    if (f.mes !== "todos") rows = rows.filter(r => monthOf(r.Fecha) === Number(f.mes));
+    if (f.mes !== "todos") rows = rows.filter(r => weekOf(r.Fecha) === Number(f.mes));
 
     const osaCatF = groupRatio(rows, r => r.Categoría, r => osaOf(r) === "Disponible");
     const osaCadF = groupRatio(rows, r => (localMap[r.ID_Local] || {}).Cadena, r => osaOf(r) === "Disponible");
@@ -884,16 +887,17 @@ async function buildDashboard() {
     document.getElementById("insight-osa").innerHTML = `<strong>${osaCadena.labels[idx]}</strong> tiene la disponibilidad más baja de todas las cadenas (${osaCadena.values[idx]}%), por debajo del promedio general (${kpis.osa_disponible}%). Priorizar frecuencia de reposición ahí antes de sumar más puntos de venta.`;
   }
 
-  // ---------------- chips de variación mes a mes (julio vs. junio) ----------------
+  // ---------------- chips de variación semana a semana (última semana vs. anterior) ----------------
   function renderDelta(id, val) {
     const el = document.getElementById(id);
     if (val > 0.05) { el.className = "delta-chip up"; el.innerHTML = `<i class="fas fa-arrow-up"></i> +${val}`; }
     else if (val < -0.05) { el.className = "delta-chip down"; el.innerHTML = `<i class="fas fa-arrow-down"></i> ${val}`; }
     else { el.className = "delta-chip flat"; el.innerHTML = `<i class="fas fa-minus"></i> 0`; }
   }
-  renderDelta("d-osa", round1(tendencia.osa[2] - tendencia.osa[1]));
-  renderDelta("d-plano", round1(tendencia.planograma[2] - tendencia.planograma[1]));
-  renderDelta("d-cobertura", round1(tendencia.cobertura[2] - tendencia.cobertura[1]));
+  const nS = tendencia.osa.length;
+  renderDelta("d-osa", nS >= 2 ? round1(tendencia.osa[nS - 1] - tendencia.osa[nS - 2]) : 0);
+  renderDelta("d-plano", nS >= 2 ? round1(tendencia.planograma[nS - 1] - tendencia.planograma[nS - 2]) : 0);
+  renderDelta("d-cobertura", nS >= 2 ? round1(tendencia.cobertura[nS - 1] - tendencia.cobertura[nS - 2]) : 0);
 
   document.getElementById("k-venc-unidades").textContent = fmtInt(unidadesTotales);
   document.getElementById("k-venc-registros").textContent = "en " + proximos.length + " relevamientos";
@@ -968,10 +972,10 @@ async function buildDashboard() {
   document.getElementById("k-comp-sos").textContent = sosProm + "%";
   new Chart(document.getElementById("chart-competencia"), { type: "bar", data: { labels: competencia.labels, datasets: [{ data: competencia.values, backgroundColor: GREY, borderRadius: 6, maxBarThickness: 28 }] }, options: { plugins: { legend: { display: false } }, scales: { y: { ...gridOpt(), beginAtZero: true }, x: { grid: { display: false }, ticks: { color: "#9c9494", font: { size: 10.5 } } } } } });
   new Chart(document.getElementById("chart-sos-tendencia"), { type: "line", data: { labels: tendencia.labels, datasets: [{ label: "Share of Shelf %", data: tendencia.sos, borderColor: ACC, backgroundColor: "rgba(212,162,76,.12)", tension: .35, fill: true, pointRadius: 4, pointBackgroundColor: ACC }] }, options: { plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 60, ...gridOpt() }, x: { grid: { display: false }, ticks: { color: "#9c9494" } } } } });
-  const deltaSos = round1(tendencia.sos[2] - tendencia.sos[0]);
+  const deltaSos = tendencia.sos.length >= 2 ? round1(tendencia.sos[tendencia.sos.length - 1] - tendencia.sos[0]) : 0;
   document.getElementById("insight-competencia").innerHTML =
     `El <strong>${compConPromoPct}%</strong> de las auditorías registra una promoción activa de la competencia, y el <strong>${compLanzamientoPct}%</strong> detecta un producto nuevo en góndola — la competencia está activa, no pasiva. ` +
-    `El Share of Shelf propio promedio es ${sosProm}%` + (deltaSos < -2 ? `, y viene <strong>cayendo</strong> (${deltaSos} puntos en el trimestre) — señal de que se está cediendo espacio físico de góndola.` : deltaSos > 2 ? `, y viene <strong>subiendo</strong> (+${deltaSos} puntos) — se está ganando espacio.` : `, estable en el trimestre.`) +
+    `El Share of Shelf propio promedio es ${sosProm}%` + (deltaSos < -2 ? `, y viene <strong>cayendo</strong> (${deltaSos} puntos en el mes) — señal de que se está cediendo espacio físico de góndola.` : deltaSos > 2 ? `, y viene <strong>subiendo</strong> (+${deltaSos} puntos) — se está ganando espacio.` : `, estable en el mes.`) +
     ` <strong>${competencia.labels[0] || "—"}</strong> es la marca competidora más mencionada en las auditorías.`;
 
   // ---------------- SCORE POR SUPERVISOR ----------------
@@ -999,7 +1003,7 @@ async function buildDashboard() {
   if (rankingCadenas.length) {
     const peor = rankingCadenas[0];
     const shareQuiebres = round1((relevamiento.filter(r => (localMap[r.ID_Local] || {}).Cadena === peor.cadena && osaOf(r) !== "Disponible").length / (relevamiento.filter(r => osaOf(r) !== "Disponible").length || 1)) * 100);
-    insightsList.push(`<strong>${peor.cadena}</strong> concentra el <strong>${shareQuiebres}%</strong> de todos los quiebres relevados en el trimestre, siendo la cadena con peor desempeño combinado (OSA ${peor.osa}%, planograma ${peor.planograma}%).`);
+    insightsList.push(`<strong>${peor.cadena}</strong> concentra el <strong>${shareQuiebres}%</strong> de todos los quiebres relevados en el mes, siendo la cadena con peor desempeño combinado (OSA ${peor.osa}%, planograma ${peor.planograma}%).`);
   }
   if (rankingCadenas.length > 1) {
     const mejor = rankingCadenas[rankingCadenas.length - 1];
@@ -1015,6 +1019,20 @@ async function buildDashboard() {
   if (topSkusQuiebre.length) insightsList.push(`El producto con peor disponibilidad es <strong>${topSkusQuiebre[0].Marca} — ${topSkusQuiebre[0].Producto}</strong> (${topSkusQuiebre[0].osa}%), muy por debajo del promedio general (${kpis.osa_disponible}%).`);
   insightsList.push(`El cumplimiento de planograma explica gran parte de la brecha de Share of Shelf: las auditorías con planograma por debajo de 65% muestran un Share of Shelf promedio de ${round1(auditoria.filter(a => num(a["Cumplimiento_Planograma_%"]) < 65).reduce((s, a) => s + num(a["Share_of_Shelf_%"]), 0) / (auditoria.filter(a => num(a["Cumplimiento_Planograma_%"]) < 65).length || 1))}%, contra ${round1(auditoria.filter(a => num(a["Cumplimiento_Planograma_%"]) >= 65).reduce((s, a) => s + num(a["Share_of_Shelf_%"]), 0) / (auditoria.filter(a => num(a["Cumplimiento_Planograma_%"]) >= 65).length || 1))}% cuando el planograma se cumple.`);
   insightsList.push(`Los locales con material POP en buen estado muestran, en promedio, mejor Share of Shelf que los que tienen POP dañado o faltante — la exhibición física y el material publicitario se refuerzan mutuamente.`);
+
+  const osaSegmento = groupRatio(relevamiento, r => (localMap[r.ID_Local] || {}).Segmento_Socioeconomico, r => osaOf(r) === "Disponible");
+  if (osaSegmento.labels.length >= 2) {
+    const idxPeorSeg = osaSegmento.values.indexOf(Math.min(...osaSegmento.values));
+    const idxMejorSeg = osaSegmento.values.indexOf(Math.max(...osaSegmento.values));
+    insightsList.push(`El segmento <strong>${osaSegmento.labels[idxPeorSeg]}</strong> tiene la disponibilidad más baja (${osaSegmento.values[idxPeorSeg]}%), contra ${osaSegmento.values[idxMejorSeg]}% en el segmento ${osaSegmento.labels[idxMejorSeg]} — la zona socioeconómica del local también explica parte de la diferencia de ejecución, no solo la cadena.`);
+  }
+  const canalIndep = relevamiento.filter(r => (localMap[r.ID_Local] || {}).Cadena === "Independiente");
+  const canalCadenas = relevamiento.filter(r => (localMap[r.ID_Local] || {}).Cadena !== "Independiente");
+  if (canalIndep.length >= 4 && canalCadenas.length >= 4) {
+    const osaIndep = round1((canalIndep.filter(r => osaOf(r) === "Disponible").length / canalIndep.length) * 100);
+    const osaCadenasOrg = round1((canalCadenas.filter(r => osaOf(r) === "Disponible").length / canalCadenas.length) * 100);
+    insightsList.push(`El canal <strong>Independiente</strong> (almacenes/despensas de barrio) tiene ${osaIndep}% de disponibilidad, contra ${osaCadenasOrg}% en las cadenas organizadas — una diferencia esperable dado el menor control de stock en el canal tradicional, y una oportunidad concreta de valor agregado del servicio ahí.`);
+  }
   const insightsWrap = document.getElementById("insights-list");
   insightsList.forEach((txt, i) => {
     const div = document.createElement("div"); div.className = "insight-line";

@@ -488,7 +488,7 @@ function parseGs(str) { if (!str) return 0; const n = parseInt(String(str).repla
 function num(str) { const n = parseFloat(str); return isNaN(n) ? 0 : n; }
 // La planilla renombró la columna de disponibilidad a "Diponibilidad en gondola" (tal cual,
 // con ese typo). Este helper la lee de forma resiliente por si en el futuro vuelve a "OSA".
-function osaOf(r) { return r["Diponibilidad en gondola"] !== undefined ? r["Diponibilidad en gondola"] : osaOf(r); }
+function osaOf(r) { return r["Diponibilidad en gondola"] !== undefined ? r["Diponibilidad en gondola"] : r.OSA; }
 // Ídem para "Facing", ahora publicado como "Caras visibles".
 function facingOf(r) { return r["Caras visibles"] !== undefined ? r["Caras visibles"] : r.Facing; }
 // Soporta ambos formatos de fecha que la planilla ha usado: ISO "YYYY-MM-DD"

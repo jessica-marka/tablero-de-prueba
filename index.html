@@ -301,6 +301,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
         <div class="flbl"><i class="fas fa-filter"></i>Filtrar</div>
         <select id="f-cadena"><option value="">Todas las cadenas</option></select>
         <select id="f-categoria"><option value="">Todas las categorías</option></select>
+        <select id="f-ciudad"><option value="">Todas las ciudades</option></select>
         <select id="f-mes"><option value="todos">Todo el mes</option><option value="1">Semana 1</option><option value="2">Semana 2</option><option value="3">Semana 3</option><option value="4">Semana 4</option><option value="5">Semana 5</option></select>
         <button id="f-clear"><i class="fas fa-xmark" style="margin-right:6px;"></i>Limpiar</button>
       </div>
@@ -312,6 +313,16 @@ tr:hover td{background:rgba(255,255,255,.02)}
         <div class="card card-p">
           <div class="card-hdr"><div class="card-title">OSA % por cadena</div><div class="card-sub">De menor a mayor disponibilidad</div></div>
           <div class="chart-h"><canvas id="chart-osa-cadena"></canvas></div>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card card-p">
+          <div class="card-hdr"><div class="card-title">OSA % por marca</div><div class="card-sub">Marcas con muestra suficiente (≥4 relevamientos)</div></div>
+          <div class="chart-h"><canvas id="chart-osa-marca"></canvas></div>
+        </div>
+        <div class="card card-p">
+          <div class="card-hdr"><div class="card-title">Ranking de ciudades</div><div class="card-sub">De menor a mayor disponibilidad — dónde priorizar refuerzo geográfico</div></div>
+          <div class="chart-h"><canvas id="chart-osa-ciudad"></canvas></div>
         </div>
       </div>
       <div class="card card-p">
@@ -351,6 +362,10 @@ tr:hover td{background:rgba(255,255,255,.02)}
           <div class="card-hdr"><div class="card-title">Motivo de las averías</div><div class="card-sub">Sobre <span id="averia-total-label">—</span> unidades averiadas</div></div>
           <div class="chart-h"><canvas id="chart-averia"></canvas></div>
         </div>
+      </div>
+      <div class="card card-p">
+        <div class="card-hdr"><div class="card-title">Urgencia de vencimiento (FEFO)</div><div class="card-sub">Unidades por vencer agrupadas por cuánto tiempo queda para actuar</div></div>
+        <div class="chart-h"><canvas id="chart-fefo"></canvas></div>
       </div>
       <div class="alert acc"><i class="fas fa-lightbulb"></i><div id="insight-vencimientos"></div></div>
     </div>
@@ -435,6 +450,16 @@ tr:hover td{background:rgba(255,255,255,.02)}
         <div class="card-hdr"><div class="card-title">Cobertura promedio por promotor</div><div class="card-sub">De menor a mayor — dónde reforzar acompañamiento primero</div></div>
         <div class="chart-h-lg"><canvas id="chart-promotores"></canvas></div>
       </div>
+      <div class="grid-2">
+        <div class="card card-p">
+          <div class="card-hdr"><div class="card-title">Cobertura por día y promotor</div><div class="card-sub">Cada celda es una jornada — el rojo salta a la vista</div></div>
+          <div class="heatmap-grid" id="heatmap-dia-promotor"></div>
+        </div>
+        <div class="card card-p">
+          <div class="card-hdr"><div class="card-title">Horas trabajadas vs. locales visitados</div><div class="card-sub">Puntos abajo a la derecha = muchas horas, pocas visitas (baja productividad)</div></div>
+          <div class="chart-h"><canvas id="chart-productividad-scatter"></canvas></div>
+        </div>
+      </div>
       <div class="card card-p">
         <div class="card-hdr"><div class="card-title">Score por supervisor</div><div class="card-sub">Promedio de OSA y planograma de los locales a cargo de cada supervisor</div></div>
         <div id="ranking-supervisores"></div>
@@ -510,6 +535,7 @@ function parseFechaParts(fechaStr) {
 function monthOf(fechaStr) { const p = parseFechaParts(fechaStr); return p ? p.mes : null; }
 function weekOf(fechaStr) { const p = parseFechaParts(fechaStr); return p ? Math.ceil(p.dia / 7) : null; }
 function round1(x) { return Math.round(x * 10) / 10; }
+function parseTiempoHoras(t) { if (!t) return 0; const p = String(t).split(":"); if (p.length < 2) return 0; return parseInt(p[0], 10) + parseInt(p[1], 10) / 60; }
 function fmtInt(n) { return new Intl.NumberFormat('es-PY').format(Math.round(n)); }
 function fmtGs(n) { return 'Gs. ' + new Intl.NumberFormat('es-PY').format(Math.round(n)); }
 
@@ -654,6 +680,26 @@ async function buildDashboard() {
   const valorEnRiesgo = proximos.reduce((a, r) => a + num(r.Unidades_Por_Vencer) * parseGs(r.Precio), 0);
   const unidadesAveriadasTotales = relevamiento.reduce((a, r) => a + num(r.Unidades_Averiadas), 0);
   const registrosConAveria = relevamiento.filter(r => num(r.Unidades_Averiadas) > 0).length;
+
+  // FEFO: bucketea las unidades por vencer según cuántos días quedan desde la
+  // fecha del relevamiento hasta la fecha de vencimiento.
+  function diasHastaVencimiento(r) {
+    const fFecha = parseFechaParts(r.Fecha), fVenc = parseFechaParts(r.Fecha_Vencimiento);
+    if (!fFecha || !fVenc) return null;
+    const d1 = new Date(fFecha.anio, fFecha.mes - 1, fFecha.dia);
+    const d2 = new Date(fVenc.anio, fVenc.mes - 1, fVenc.dia);
+    return Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
+  }
+  const fefoBuckets = { "0-7 días": 0, "8-15 días": 0, "16-30 días": 0, "31-60 días": 0 };
+  proximos.forEach(r => {
+    const dias = diasHastaVencimiento(r);
+    if (dias == null) return;
+    const u = num(r.Unidades_Por_Vencer);
+    if (dias <= 7) fefoBuckets["0-7 días"] += u;
+    else if (dias <= 15) fefoBuckets["8-15 días"] += u;
+    else if (dias <= 30) fefoBuckets["16-30 días"] += u;
+    else if (dias <= 60) fefoBuckets["31-60 días"] += u;
+  });
 
   const topOportunidades = proximos.map(r => ({ local: r.Nombre_Local, marca: r.Marca, producto: r.Producto, unidades: num(r.Unidades_Por_Vencer), vence: r.Fecha_Vencimiento, valor: num(r.Unidades_Por_Vencer) * parseGs(r.Precio) }))
     .sort((a, b) => b.valor - a.valor).slice(0, 10)
@@ -873,24 +919,32 @@ async function buildDashboard() {
   }
 
   // ---------------- Disponibilidad: filtros + heatmap + tabla de productos ----------------
-  let chartOsaCat, chartOsaCad, chartSkus;
+  let chartOsaCat, chartOsaCad, chartSkus, chartOsaMarca, chartOsaCiudad;
   const cadenasList = [...new Set(locales.map(l => l.Cadena))].filter(Boolean).sort();
   const categoriasList = [...new Set(productos.map(p => p.Categoría))].filter(Boolean).sort();
+  const ciudadesList = [...new Set(locales.map(l => l.Ciudad))].filter(Boolean).sort();
 
   const selCadena = document.getElementById("f-cadena");
   const selCategoria = document.getElementById("f-categoria");
+  const selCiudad = document.getElementById("f-ciudad");
   const selMes = document.getElementById("f-mes");
   cadenasList.forEach(c => { const o = document.createElement("option"); o.value = c; o.textContent = c; selCadena.appendChild(o); });
   categoriasList.forEach(c => { const o = document.createElement("option"); o.value = c; o.textContent = c; selCategoria.appendChild(o); });
+  ciudadesList.forEach(c => { const o = document.createElement("option"); o.value = c; o.textContent = c; selCiudad.appendChild(o); });
 
   function renderDisponibilidad(f) {
     let rows = relevamiento;
     if (f.cadena) rows = rows.filter(r => (localMap[r.ID_Local] || {}).Cadena === f.cadena);
     if (f.categoria) rows = rows.filter(r => r.Categoría === f.categoria);
+    if (f.ciudad) rows = rows.filter(r => (localMap[r.ID_Local] || {}).Ciudad === f.ciudad);
     if (f.mes !== "todos") rows = rows.filter(r => weekOf(r.Fecha) === Number(f.mes));
 
     const osaCatF = groupRatio(rows, r => r.Categoría, r => osaOf(r) === "Disponible");
     const osaCadF = groupRatio(rows, r => (localMap[r.ID_Local] || {}).Cadena, r => osaOf(r) === "Disponible");
+    const osaCiudadF = groupRatio(rows, r => (localMap[r.ID_Local] || {}).Ciudad, r => osaOf(r) === "Disponible");
+    const marcaCountsF = {};
+    rows.forEach(r => { if (!marcaCountsF[r.Marca]) marcaCountsF[r.Marca] = { n: 0, disp: 0 }; marcaCountsF[r.Marca].n++; if (osaOf(r) === "Disponible") marcaCountsF[r.Marca].disp++; });
+    const osaMarcaF = Object.entries(marcaCountsF).filter(([, v]) => v.n >= 4).map(([k, v]) => [k, round1((v.disp / v.n) * 100)]).sort((a, b) => a[1] - b[1]);
     const skuGroupsF = {};
     rows.forEach(r => { const k = r.ID_SKU; if (!skuGroupsF[k]) skuGroupsF[k] = { marca: r.Marca, producto: r.Producto, n: 0, disp: 0 }; skuGroupsF[k].n++; if (osaOf(r) === "Disponible") skuGroupsF[k].disp++; });
     const topSkusF = Object.values(skuGroupsF).filter(s => s.n >= 4).map(s => ({ Marca: s.marca, Producto: s.producto, osa: round1((s.disp / s.n) * 100) })).sort((a, b) => a.osa - b.osa).slice(0, 8);
@@ -899,6 +953,10 @@ async function buildDashboard() {
     chartOsaCat = new Chart(document.getElementById("chart-osa-categoria"), { type: "bar", data: { labels: osaCatF.labels, datasets: [{ data: osaCatF.values, backgroundColor: osaCatF.values.map(v => colorForValue(v)), borderRadius: 6, maxBarThickness: 30 }] }, options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { min: 0, max: 100, ...gridOpt() }, y: { grid: { display: false }, ticks: { color: "#f2eeee", font: { size: 11.5 } } } } } });
     if (chartOsaCad) chartOsaCad.destroy();
     chartOsaCad = new Chart(document.getElementById("chart-osa-cadena"), { type: "bar", data: { labels: osaCadF.labels, datasets: [{ data: osaCadF.values, backgroundColor: osaCadF.values.map(v => colorForValue(v)), borderRadius: 6, maxBarThickness: 30 }] }, options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { min: 0, max: 100, ...gridOpt() }, y: { grid: { display: false }, ticks: { color: "#f2eeee", font: { size: 11.5 } } } } } });
+    if (chartOsaMarca) chartOsaMarca.destroy();
+    chartOsaMarca = new Chart(document.getElementById("chart-osa-marca"), { type: "bar", data: { labels: osaMarcaF.map(e => e[0]), datasets: [{ data: osaMarcaF.map(e => e[1]), backgroundColor: osaMarcaF.map(e => colorForValue(e[1])), borderRadius: 6, maxBarThickness: 24 }] }, options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { min: 0, max: 100, ...gridOpt() }, y: { grid: { display: false }, ticks: { color: "#f2eeee", font: { size: 10.5 } } } } } });
+    if (chartOsaCiudad) chartOsaCiudad.destroy();
+    chartOsaCiudad = new Chart(document.getElementById("chart-osa-ciudad"), { type: "bar", data: { labels: osaCiudadF.labels, datasets: [{ data: osaCiudadF.values, backgroundColor: osaCiudadF.values.map(v => colorForValue(v)), borderRadius: 6, maxBarThickness: 24 }] }, options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { min: 0, max: 100, ...gridOpt() }, y: { grid: { display: false }, ticks: { color: "#f2eeee", font: { size: 11 } } } } } });
     if (chartSkus) chartSkus.destroy();
     chartSkus = new Chart(document.getElementById("chart-skus-quiebre"), { type: "bar", data: { labels: topSkusF.map(s => s.Marca + " · " + s.Producto), datasets: [{ data: topSkusF.map(s => s.osa), backgroundColor: ER, borderRadius: 6, maxBarThickness: 22 }] }, options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { min: 0, max: 100, ...gridOpt() }, y: { grid: { display: false }, ticks: { color: "#f2eeee", font: { size: 10.5 } } } } } });
 
@@ -934,12 +992,13 @@ async function buildDashboard() {
     });
   }
 
-  function currentFilters() { return { cadena: selCadena.value, categoria: selCategoria.value, mes: selMes.value }; }
+  function currentFilters() { return { cadena: selCadena.value, categoria: selCategoria.value, ciudad: selCiudad.value, mes: selMes.value }; }
   selCadena.addEventListener("change", () => renderDisponibilidad(currentFilters()));
   selCategoria.addEventListener("change", () => renderDisponibilidad(currentFilters()));
+  selCiudad.addEventListener("change", () => renderDisponibilidad(currentFilters()));
   selMes.addEventListener("change", () => renderDisponibilidad(currentFilters()));
-  document.getElementById("f-clear").addEventListener("click", () => { selCadena.value = ""; selCategoria.value = ""; selMes.value = "todos"; renderDisponibilidad(currentFilters()); });
-  renderDisponibilidad({ cadena: "", categoria: "", mes: "todos" });
+  document.getElementById("f-clear").addEventListener("click", () => { selCadena.value = ""; selCategoria.value = ""; selCiudad.value = ""; selMes.value = "todos"; renderDisponibilidad(currentFilters()); });
+  renderDisponibilidad({ cadena: "", categoria: "", ciudad: "", mes: "todos" });
 
   if (osaCadena.values.length) {
     const idx = osaCadena.values.indexOf(Math.min(...osaCadena.values));
@@ -970,6 +1029,11 @@ async function buildDashboard() {
 
   new Chart(document.getElementById("chart-averia"), { type: "doughnut", data: { labels: motivoAveria.labels, datasets: [{ data: motivoAveria.values, backgroundColor: [ACC, OK, WA, ER, BL], borderColor: "#161414", borderWidth: 2 }] }, options: { cutout: "62%", plugins: { legend: { position: "bottom", labels: { boxWidth: 9, boxHeight: 9, color: "#9c9494", font: { size: 10 }, padding: 10 } } } } });
 
+  const fefoLabels = Object.keys(fefoBuckets);
+  const fefoValues = Object.values(fefoBuckets);
+  const fefoColors = [ER, WA, ACC, OK];
+  new Chart(document.getElementById("chart-fefo"), { type: "bar", data: { labels: fefoLabels, datasets: [{ data: fefoValues, backgroundColor: fefoColors, borderRadius: 6, maxBarThickness: 50 }] }, options: { plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => fmtInt(c.parsed.y) + " unidades" } } }, scales: { y: { ...gridOpt(), beginAtZero: true }, x: { grid: { display: false }, ticks: { color: "#f2eeee" } } } } });
+
   document.getElementById("insight-vencimientos").innerHTML = `Hay <strong>${fmtInt(unidadesTotales)} unidades</strong> por vencer con un valor comercial de <strong>${fmtGs(valorEnRiesgo)}</strong> todavía en juego. Activar promociones dirigidas sobre los ítems de la tabla antes de su vencimiento puede recuperar la mayor parte de ese valor.`;
 
   new Chart(document.getElementById("chart-planograma-cadena"), { type: "bar", data: { labels: planoCadena.labels, datasets: [{ data: planoCadena.values, backgroundColor: planoCadena.values.map(v => colorForValue(v, 80, 70)), borderRadius: 6, maxBarThickness: 30 }] }, options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { min: 0, max: 100, ...gridOpt() }, y: { grid: { display: false }, ticks: { color: "#f2eeee", font: { size: 11.5 } } } } } });
@@ -981,6 +1045,37 @@ async function buildDashboard() {
   document.getElementById("k-campo-ausentismo").textContent = kpis.ausentismo + "%";
   document.getElementById("k-campo-tiempo").textContent = kpis.tiempo_prom_visita + " min";
   new Chart(document.getElementById("chart-promotores"), { type: "bar", data: { labels: rankingPromotores.labels, datasets: [{ data: rankingPromotores.values, backgroundColor: rankingPromotores.values.map(v => colorForValue(v, 90, 75)), borderRadius: 6, maxBarThickness: 24 }] }, options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { min: 0, max: 100, ...gridOpt() }, y: { grid: { display: false }, ticks: { color: "#f2eeee", font: { size: 11.5 } } } } } });
+
+  // heatmap día x promotor (cobertura)
+  const diasUnicos = [...new Set(asistencia.map(a => a.Fecha))].filter(Boolean).sort();
+  const promotoresUnicos = [...new Set(asistencia.map(a => a.Nombre_Promotor))].filter(Boolean).sort();
+  const coberturaPorDiaProm = {};
+  asistencia.forEach(a => { coberturaPorDiaProm[a.Fecha + "|" + a.Nombre_Promotor] = num(a["Cobertura_%"]); });
+  let htmlDP = '<table class="heat-table"><tr><td></td>' + promotoresUnicos.map(p => `<td class="heat-hdr">${p.split(" ")[0]}</td>`).join("") + "</tr>";
+  diasUnicos.forEach(dia => {
+    htmlDP += `<tr><td class="heat-row-lbl">${dia}</td>`;
+    promotoresUnicos.forEach(p => {
+      const key = dia + "|" + p;
+      if (!(key in coberturaPorDiaProm)) { htmlDP += `<td class="heat-cell" style="background:#1e1b1b;color:#5a5252;">—</td>`; return; }
+      const pct = coberturaPorDiaProm[key];
+      const bg = pct >= 90 ? "#3cb3a8" : pct >= 70 ? "#e8a045" : "#e8815f";
+      htmlDP += `<td class="heat-cell" style="background:${bg};">${pct}%</td>`;
+    });
+    htmlDP += "</tr>";
+  });
+  htmlDP += "</table>";
+  document.getElementById("heatmap-dia-promotor").innerHTML = htmlDP;
+
+  // scatter: horas trabajadas vs locales visitados (detecta baja productividad)
+  const scatterData = asistencia.filter(a => a.Estado_Asistencia === "Presente").map(a => ({ x: parseTiempoHoras(a.Tiempo_Total_Trabajo), y: num(a.Locales_Visitados) }));
+  new Chart(document.getElementById("chart-productividad-scatter"), {
+    type: "scatter",
+    data: { datasets: [{ data: scatterData, backgroundColor: ACC, pointRadius: 5 }] },
+    options: { plugins: { legend: { display: false } }, scales: {
+      x: { title: { display: true, text: "Horas trabajadas", color: "#9c9494" }, ...gridOpt() },
+      y: { title: { display: true, text: "Locales visitados", color: "#9c9494" }, ...gridOpt(), beginAtZero: true },
+    } },
+  });
 
   if (rankingPromotores.labels.length >= 2) {
     document.getElementById("insight-campo").innerHTML = `<strong>${rankingPromotores.labels[0]}</strong> y <strong>${rankingPromotores.labels[1]}</strong> tienen la cobertura más baja del equipo (${rankingPromotores.values[0]}% y ${rankingPromotores.values[1]}%). Un acompañamiento puntual suele recuperar varios puntos sin sumar personal.`;
@@ -1059,6 +1154,20 @@ async function buildDashboard() {
 
   // ---------------- INSIGHTS (solo texto, sin gráficos) ----------------
   const insightsList = [];
+
+  // Concentración de visitas (Pareto): ¿qué % de promotores hace qué % de las visitas?
+  const visitasPorPromotor = {};
+  detalle.filter(d => d.Estado_Visita === "Realizada").forEach(d => { visitasPorPromotor[d.Nombre_Promotor] = (visitasPorPromotor[d.Nombre_Promotor] || 0) + 1; });
+  const conteosOrdenados = Object.values(visitasPorPromotor).sort((a, b) => b - a);
+  const totalVisitasRealizadas = conteosOrdenados.reduce((a, b) => a + b, 0);
+  if (conteosOrdenados.length >= 5 && totalVisitasRealizadas > 0) {
+    const nTop20 = Math.max(1, Math.round(conteosOrdenados.length * 0.2));
+    const visitasTop20 = conteosOrdenados.slice(0, nTop20).reduce((a, b) => a + b, 0);
+    const pctTop20Promotores = round1((nTop20 / conteosOrdenados.length) * 100);
+    const pctVisitasTop20 = round1((visitasTop20 / totalVisitasRealizadas) * 100);
+    insightsList.push(`El <strong>${pctTop20Promotores}%</strong> de los promotores (los ${nTop20} más activos) realiza el <strong>${pctVisitasTop20}%</strong> de todas las visitas — la carga de trabajo no está pareja entre el equipo.`);
+  }
+
   if (rankingCadenas.length) {
     const peor = rankingCadenas[0];
     const shareQuiebres = round1((relevamiento.filter(r => (localMap[r.ID_Local] || {}).Cadena === peor.cadena && osaOf(r) !== "Disponible").length / (relevamiento.filter(r => osaOf(r) !== "Disponible").length || 1)) * 100);

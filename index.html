@@ -80,8 +80,22 @@ button,input,select{font-family:'Outfit',sans-serif}
 .kpi.t-wa{background:linear-gradient(135deg,var(--wa-d) 0%,var(--bg2) 60%)}
 .kpi.t-acc{background:linear-gradient(135deg,var(--ad) 0%,var(--bg2) 60%)}
 .kpi-lbl{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.9px;font-weight:700;margin-bottom:14px}
-.kpi-val{font-size:30px;font-weight:900;line-height:1;margin-bottom:10px;letter-spacing:-1px}
+.kpi-val{font-size:30px;font-weight:900;line-height:1;margin-bottom:10px;letter-spacing:-1px;display:flex;align-items:baseline;gap:10px;}
 .kpi-sub{font-size:11px;color:var(--tx3);line-height:1.4}
+.delta-chip{font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;display:inline-flex;align-items:center;gap:3px;}
+.delta-chip.up{background:var(--ok-d);color:var(--ok)}
+.delta-chip.down{background:var(--er-d);color:#e8815f}
+.delta-chip.flat{background:rgba(255,255,255,.06);color:var(--tx3)}
+.heatmap-grid{overflow-x:auto;}
+.heat-table{width:100%;border-collapse:separate;border-spacing:4px;}
+.heat-cell{padding:12px 8px;text-align:center;font-size:12px;font-weight:700;border-radius:6px;color:#0d0c0c;white-space:nowrap;cursor:default;}
+.heat-hdr{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.5px;padding:8px 6px;text-align:center;font-weight:700;}
+.heat-row-lbl{font-size:11.5px;color:var(--tx);font-weight:600;padding:0 12px 0 0;white-space:nowrap;text-align:right;}
+.fbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:12px 16px;}
+.fbar select{background:var(--bg4);color:var(--tx);border:1px solid var(--bd2);border-radius:8px;padding:8px 12px;font-size:12.5px;}
+.fbar .flbl{font-size:11px;color:var(--tx3);font-weight:700;text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:6px;}
+.fbar button{background:none;border:1px solid var(--bd2);color:var(--tx2);border-radius:8px;padding:8px 14px;font-size:12px;cursor:pointer;margin-left:auto;}
+.fbar button:hover{border-color:var(--acc);color:var(--acc)}
 .card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);box-shadow:0 2px 12px rgba(0,0,0,.2)}
 .card-p{padding:22px 24px}
 .card-hdr{margin-bottom:16px}
@@ -224,13 +238,13 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <!-- ===================== RESUMEN ===================== -->
     <div class="page" data-page="resumen">
       <div class="kpi-grid">
-        <div class="kpi t-er"><div class="kpi-lbl">Disponibilidad (OSA)</div><div class="kpi-val" id="k-osa">—%</div><div class="kpi-sub" id="k-osa-sub">quiebre góndola + total</div></div>
-        <div class="kpi t-wa"><div class="kpi-lbl">Cumplimiento planograma</div><div class="kpi-val" id="k-plano">—%</div><div class="kpi-sub">promedio de auditorías</div></div>
-        <div class="kpi t-ok"><div class="kpi-lbl">Cobertura de visitas</div><div class="kpi-val" id="k-cobertura">—%</div><div class="kpi-sub" id="k-ausentismo-sub">ausentismo del equipo</div></div>
+        <div class="kpi t-er"><div class="kpi-lbl">Disponibilidad (OSA)</div><div class="kpi-val"><span id="k-osa">—%</span><span class="delta-chip" id="d-osa"></span></div><div class="kpi-sub" id="k-osa-sub">quiebre góndola + total</div></div>
+        <div class="kpi t-wa"><div class="kpi-lbl">Cumplimiento planograma</div><div class="kpi-val"><span id="k-plano">—%</span><span class="delta-chip" id="d-plano"></span></div><div class="kpi-sub">promedio de auditorías</div></div>
+        <div class="kpi t-ok"><div class="kpi-lbl">Cobertura de visitas</div><div class="kpi-val"><span id="k-cobertura">—%</span><span class="delta-chip" id="d-cobertura"></span></div><div class="kpi-sub" id="k-ausentismo-sub">ausentismo del equipo</div></div>
         <div class="kpi t-acc"><div class="kpi-lbl">Material POP con problema</div><div class="kpi-val" id="k-pop">—%</div><div class="kpi-sub">dañado, desactualizado o faltante</div></div>
       </div>
       <div class="card card-p">
-        <div class="card-hdr"><div class="card-title">Tendencia trimestral</div><div class="card-sub">OSA, cobertura y planograma — mayo a julio</div></div>
+        <div class="card-hdr"><div class="card-title">Tendencia trimestral</div><div class="card-sub">OSA, cobertura y planograma — mayo a julio. Los porcentajes de arriba muestran la variación de julio contra junio.</div></div>
         <div class="chart-h-lg"><canvas id="chart-tendencia"></canvas></div>
       </div>
       <div class="alert acc"><i class="fas fa-circle-info"></i><div id="insight-resumen">Cargando…</div></div>
@@ -238,6 +252,13 @@ tr:hover td{background:rgba(255,255,255,.02)}
 
     <!-- ===================== DISPONIBILIDAD ===================== -->
     <div class="page" data-page="disponibilidad">
+      <div class="fbar">
+        <div class="flbl"><i class="fas fa-filter"></i>Filtrar</div>
+        <select id="f-cadena"><option value="">Todas las cadenas</option></select>
+        <select id="f-categoria"><option value="">Todas las categorías</option></select>
+        <select id="f-mes"><option value="todos">Todo el trimestre</option><option value="5">Mayo</option><option value="6">Junio</option><option value="7">Julio</option></select>
+        <button id="f-clear"><i class="fas fa-xmark" style="margin-right:6px;"></i>Limpiar</button>
+      </div>
       <div class="grid-2">
         <div class="card card-p">
           <div class="card-hdr"><div class="card-title">OSA % por categoría</div><div class="card-sub">Porcentaje de relevamientos con producto disponible</div></div>
@@ -249,8 +270,19 @@ tr:hover td{background:rgba(255,255,255,.02)}
         </div>
       </div>
       <div class="card card-p">
+        <div class="card-hdr"><div class="card-title">Mapa de calor: cadena × categoría</div><div class="card-sub">La celda más roja es literalmente la combinación donde más se está perdiendo venta — empezá ahí</div></div>
+        <div class="heatmap-grid" id="heatmap-wrap"></div>
+      </div>
+      <div class="card card-p">
         <div class="card-hdr"><div class="card-title">SKUs con mayor problema de disponibilidad</div><div class="card-sub">Productos con muestra suficiente (≥4 relevamientos)</div></div>
         <div class="chart-h-lg"><canvas id="chart-skus-quiebre"></canvas></div>
+      </div>
+      <div class="tw">
+        <div class="tf"><div class="card-title">Detalle por producto (ordenado: peor disponibilidad primero)</div></div>
+        <table>
+          <thead><tr><th>Categoría</th><th>Producto</th><th>Relevamientos</th><th>OSA %</th><th>Valor en riesgo por vencer</th></tr></thead>
+          <tbody id="tabla-productos"></tbody>
+        </table>
       </div>
       <div class="alert er"><i class="fas fa-triangle-exclamation"></i><div id="insight-osa"></div></div>
     </div>
@@ -659,14 +691,90 @@ async function buildDashboard() {
     document.getElementById("insight-resumen").innerHTML = `<strong>${osaCategoria.labels[idx] || "—"}</strong> es la categoría con menor disponibilidad (${osaCategoria.values[idx] || 0}%). El cumplimiento de planograma promedio es ${kpis.planograma_prom}% y el ausentismo del equipo ${kpis.ausentismo}% — estas tres cifras juntas marcan dónde priorizar el próximo ciclo de visitas.`;
   }
 
-  new Chart(document.getElementById("chart-osa-categoria"), { type: "bar", data: { labels: osaCategoria.labels, datasets: [{ data: osaCategoria.values, backgroundColor: osaCategoria.values.map(v => colorForValue(v)), borderRadius: 6, maxBarThickness: 30 }] }, options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { min: 0, max: 100, ...gridOpt() }, y: { grid: { display: false }, ticks: { color: "#f2eeee", font: { size: 11.5 } } } } } });
-  new Chart(document.getElementById("chart-osa-cadena"), { type: "bar", data: { labels: osaCadena.labels, datasets: [{ data: osaCadena.values, backgroundColor: osaCadena.values.map(v => colorForValue(v)), borderRadius: 6, maxBarThickness: 30 }] }, options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { min: 0, max: 100, ...gridOpt() }, y: { grid: { display: false }, ticks: { color: "#f2eeee", font: { size: 11.5 } } } } } });
-  new Chart(document.getElementById("chart-skus-quiebre"), { type: "bar", data: { labels: topSkusQuiebre.map(s => s.Marca + " · " + s.Producto), datasets: [{ data: topSkusQuiebre.map(s => s.osa), backgroundColor: ER, borderRadius: 6, maxBarThickness: 22 }] }, options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { min: 0, max: 100, ...gridOpt() }, y: { grid: { display: false }, ticks: { color: "#f2eeee", font: { size: 10.5 } } } } } });
+  // ---------------- Disponibilidad: filtros + heatmap + tabla de productos ----------------
+  let chartOsaCat, chartOsaCad, chartSkus;
+  const cadenasList = [...new Set(locales.map(l => l.Cadena))].filter(Boolean).sort();
+  const categoriasList = [...new Set(productos.map(p => p.Categoría))].filter(Boolean).sort();
+
+  const selCadena = document.getElementById("f-cadena");
+  const selCategoria = document.getElementById("f-categoria");
+  const selMes = document.getElementById("f-mes");
+  cadenasList.forEach(c => { const o = document.createElement("option"); o.value = c; o.textContent = c; selCadena.appendChild(o); });
+  categoriasList.forEach(c => { const o = document.createElement("option"); o.value = c; o.textContent = c; selCategoria.appendChild(o); });
+
+  function renderDisponibilidad(f) {
+    let rows = relevamiento;
+    if (f.cadena) rows = rows.filter(r => (localMap[r.ID_Local] || {}).Cadena === f.cadena);
+    if (f.categoria) rows = rows.filter(r => r.Categoría === f.categoria);
+    if (f.mes !== "todos") rows = rows.filter(r => monthOf(r.Fecha) === Number(f.mes));
+
+    const osaCatF = groupRatio(rows, r => r.Categoría, r => r.OSA === "Disponible");
+    const osaCadF = groupRatio(rows, r => (localMap[r.ID_Local] || {}).Cadena, r => r.OSA === "Disponible");
+    const skuGroupsF = {};
+    rows.forEach(r => { const k = r.ID_SKU; if (!skuGroupsF[k]) skuGroupsF[k] = { marca: r.Marca, producto: r.Producto, n: 0, disp: 0 }; skuGroupsF[k].n++; if (r.OSA === "Disponible") skuGroupsF[k].disp++; });
+    const topSkusF = Object.values(skuGroupsF).filter(s => s.n >= 4).map(s => ({ Marca: s.marca, Producto: s.producto, osa: round1((s.disp / s.n) * 100) })).sort((a, b) => a.osa - b.osa).slice(0, 8);
+
+    if (chartOsaCat) chartOsaCat.destroy();
+    chartOsaCat = new Chart(document.getElementById("chart-osa-categoria"), { type: "bar", data: { labels: osaCatF.labels, datasets: [{ data: osaCatF.values, backgroundColor: osaCatF.values.map(v => colorForValue(v)), borderRadius: 6, maxBarThickness: 30 }] }, options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { min: 0, max: 100, ...gridOpt() }, y: { grid: { display: false }, ticks: { color: "#f2eeee", font: { size: 11.5 } } } } } });
+    if (chartOsaCad) chartOsaCad.destroy();
+    chartOsaCad = new Chart(document.getElementById("chart-osa-cadena"), { type: "bar", data: { labels: osaCadF.labels, datasets: [{ data: osaCadF.values, backgroundColor: osaCadF.values.map(v => colorForValue(v)), borderRadius: 6, maxBarThickness: 30 }] }, options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { min: 0, max: 100, ...gridOpt() }, y: { grid: { display: false }, ticks: { color: "#f2eeee", font: { size: 11.5 } } } } } });
+    if (chartSkus) chartSkus.destroy();
+    chartSkus = new Chart(document.getElementById("chart-skus-quiebre"), { type: "bar", data: { labels: topSkusF.map(s => s.Marca + " · " + s.Producto), datasets: [{ data: topSkusF.map(s => s.osa), backgroundColor: ER, borderRadius: 6, maxBarThickness: 22 }] }, options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { min: 0, max: 100, ...gridOpt() }, y: { grid: { display: false }, ticks: { color: "#f2eeee", font: { size: 10.5 } } } } } });
+
+    // heatmap cadena x categoría (siempre muestra todas las cadenas/categorías, solo cambia el color según el filtro de mes/cadena/categoría aplicado a los datos de fondo)
+    const heatData = {};
+    rows.forEach(r => { const cad = (localMap[r.ID_Local] || {}).Cadena, cat = r.Categoría; if (!cad || !cat) return; const key = cad + "|" + cat; if (!heatData[key]) heatData[key] = { n: 0, disp: 0 }; heatData[key].n++; if (r.OSA === "Disponible") heatData[key].disp++; });
+    let html = '<table class="heat-table"><tr><td></td>' + categoriasList.map(c => `<td class="heat-hdr">${c}</td>`).join("") + "</tr>";
+    cadenasList.forEach(cad => {
+      html += `<tr><td class="heat-row-lbl">${cad}</td>`;
+      categoriasList.forEach(cat => {
+        const d = heatData[cad + "|" + cat];
+        if (!d) { html += `<td class="heat-cell" style="background:#1e1b1b;color:#5a5252;">—</td>`; return; }
+        const pct = round1((d.disp / d.n) * 100);
+        const bg = pct >= 80 ? "#3cb3a8" : pct >= 65 ? "#e8a045" : "#e8815f";
+        html += `<td class="heat-cell" style="background:${bg};" title="${d.n} relevamientos">${pct}%</td>`;
+      });
+      html += "</tr>";
+    });
+    html += "</table>";
+    document.getElementById("heatmap-wrap").innerHTML = html;
+
+    // tabla de productos: agrupado por categoría + producto, peor disponibilidad primero
+    const prodGroups = {};
+    rows.forEach(r => { const key = r.Categoría + "|" + r.Marca + " — " + r.Producto; if (!prodGroups[key]) prodGroups[key] = { categoria: r.Categoría, producto: r.Marca + " — " + r.Producto, n: 0, disp: 0, valorRiesgo: 0 }; prodGroups[key].n++; if (r.OSA === "Disponible") prodGroups[key].disp++; if (r["Próximos_a_Vencer"] === "Sí") prodGroups[key].valorRiesgo += num(r.Unidades_Por_Vencer) * parseGs(r.Precio); });
+    const prodRows = Object.values(prodGroups).filter(p => p.n >= 2).map(p => ({ ...p, osa: round1((p.disp / p.n) * 100) })).sort((a, b) => a.osa - b.osa).slice(0, 25);
+    const tbodyProd = document.getElementById("tabla-productos");
+    tbodyProd.innerHTML = "";
+    prodRows.forEach(p => {
+      const tr = document.createElement("tr");
+      const pillClass = p.osa >= 80 ? "ok" : p.osa >= 65 ? "wa" : "er";
+      tr.innerHTML = `<td>${p.categoria}</td><td>${p.producto}</td><td>${p.n}</td><td><span class="pill ${pillClass}">${p.osa}%</span></td><td>${p.valorRiesgo > 0 ? fmtGs(p.valorRiesgo) : "—"}</td>`;
+      tbodyProd.appendChild(tr);
+    });
+  }
+
+  function currentFilters() { return { cadena: selCadena.value, categoria: selCategoria.value, mes: selMes.value }; }
+  selCadena.addEventListener("change", () => renderDisponibilidad(currentFilters()));
+  selCategoria.addEventListener("change", () => renderDisponibilidad(currentFilters()));
+  selMes.addEventListener("change", () => renderDisponibilidad(currentFilters()));
+  document.getElementById("f-clear").addEventListener("click", () => { selCadena.value = ""; selCategoria.value = ""; selMes.value = "todos"; renderDisponibilidad(currentFilters()); });
+  renderDisponibilidad({ cadena: "", categoria: "", mes: "todos" });
 
   if (osaCadena.values.length) {
     const idx = osaCadena.values.indexOf(Math.min(...osaCadena.values));
     document.getElementById("insight-osa").innerHTML = `<strong>${osaCadena.labels[idx]}</strong> tiene la disponibilidad más baja de todas las cadenas (${osaCadena.values[idx]}%), por debajo del promedio general (${kpis.osa_disponible}%). Priorizar frecuencia de reposición ahí antes de sumar más puntos de venta.`;
   }
+
+  // ---------------- chips de variación mes a mes (julio vs. junio) ----------------
+  function renderDelta(id, val) {
+    const el = document.getElementById(id);
+    if (val > 0.05) { el.className = "delta-chip up"; el.innerHTML = `<i class="fas fa-arrow-up"></i> +${val}`; }
+    else if (val < -0.05) { el.className = "delta-chip down"; el.innerHTML = `<i class="fas fa-arrow-down"></i> ${val}`; }
+    else { el.className = "delta-chip flat"; el.innerHTML = `<i class="fas fa-minus"></i> 0`; }
+  }
+  renderDelta("d-osa", round1(tendencia.osa[2] - tendencia.osa[1]));
+  renderDelta("d-plano", round1(tendencia.planograma[2] - tendencia.planograma[1]));
+  renderDelta("d-cobertura", round1(tendencia.cobertura[2] - tendencia.cobertura[1]));
 
   document.getElementById("k-venc-unidades").textContent = fmtInt(unidadesTotales);
   document.getElementById("k-venc-registros").textContent = "en " + proximos.length + " relevamientos";

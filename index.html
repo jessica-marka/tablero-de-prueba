@@ -337,7 +337,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
       </div>
     <div class="tw">
         <div class="tf"><div class="card-title">Panel de Oportunidades</div></div>
-        <table><thead><tr><th>Oportunidad</th><th>Impacto</th><th>Prioridad</th><th>Acción</th></tr></thead>
+        <table><thead><tr><th>Oportunidad</th><th>Impacto</th><th>Prioridad</th><th>Sugerencia</th></tr></thead>
         <tbody id="tabla-oportunidades-ejecutivo"></tbody></table>
       </div>
 </div>
@@ -842,6 +842,8 @@ async function buildDashboard() {
   const unidadesTotales = proximos.reduce((a, r) => a + num(r.Unidades_Por_Vencer), 0);
   const valorEnRiesgo = proximos.reduce((a, r) => a + num(r.Unidades_Por_Vencer) * parseGs(r.Precio), 0);
   const unidadesAveriadasTotales = relevamiento.reduce((a, r) => a + num(r.Unidades_Averiadas), 0);
+  const localesPopProblemaGlobal = new Set(auditoria.filter(a => ["Instalado - Dañado", "Instalado - Desactualizado", "No instalado"].includes(a.Estado_POP)).map(a => a.ID_Local)).size;
+  const localesConQuiebreGlobal = new Set(relevamiento.filter(r => osaOf(r) !== "Disponible").map(r => r.ID_Local)).size;
   const registrosConAveria = relevamiento.filter(r => num(r.Unidades_Averiadas) > 0).length;
 
   // FEFO: bucketea las unidades por vencer según cuántos días quedan desde la
@@ -1000,9 +1002,27 @@ async function buildDashboard() {
   alertas.sort((a, b) => sevOrder[a.sev] - sevOrder[b.sev]);
   const nCriticas = alertas.filter(a => a.sev === "critico").length;
 
+  // ---------------- ALERTAS PARA EL CLIENTE (Centro de Alertas) ----------------
+  // Únicamente las 4 categorías operativas que pidió el cliente. Sin texto de
+  // acción — el Centro de Alertas solo informa, no sugiere (eso vive en el
+  // Panel de Oportunidades, más abajo).
+  const alertasCliente = [];
+  if (unidadesTotales > 0) {
+    alertasCliente.push({ icon: "fa-clock", valor: fmtInt(unidadesTotales), label: "Unidades próximas a vencer", sev: unidadesTotales > 200 ? "critico" : "atencion", impacto: `${fmtInt(unidadesTotales)} unidades`, sugerencia: "Monitorear stock" });
+  }
+  if (localesPopProblemaGlobal > 0) {
+    alertasCliente.push({ icon: "fa-image", valor: localesPopProblemaGlobal, label: "Locales con problemas de material POP", sev: "atencion", impacto: `${localesPopProblemaGlobal} locales`, sugerencia: "Actualizar material POP" });
+  }
+  if (unidadesAveriadasTotales > 0) {
+    alertasCliente.push({ icon: "fa-triangle-exclamation", valor: fmtInt(unidadesAveriadasTotales), label: "Productos averiados", sev: "atencion", impacto: `${fmtInt(unidadesAveriadasTotales)} unidades`, sugerencia: "Revisar exhibición" });
+  }
+  if (localesConQuiebreGlobal > 0) {
+    alertasCliente.push({ icon: "fa-boxes-stacked", valor: localesConQuiebreGlobal, label: "Locales con quiebres de stock", sev: localesConQuiebreGlobal > 5 ? "critico" : "atencion", impacto: `${localesConQuiebreGlobal} locales`, sugerencia: "Reforzar reposición" });
+  }
+
   // ---------------- RENDER ----------------
-  document.getElementById("nb-alertas").textContent = nCriticas;
-  document.getElementById("nb-alertas").style.display = nCriticas > 0 ? "inline-block" : "none";
+  document.getElementById("nb-alertas").textContent = alertasCliente.filter(a => a.sev === "critico").length;
+  document.getElementById("nb-alertas").style.display = alertasCliente.some(a => a.sev === "critico") ? "inline-block" : "none";
 
   document.getElementById("exec-summary").innerHTML =
     `La operación releva <b>${fmtInt(totalRele)} controles</b> en <b>${locales.length} locales</b> durante el mes. ` +
@@ -1012,20 +1032,18 @@ async function buildDashboard() {
     `${nCriticas > 0 ? `Se detectaron <b>${nCriticas} alerta${nCriticas > 1 ? "s" : ""} crítica${nCriticas > 1 ? "s" : ""}</b> que conviene resolver esta semana.` : "No hay alertas críticas abiertas en este momento."}`;
 
   const feed = document.getElementById("alertas-feed");
-  const iconSev = { critico: "fa-circle-exclamation", atencion: "fa-triangle-exclamation", positivo: "fa-circle-check" };
-  alertas.forEach(a => {
+  alertasCliente.forEach(a => {
     const div = document.createElement("div");
     div.className = `alert-card sev-${a.sev}`;
-    div.innerHTML = `<div class="aic"><i class="fas ${a.icon || iconSev[a.sev]}"></i></div>
+    div.innerHTML = `<div class="aic"><i class="fas ${a.icon}"></i></div>
       <div class="abody">
-        <div class="atitle"><span class="sev-tag ${a.sev}">${a.sev}</span>${a.title}</div>
-        <div class="adesc">${a.desc}</div>
-        <div class="aaction"><i class="fas fa-arrow-right"></i>${a.action}</div>
+        <div class="atitle" style="font-size:20px;">${a.valor}</div>
+        <div class="adesc" style="font-size:13px;">${a.label}</div>
       </div>`;
     feed.appendChild(div);
   });
-  if (!alertas.length) {
-    feed.innerHTML = `<div class="alert ok"><i class="fas fa-circle-check"></i><div>No se detectaron situaciones que requieran atención inmediata con los datos actuales.</div></div>`;
+  if (!alertasCliente.length) {
+    feed.innerHTML = `<div class="alert ok"><i class="fas fa-circle-check"></i><div>No se detectaron situaciones que requieran atención con los datos actuales.</div></div>`;
   }
 
   document.getElementById("nb-venc").textContent = proximos.length;
@@ -1307,14 +1325,14 @@ async function buildDashboard() {
     // -------- Centro de Alertas (acción primero) --------
     const alertasWrap = document.getElementById("centro-alertas-wrap");
     alertasWrap.innerHTML = "";
-    const iconoAlerta = { critico: "🔴", atencion: "🟠", positivo: "🟢" };
-    (typeof alertas !== "undefined" ? alertas : []).slice(0, 6).forEach(a => {
+    const iconoSev = { critico: "🔴", atencion: "🟠", positivo: "🟢" };
+    (typeof alertasCliente !== "undefined" ? alertasCliente : []).forEach(a => {
       const div = document.createElement("div");
       div.className = `alert-ej sev-${a.sev}`;
-      div.innerHTML = `<div class="ae-num">${iconoAlerta[a.sev]}</div><div><div class="ae-title">${a.title}</div><div class="ae-action">Acción: <b>${a.action}</b></div></div>`;
+      div.innerHTML = `<div class="ae-num">${iconoSev[a.sev]}</div><div><div class="ae-title">${a.valor} — ${a.label}</div></div>`;
       alertasWrap.appendChild(div);
     });
-    if (typeof alertas === "undefined" || !alertas.length) alertasWrap.innerHTML = `<div class="alert ok"><i class="fas fa-circle-check"></i><div>No hay alertas activas con los datos actuales.</div></div>`;
+    if (typeof alertasCliente === "undefined" || !alertasCliente.length) alertasWrap.innerHTML = `<div class="alert ok"><i class="fas fa-circle-check"></i><div>No hay alertas activas con los datos actuales.</div></div>`;
 
     // -------- Insights Automáticos --------
     const insightsEjWrap = document.getElementById("insights-ejecutivo-wrap");
@@ -1327,12 +1345,14 @@ async function buildDashboard() {
     // -------- Panel de Oportunidades --------
     const tOport = document.getElementById("tabla-oportunidades-ejecutivo");
     tOport.innerHTML = "";
-    const impactoPorSev = { critico: "Alto", atencion: "Medio", positivo: "Bajo" };
-    (typeof alertas !== "undefined" ? alertas : []).slice(0, 8).forEach(a => {
+    (typeof alertasCliente !== "undefined" ? alertasCliente : []).forEach(a => {
       const tr = document.createElement("tr");
-      tr.innerHTML = `<td>${a.title}</td><td>${impactoPorSev[a.sev]}</td><td><span class="plan-prio ${a.sev === "critico" ? "alta" : a.sev === "atencion" ? "media" : "baja"}">${a.sev === "critico" ? "🔴 Alta" : a.sev === "atencion" ? "🟠 Media" : "🟢 Baja"}</span></td><td>${a.action}</td>`;
+      tr.innerHTML = `<td>${a.label}</td><td>${a.impacto}</td><td><span class="plan-prio ${a.sev === "critico" ? "alta" : "media"}">${a.sev === "critico" ? "🔴 Alta" : "🟠 Media"}</span></td><td>${a.sugerencia}</td>`;
       tOport.appendChild(tr);
     });
+    if (!(typeof alertasCliente !== "undefined" && alertasCliente.length)) {
+      tOport.innerHTML = `<tr><td colspan="4">No hay oportunidades para mostrar con los datos actuales.</td></tr>`;
+    }
   }
 
   function currentFiltersEj() { return { ciudad: selFeCiudad.value, cadena: selFeCadena.value, categoria: selFeCategoria.value }; }

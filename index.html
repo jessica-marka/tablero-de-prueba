@@ -239,25 +239,25 @@ tr:hover td{background:rgba(255,255,255,.02)}
   </div>
   <div class="sb-nav">
     <div class="sb-sect">1 · Gerencia</div>
-    <div class="ni" data-p="resumen" onclick="goPage('resumen',this)"><i class="fas fa-gauge-high"></i>Dashboard Ejecutivo</div>
+    <div class="ni" data-p="resumen" onclick="goPage('resumen',this)"><i class="fas fa-gauge-high"></i>Panel Ejecutivo</div>
     <div class="ni" data-p="insights" onclick="goPage('insights',this)"><i class="fas fa-magnifying-glass-chart"></i>Insights</div>
     <div class="sb-sect">2 · Operación</div>
     <div class="ni" data-p="cobertura" onclick="goPage('cobertura',this)"><i class="fas fa-route"></i>Cobertura Operativa</div>
     <div class="ni" data-p="campo" onclick="goPage('campo',this)"><i class="fas fa-people-group"></i>Productividad del Equipo</div>
     <div class="sb-sect">3 · Comercial</div>
     <div class="ni" data-p="disponibilidad" onclick="goPage('disponibilidad',this)"><i class="fas fa-boxes-stacked"></i>Disponibilidad Comercial</div>
-    <div class="ni" data-p="ejecucion" onclick="goPage('ejecucion',this)"><i class="fas fa-clipboard-check"></i>Trade Marketing</div>
-    <div class="ni" data-p="pricing" onclick="goPage('pricing',this)"><i class="fas fa-dollar-sign"></i>Pricing</div>
+    <div class="ni" data-p="ejecucion" onclick="goPage('ejecucion',this)"><i class="fas fa-clipboard-check"></i>Ejecución Comercial</div>
+    <div class="ni" data-p="pricing" onclick="goPage('pricing',this)"><i class="fas fa-dollar-sign"></i>Precios</div>
     <div class="ni" data-p="competencia" onclick="goPage('competencia',this)"><i class="fas fa-chess-knight"></i>Inteligencia Competitiva</div>
     <div class="ni" data-p="cadenas" onclick="goPage('cadenas',this)"><i class="fas fa-ranking-star"></i>Ranking de cadenas y locales</div>
     <div class="sb-sect">4 · Personas y stock</div>
-    <div class="ni" data-p="oportunidad" onclick="goPage('oportunidad',this)"><i class="fas fa-hourglass-half"></i>Inventario y FEFO<span class="ni-badge acc" id="nb-venc">0</span></div>
+    <div class="ni" data-p="oportunidad" onclick="goPage('oportunidad',this)"><i class="fas fa-hourglass-half"></i>Inventario y Vencimientos<span class="ni-badge acc" id="nb-venc">0</span></div>
     <div class="ni" data-p="incidencias" onclick="goPage('incidencias',this)"><i class="fas fa-triangle-exclamation"></i>Incidencias<span class="ni-badge" id="nb-incidencias" style="display:none">0</span></div>
     <div class="sb-sect">5 · Decisión</div>
     <div class="ni" data-p="plan" onclick="goPage('plan',this)"><i class="fas fa-lightbulb"></i>Oportunidades Comerciales</div>
     <div class="ni active" data-p="alertas" onclick="goPage('alertas',this)"><i class="fas fa-bell"></i>Centro de Alertas<span class="ni-badge" id="nb-alertas" style="display:none">0</span></div>
     <div class="sb-sect">Extra</div>
-    <div class="ni" data-p="roi" onclick="goPage('roi',this)"><i class="fas fa-coins"></i>Costo &amp; ROI</div>
+    <div class="ni" data-p="roi" onclick="goPage('roi',this)"><i class="fas fa-coins"></i>Costo y Retorno</div>
   </div>
   <div class="sb-bottom">
     <div class="sb-upd" id="sb-upd"></div>
@@ -292,7 +292,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
           <div><b>Cumplimiento de planograma</b> — qué tan bien está ordenada la góndola según lo acordado con la cadena (ubicación, orden, cantidad de espacio por producto).</div>
           <div><b>Material POP</b> — carteles, exhibidores y elementos publicitarios en el punto de venta (folletos, colgantes, islas).</div>
           <div><b>Cobertura de visitas</b> — de los locales que un promotor tenía planificado visitar, cuántos realmente visitó.</div>
-          <div><b>Share of Shelf</b> — qué porcentaje del espacio total de la góndola ocupa el producto frente a la competencia.</div>
+          <div><b>Participación en Góndola</b> — qué porcentaje del espacio total de la góndola ocupa el producto frente a la competencia.</div>
         </div>
       </div>
     </div>
@@ -331,18 +331,18 @@ tr:hover td{background:rgba(255,255,255,.02)}
       </div>
 
       <div class="card card-p">
-        <div class="card-hdr"><div class="card-title">Score Ejecutivo</div><div class="card-sub">Índice General de Ejecución Comercial · Cobertura 30% + OSA 30% + Planograma 20% + Share 10% + Productividad 10%</div></div>
+        <div class="card-hdr"><div class="card-title">Índice Ejecutivo</div><div class="card-sub">Índice General de Ejecución Comercial · Cobertura 30% + OSA 30% + Planograma 20% + Participación en Góndola 10% + Productividad 10%</div></div>
         <div id="score-ejecutivo-wrap"></div>
       </div>
 
       <div class="grid-2">
         <div class="tw">
-          <div class="tf"><div class="card-title">Top 10 locales críticos</div></div>
+          <div class="tf"><div class="card-title">Los 10 locales más críticos</div></div>
           <table><thead><tr><th>Local</th><th>Ciudad</th><th>OSA</th><th>Planograma</th><th>Incidencias</th><th>Prioridad</th></tr></thead>
           <tbody id="tabla-locales-criticos"></tbody></table>
         </div>
         <div class="tw">
-          <div class="tf"><div class="card-title">Top SKU críticos</div></div>
+          <div class="tf"><div class="card-title">SKUs más críticos</div></div>
           <table><thead><tr><th>SKU</th><th>Marca</th><th>Categoría</th><th>Stock</th><th>OSA</th><th>Pedido sugerido</th></tr></thead>
           <tbody id="tabla-sku-criticos"></tbody></table>
         </div>
@@ -428,7 +428,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
           <div class="chart-h"><canvas id="chart-stock-comparacion"></canvas></div>
         </div>
         <div class="card card-p">
-          <div class="card-hdr"><div class="card-title">Top SKUs sin stock</div><div class="card-sub">Cantidad de relevamientos con Stock_Góndola = 0</div></div>
+          <div class="card-hdr"><div class="card-title">SKUs con más frecuencia sin stock</div><div class="card-sub">Cantidad de relevamientos con Stock_Góndola = 0</div></div>
           <div class="chart-h"><canvas id="chart-sku-sin-stock"></canvas></div>
         </div>
       </div>
@@ -455,7 +455,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
       </div>
       <div class="grid-2">
         <div class="tw">
-          <div class="tf"><div class="card-title">Top 10 oportunidades por valor en riesgo</div></div>
+          <div class="tf"><div class="card-title">Las 10 oportunidades de mayor valor en riesgo</div></div>
           <table>
             <thead><tr><th>Local</th><th>Producto</th><th>Unid.</th><th>Vence</th><th>Valor (Gs.)</th><th>Acción</th></tr></thead>
             <tbody id="tabla-oportunidades"></tbody>
@@ -467,7 +467,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
         </div>
       </div>
       <div class="card card-p">
-        <div class="card-hdr"><div class="card-title">Urgencia de vencimiento (FEFO)</div><div class="card-sub">Unidades por vencer agrupadas por cuánto tiempo queda para actuar</div></div>
+        <div class="card-hdr"><div class="card-title">Urgencia de vencimiento</div><div class="card-sub">Unidades por vencer agrupadas por cuánto tiempo queda para actuar</div></div>
         <div class="chart-h"><canvas id="chart-fefo"></canvas></div>
       </div>
       <div class="card card-p">
@@ -518,7 +518,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <div class="kpi-grid-3">
         <div class="kpi t-er"><div class="kpi-lbl">Auditorías con promoción de competencia activa</div><div class="kpi-val" id="k-comp-promo">—%</div><div class="kpi-sub">la competencia está empujando precio/volumen</div></div>
         <div class="kpi t-wa"><div class="kpi-lbl">Nuevos lanzamientos detectados</div><div class="kpi-val" id="k-comp-lanz">—%</div><div class="kpi-sub">de las auditorías registran un lanzamiento nuevo</div></div>
-        <div class="kpi t-ok"><div class="kpi-lbl">Share of Shelf propio promedio</div><div class="kpi-val" id="k-comp-sos">—%</div><div class="kpi-sub">espacio de góndola propio vs. total</div></div>
+        <div class="kpi t-ok"><div class="kpi-lbl">Participación en Góndola propia (promedio)</div><div class="kpi-val" id="k-comp-sos">—%</div><div class="kpi-sub">espacio de góndola propio vs. total</div></div>
       </div>
       <div class="card card-p">
         <div class="card-hdr"><div class="card-title">Presencia de la competencia</div><div class="card-sub">Menciones en góndola durante las auditorías</div></div>
@@ -535,7 +535,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
         </div>
       </div>
       <div class="card card-p">
-        <div class="card-hdr"><div class="card-title">Share of Shelf propio por cadena — tendencia semanal</div><div class="card-sub">Si baja semana a semana, la competencia está ganando espacio físico en la góndola</div></div>
+        <div class="card-hdr"><div class="card-title">Participación en Góndola propia por cadena — tendencia semanal</div><div class="card-sub">Si baja semana a semana, la competencia está ganando espacio físico en la góndola</div></div>
         <div class="chart-h-lg"><canvas id="chart-sos-tendencia"></canvas></div>
       </div>
       <div class="tw">
@@ -549,11 +549,11 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <!-- ===================== CADENAS ===================== -->
     <div class="page" data-page="cadenas">
       <div class="card card-p">
-        <div class="card-hdr"><div class="card-title">Ranking de cadenas</div><div class="card-sub">Score compuesto: OSA + cumplimiento de planograma. De menor a mayor.</div></div>
+        <div class="card-hdr"><div class="card-title">Ranking de cadenas</div><div class="card-sub">Índice compuesto: OSA + cumplimiento de planograma. De menor a mayor.</div></div>
         <div id="ranking-cadenas"></div>
       </div>
       <div class="card card-p">
-        <div class="card-hdr"><div class="card-title">Top 8 locales que más necesitan atención</div><div class="card-sub">Los puntos de venta específicos con peor combinación de disponibilidad y planograma — acá es donde conviene mandar al supervisor primero</div></div>
+        <div class="card-hdr"><div class="card-title">Los 8 locales que más necesitan atención</div><div class="card-sub">Los puntos de venta específicos con peor combinación de disponibilidad y planograma — acá es donde conviene mandar al supervisor primero</div></div>
         <div id="ranking-locales"></div>
       </div>
       <div class="card card-p">
@@ -616,7 +616,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
         </div>
       </div>
       <div class="card card-p">
-        <div class="card-hdr"><div class="card-title">Score por supervisor</div><div class="card-sub">Promedio de OSA y planograma de los locales a cargo de cada supervisor</div></div>
+        <div class="card-hdr"><div class="card-title">Índice por supervisor</div><div class="card-sub">Promedio de OSA y planograma de los locales a cargo de cada supervisor</div></div>
         <div id="ranking-supervisores"></div>
       </div>
       <div class="alert ok"><i class="fas fa-user-check"></i><div id="insight-campo"></div></div>
@@ -1187,7 +1187,7 @@ async function buildDashboard() {
       { id: "cobertura", lbl: "Cobertura", valor: coberturaVal, meta: metaCobertura, historia: historiaCobertura, unidad: "%" },
       { id: "osa", lbl: "OSA", valor: osaVal, meta: metaOSA, historia: historiaOSA, unidad: "%" },
       { id: "planograma", lbl: "Planograma", valor: planoVal, meta: metaPlano, historia: historiaPlano, unidad: "%" },
-      { id: "share", lbl: "Share of Shelf", valor: sosVal, meta: metaShare, historia: historiaShare, unidad: "%" },
+      { id: "share", lbl: "Participación en Góndola", valor: sosVal, meta: metaShare, historia: historiaShare, unidad: "%" },
       { id: "indice", lbl: "Índice Comercial", valor: scoreEjecutivo, meta: 90, historia: null, unidad: "" },
       { id: "incidencias", lbl: "Incidencias Abiertas", valor: incAbiertas, meta: null, historia: null, unidad: "", invertido: true },
       { id: "fefo", lbl: "FEFO crítico (≤7 días)", valor: fefoCritico, meta: null, historia: null, unidad: "", invertido: true },
@@ -1244,7 +1244,7 @@ async function buildDashboard() {
       { lbl: "Cobertura", actual: coberturaVal, meta: metaCobertura },
       { lbl: "OSA", actual: osaVal, meta: metaOSA },
       { lbl: "Planograma", actual: planoVal, meta: metaPlano },
-      { lbl: "Share of Shelf", actual: sosVal, meta: metaShare },
+      { lbl: "Participación en Góndola", actual: sosVal, meta: metaShare },
     ];
     const bulletWrap = document.getElementById("bullet-wrap");
     bulletWrap.innerHTML = "";
@@ -1272,7 +1272,7 @@ async function buildDashboard() {
     const scoreColor = scoreEjecutivo >= 90 ? OK : scoreEjecutivo >= 75 ? WA : ER;
     const componentesScore = [
       ["Cobertura (30%)", coberturaVal], ["OSA (30%)", osaVal], ["Planograma (20%)", planoVal],
-      ["Share (10%)", sosVal], ["Productividad (10%)", productividadNorm],
+      ["Participación en Góndola (10%)", sosVal], ["Productividad (10%)", productividadNorm],
     ];
     document.getElementById("score-ejecutivo-wrap").innerHTML = `
       <div class="score-big-wrap">
@@ -1757,11 +1757,11 @@ async function buildDashboard() {
     tr.innerHTML = `<td>${nomLocal}</td><td>${a.Marca_Competencia || "—"}</td><td>${fmtGs(parseGs(a.Precio_Competencia))}</td><td>${a.Promoción_Competencia || "—"}</td><td><span class="pill ${a.Nuevo_Lanzamiento === "Sí" ? "wa" : "ok"}">${a.Nuevo_Lanzamiento || "No"}</span></td>`;
     tablaCompDetalle.appendChild(tr);
   });
-  new Chart(document.getElementById("chart-sos-tendencia"), { type: "line", data: { labels: tendencia.labels, datasets: [{ label: "Share of Shelf %", data: tendencia.sos, borderColor: ACC, backgroundColor: "rgba(212,162,76,.12)", tension: .35, fill: true, pointRadius: 4, pointBackgroundColor: ACC }] }, options: { plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 60, ...gridOpt() }, x: { grid: { display: false }, ticks: { color: "#9c9494" } } } } });
+  new Chart(document.getElementById("chart-sos-tendencia"), { type: "line", data: { labels: tendencia.labels, datasets: [{ label: "Participación en Góndola %", data: tendencia.sos, borderColor: ACC, backgroundColor: "rgba(212,162,76,.12)", tension: .35, fill: true, pointRadius: 4, pointBackgroundColor: ACC }] }, options: { plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 60, ...gridOpt() }, x: { grid: { display: false }, ticks: { color: "#9c9494" } } } } });
   const deltaSos = tendencia.sos.length >= 2 ? round1(tendencia.sos[tendencia.sos.length - 1] - tendencia.sos[0]) : 0;
   document.getElementById("insight-competencia").innerHTML =
     `El <strong>${compConPromoPct}%</strong> de las auditorías registra una promoción activa de la competencia, y el <strong>${compLanzamientoPct}%</strong> detecta un producto nuevo en góndola — la competencia está activa, no pasiva. ` +
-    `El Share of Shelf propio promedio es ${sosProm}%` + (deltaSos < -2 ? `, y viene <strong>cayendo</strong> (${deltaSos} puntos en el mes) — señal de que se está cediendo espacio físico de góndola.` : deltaSos > 2 ? `, y viene <strong>subiendo</strong> (+${deltaSos} puntos) — se está ganando espacio.` : `, estable en el mes.`) +
+    `La Participación en Góndola propia promedio es ${sosProm}%` + (deltaSos < -2 ? `, y viene <strong>cayendo</strong> (${deltaSos} puntos en el mes) — señal de que se está cediendo espacio físico de góndola.` : deltaSos > 2 ? `, y viene <strong>subiendo</strong> (+${deltaSos} puntos) — se está ganando espacio.` : `, estable en el mes.`) +
     ` <strong>${competencia.labels[0] || "—"}</strong> es la marca competidora más mencionada en las auditorías.`;
 
   // ---------------- SCORE POR SUPERVISOR ----------------
@@ -1817,8 +1817,8 @@ async function buildDashboard() {
     if (planoC != null && osaC >= 80 && planoC < 65) insightsList.push(`La ciudad <strong>${ciu}</strong> tiene buena disponibilidad (${osaC}%) pero bajo cumplimiento de planograma (${planoC}%) — el problema ahí no es de stock, es de ejecución en el punto de venta.`);
   });
   if (topSkusQuiebre.length) insightsList.push(`El producto con peor disponibilidad es <strong>${topSkusQuiebre[0].Marca} — ${topSkusQuiebre[0].Producto}</strong> (${topSkusQuiebre[0].osa}%), muy por debajo del promedio general (${kpis.osa_disponible}%).`);
-  insightsList.push(`El cumplimiento de planograma explica gran parte de la brecha de Share of Shelf: las auditorías con planograma por debajo de 65% muestran un Share of Shelf promedio de ${round1(auditoria.filter(a => num(a["Cumplimiento_Planograma_%"]) < 65).reduce((s, a) => s + num(a["Share_of_Shelf_%"]), 0) / (auditoria.filter(a => num(a["Cumplimiento_Planograma_%"]) < 65).length || 1))}%, contra ${round1(auditoria.filter(a => num(a["Cumplimiento_Planograma_%"]) >= 65).reduce((s, a) => s + num(a["Share_of_Shelf_%"]), 0) / (auditoria.filter(a => num(a["Cumplimiento_Planograma_%"]) >= 65).length || 1))}% cuando el planograma se cumple.`);
-  insightsList.push(`Los locales con material POP en buen estado muestran, en promedio, mejor Share of Shelf que los que tienen POP dañado o faltante — la exhibición física y el material publicitario se refuerzan mutuamente.`);
+  insightsList.push(`El cumplimiento de planograma explica gran parte de la brecha de Participación en Góndola: las auditorías con planograma por debajo de 65% muestran una Participación en Góndola promedio de ${round1(auditoria.filter(a => num(a["Cumplimiento_Planograma_%"]) < 65).reduce((s, a) => s + num(a["Share_of_Shelf_%"]), 0) / (auditoria.filter(a => num(a["Cumplimiento_Planograma_%"]) < 65).length || 1))}%, contra ${round1(auditoria.filter(a => num(a["Cumplimiento_Planograma_%"]) >= 65).reduce((s, a) => s + num(a["Share_of_Shelf_%"]), 0) / (auditoria.filter(a => num(a["Cumplimiento_Planograma_%"]) >= 65).length || 1))}% cuando el planograma se cumple.`);
+  insightsList.push(`Los locales con material POP en buen estado muestran, en promedio, mejor Participación en Góndola que los que tienen POP dañado o faltante — la exhibición física y el material publicitario se refuerzan mutuamente.`);
 
   const osaSegmento = groupRatio(relevamiento, r => (localMap[r.ID_Local] || {}).Segmento_Socioeconomico, r => osaOf(r) === "Disponible");
   if (osaSegmento.labels.length >= 2) {

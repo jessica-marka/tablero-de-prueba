@@ -111,6 +111,26 @@ button,input,select{font-family:'Outfit',sans-serif}
 .plan-prio.alta{background:var(--er-d);color:#e8815f;}
 .plan-prio.media{background:var(--wa-d);color:var(--wa);}
 .plan-prio.baja{background:var(--ok-d);color:var(--ok);}
+.kpi-grid-ejecutivo{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+@media(max-width:1100px){.kpi-grid-ejecutivo{grid-template-columns:repeat(2,1fr);}}
+.kpi-ej{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:16px 18px;}
+.kpi-ej .ke-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:8px;}
+.kpi-ej .ke-lbl{font-size:10.5px;color:var(--tx3);text-transform:uppercase;letter-spacing:.6px;font-weight:700;line-height:1.3;}
+.kpi-ej .ke-dot{width:9px;height:9px;border-radius:50%;margin-top:3px;flex-shrink:0;}
+.kpi-ej .ke-val{font-family:'Outfit',sans-serif;font-size:26px;font-weight:900;line-height:1;margin-bottom:6px;}
+.kpi-ej .ke-row2{display:flex;align-items:center;gap:8px;font-size:10.5px;color:var(--tx3);margin-bottom:10px;}
+.kpi-ej .ke-delta{font-weight:700;}
+.kpi-ej .ke-delta.up{color:var(--ok);}
+.kpi-ej .ke-delta.down{color:#e8815f;}
+.kpi-ej .ke-spark{height:26px;}
+.bullet-row{display:grid;grid-template-columns:130px 1fr 64px;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--bd);}
+.bullet-row:last-child{border-bottom:none;}
+.bullet-lbl{font-size:12.5px;color:var(--tx);font-weight:600;}
+.bullet-track{position:relative;height:22px;background:var(--bg4);border-radius:5px;overflow:visible;}
+.bullet-band{position:absolute;top:0;bottom:0;border-radius:5px;}
+.bullet-fill{position:absolute;top:6px;bottom:6px;left:0;border-radius:3px;}
+.bullet-target{position:absolute;top:-4px;bottom:-4px;width:2px;background:#fff;}
+.bullet-val{font-family:monospace;font-weight:700;font-size:13px;text-align:right;}
 .card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);box-shadow:0 2px 12px rgba(0,0,0,.2)}
 .card-p{padding:22px 24px}
 .card-hdr{margin-bottom:16px}
@@ -200,23 +220,25 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <span id="live-txt">Datos en vivo</span>
   </div>
   <div class="sb-nav">
-    <div class="sb-sect">Diagnóstico</div>
-    <div class="ni active" data-p="alertas" onclick="goPage('alertas',this)"><i class="fas fa-bell"></i>Alertas y decisiones<span class="ni-badge" id="nb-alertas" style="display:none">0</span></div>
-    <div class="ni" data-p="resumen" onclick="goPage('resumen',this)"><i class="fas fa-chart-pie"></i>Resumen</div>
+    <div class="sb-sect">1 · Gerencia</div>
+    <div class="ni" data-p="resumen" onclick="goPage('resumen',this)"><i class="fas fa-gauge-high"></i>Dashboard Ejecutivo</div>
     <div class="ni" data-p="insights" onclick="goPage('insights',this)"><i class="fas fa-magnifying-glass-chart"></i>Insights</div>
-    <div class="ni" data-p="plan" onclick="goPage('plan',this)"><i class="fas fa-list-check"></i>Plan de Acción</div>
-    <div class="sb-sect">Disponibilidad</div>
-    <div class="ni" data-p="disponibilidad" onclick="goPage('disponibilidad',this)"><i class="fas fa-boxes-stacked"></i>Quiebres de stock</div>
-    <div class="ni" data-p="oportunidad" onclick="goPage('oportunidad',this)"><i class="fas fa-tags"></i>Oportunidad comercial<span class="ni-badge acc" id="nb-venc">0</span></div>
-    <div class="sb-sect">Ejecución</div>
-    <div class="ni" data-p="ejecucion" onclick="goPage('ejecucion',this)"><i class="fas fa-clipboard-check"></i>Trade &amp; POP</div>
+    <div class="sb-sect">2 · Operación</div>
+    <div class="ni" data-p="cobertura" onclick="goPage('cobertura',this)"><i class="fas fa-route"></i>Cobertura Operativa</div>
+    <div class="ni" data-p="campo" onclick="goPage('campo',this)"><i class="fas fa-people-group"></i>Productividad del Equipo</div>
+    <div class="sb-sect">3 · Comercial</div>
+    <div class="ni" data-p="disponibilidad" onclick="goPage('disponibilidad',this)"><i class="fas fa-boxes-stacked"></i>Disponibilidad Comercial</div>
+    <div class="ni" data-p="ejecucion" onclick="goPage('ejecucion',this)"><i class="fas fa-clipboard-check"></i>Trade Marketing</div>
     <div class="ni" data-p="pricing" onclick="goPage('pricing',this)"><i class="fas fa-dollar-sign"></i>Pricing</div>
-    <div class="ni" data-p="competencia" onclick="goPage('competencia',this)"><i class="fas fa-chess-knight"></i>Competencia</div>
+    <div class="ni" data-p="competencia" onclick="goPage('competencia',this)"><i class="fas fa-chess-knight"></i>Inteligencia Competitiva</div>
     <div class="ni" data-p="cadenas" onclick="goPage('cadenas',this)"><i class="fas fa-ranking-star"></i>Ranking de cadenas y locales</div>
-    <div class="sb-sect">Campo</div>
-    <div class="ni" data-p="campo" onclick="goPage('campo',this)"><i class="fas fa-route"></i>Productividad</div>
+    <div class="sb-sect">4 · Personas y stock</div>
+    <div class="ni" data-p="oportunidad" onclick="goPage('oportunidad',this)"><i class="fas fa-hourglass-half"></i>Inventario y FEFO<span class="ni-badge acc" id="nb-venc">0</span></div>
     <div class="ni" data-p="incidencias" onclick="goPage('incidencias',this)"><i class="fas fa-triangle-exclamation"></i>Incidencias<span class="ni-badge" id="nb-incidencias" style="display:none">0</span></div>
-    <div class="sb-sect">Gestión del servicio</div>
+    <div class="sb-sect">5 · Decisión</div>
+    <div class="ni" data-p="plan" onclick="goPage('plan',this)"><i class="fas fa-lightbulb"></i>Oportunidades Comerciales</div>
+    <div class="ni active" data-p="alertas" onclick="goPage('alertas',this)"><i class="fas fa-bell"></i>Centro de Alertas<span class="ni-badge" id="nb-alertas" style="display:none">0</span></div>
+    <div class="sb-sect">Extra</div>
     <div class="ni" data-p="roi" onclick="goPage('roi',this)"><i class="fas fa-coins"></i>Costo &amp; ROI</div>
   </div>
   <div class="sb-bottom">
@@ -259,21 +281,25 @@ tr:hover td{background:rgba(255,255,255,.02)}
 
     <!-- ===================== RESUMEN ===================== -->
     <div class="page" data-page="resumen">
-      <div class="kpi-grid">
-        <div class="kpi t-er"><div class="kpi-lbl">Disponibilidad (OSA)</div><div class="kpi-val"><span id="k-osa">—%</span><span class="delta-chip" id="d-osa"></span></div><div class="kpi-sub" id="k-osa-sub">quiebre góndola + total</div></div>
-        <div class="kpi t-wa"><div class="kpi-lbl">Cumplimiento planograma</div><div class="kpi-val"><span id="k-plano">—%</span><span class="delta-chip" id="d-plano"></span></div><div class="kpi-sub">promedio de auditorías</div></div>
-        <div class="kpi t-ok"><div class="kpi-lbl">Cobertura de visitas</div><div class="kpi-val"><span id="k-cobertura">—%</span><span class="delta-chip" id="d-cobertura"></span></div><div class="kpi-sub" id="k-ausentismo-sub">ausentismo del equipo</div></div>
-        <div class="kpi t-acc"><div class="kpi-lbl">Material POP con problema</div><div class="kpi-val" id="k-pop">—%</div><div class="kpi-sub">dañado, desactualizado o faltante</div></div>
+      <div class="fbar">
+        <div class="flbl"><i class="fas fa-filter"></i>Filtrar</div>
+        <select id="fe-ciudad"><option value="">Todas las ciudades</option></select>
+        <select id="fe-cadena"><option value="">Todas las cadenas</option></select>
+        <select id="fe-categoria"><option value="">Todas las categorías</option></select>
+        <button id="fe-clear"><i class="fas fa-xmark" style="margin-right:6px;"></i>Limpiar</button>
       </div>
+
+      <div class="kpi-grid-ejecutivo" id="kpis-ejecutivos-wrap"></div>
+
       <div class="card card-p">
-        <div class="card-hdr"><div class="card-title">Índices ejecutivos</div><div class="card-sub">Indicadores compuestos para comparar de un vistazo. El cálculo de cada uno está debajo del número.</div></div>
-        <div class="grid-3" id="indices-wrap"></div>
+        <div class="card-hdr"><div class="card-title">Evolución Comercial</div><div class="card-sub" id="evolucion-sub">Cobertura, OSA y Planograma en el tiempo</div></div>
+        <div class="chart-h-lg"><canvas id="chart-evolucion"></canvas></div>
       </div>
+
       <div class="card card-p">
-        <div class="card-hdr"><div class="card-title">Tendencia semanal</div><div class="card-sub">OSA, cobertura y planograma — semana a semana dentro de julio. Los porcentajes de arriba muestran la variación de la última semana contra la anterior.</div></div>
-        <div class="chart-h-lg"><canvas id="chart-tendencia"></canvas></div>
+        <div class="card-hdr"><div class="card-title">Cumplimiento vs. Meta</div><div class="card-sub">Barra de color = valor actual. Línea blanca = meta interna de +Marka.</div></div>
+        <div id="bullet-wrap"></div>
       </div>
-      <div class="alert acc"><i class="fas fa-circle-info"></i><div id="insight-resumen">Cargando…</div></div>
     </div>
 
     <!-- ===================== INSIGHTS (solo texto, sin gráficos) ===================== -->
@@ -326,8 +352,22 @@ tr:hover td{background:rgba(255,255,255,.02)}
         </div>
       </div>
       <div class="card card-p">
+        <div class="card-hdr"><div class="card-title">Mapa de ciudades relevadas</div><div class="card-sub">Posiciones aproximadas de referencia (no un mapa geográfico a escala) · verde ≥80% · ámbar 65-79% · rojo &lt;65% de disponibilidad</div></div>
+        <div id="mapa-ciudades-wrap" style="display:flex;justify-content:center;"></div>
+      </div>
+      <div class="card card-p">
         <div class="card-hdr"><div class="card-title">Mapa de calor: cadena × categoría</div><div class="card-sub">La celda más roja es literalmente la combinación donde más se está perdiendo venta — empezá ahí</div></div>
         <div class="heatmap-grid" id="heatmap-wrap"></div>
+      </div>
+      <div class="grid-2">
+        <div class="card card-p">
+          <div class="card-hdr"><div class="card-title">Stock góndola vs. depósito, por categoría</div><div class="card-sub">Cuando depósito &gt;&gt; góndola, hay stock disponible que no se está exhibiendo</div></div>
+          <div class="chart-h"><canvas id="chart-stock-comparacion"></canvas></div>
+        </div>
+        <div class="card card-p">
+          <div class="card-hdr"><div class="card-title">Top SKUs sin stock</div><div class="card-sub">Cantidad de relevamientos con Stock_Góndola = 0</div></div>
+          <div class="chart-h"><canvas id="chart-sku-sin-stock"></canvas></div>
+        </div>
       </div>
       <div class="card card-p">
         <div class="card-hdr"><div class="card-title">SKUs con mayor problema de disponibilidad</div><div class="card-sub">Productos con muestra suficiente (≥4 relevamientos)</div></div>
@@ -367,6 +407,10 @@ tr:hover td{background:rgba(255,255,255,.02)}
         <div class="card-hdr"><div class="card-title">Urgencia de vencimiento (FEFO)</div><div class="card-sub">Unidades por vencer agrupadas por cuánto tiempo queda para actuar</div></div>
         <div class="chart-h"><canvas id="chart-fefo"></canvas></div>
       </div>
+      <div class="card card-p">
+        <div class="card-hdr"><div class="card-title">Merma por categoría</div><div class="card-sub">Unidades averiadas, sumadas por categoría de producto</div></div>
+        <div class="chart-h"><canvas id="chart-merma-categoria"></canvas></div>
+      </div>
       <div class="alert acc"><i class="fas fa-lightbulb"></i><div id="insight-vencimientos"></div></div>
     </div>
 
@@ -381,6 +425,10 @@ tr:hover td{background:rgba(255,255,255,.02)}
           <div class="card-hdr"><div class="card-title">Estado del material POP</div><div class="card-sub">Sobre el total de auditorías</div></div>
           <div class="chart-h"><canvas id="chart-pop"></canvas></div>
         </div>
+      </div>
+      <div class="card card-p">
+        <div class="card-hdr"><div class="card-title">Marca propia vs. competencia</div><div class="card-sub">Cada eje normalizado a una escala 0-100 para poder comparar dimensiones distintas en un mismo gráfico</div></div>
+        <div class="chart-h-lg"><canvas id="chart-radar-competencia"></canvas></div>
       </div>
       <div class="alert wa"><i class="fas fa-clipboard-list"></i><div id="insight-pop"></div></div>
     </div>
@@ -413,9 +461,24 @@ tr:hover td{background:rgba(255,255,255,.02)}
         <div class="card-hdr"><div class="card-title">Presencia de la competencia</div><div class="card-sub">Menciones en góndola durante las auditorías</div></div>
         <div class="chart-h"><canvas id="chart-competencia"></canvas></div>
       </div>
+      <div class="grid-2">
+        <div class="card card-p">
+          <div class="card-hdr"><div class="card-title">Precio propio vs. competencia</div><div class="card-sub">Promedio general del portafolio vs. precio de competencia observado en auditorías</div></div>
+          <div class="chart-h"><canvas id="chart-precio-comp"></canvas></div>
+        </div>
+        <div class="card card-p">
+          <div class="card-hdr"><div class="card-title">Tipos de promoción de la competencia</div><div class="card-sub">Sobre las auditorías con promoción activa detectada</div></div>
+          <div class="chart-h"><canvas id="chart-tipos-promo"></canvas></div>
+        </div>
+      </div>
       <div class="card card-p">
         <div class="card-hdr"><div class="card-title">Share of Shelf propio por cadena — tendencia semanal</div><div class="card-sub">Si baja semana a semana, la competencia está ganando espacio físico en la góndola</div></div>
         <div class="chart-h-lg"><canvas id="chart-sos-tendencia"></canvas></div>
+      </div>
+      <div class="tw">
+        <div class="tf"><div class="card-title">Detalle de competencia relevada</div></div>
+        <table><thead><tr><th>Local</th><th>Competidor</th><th>Precio</th><th>Promoción</th><th>Nuevo lanzamiento</th></tr></thead>
+        <tbody id="tabla-competencia-detalle"></tbody></table>
       </div>
       <div class="alert er"><i class="fas fa-chess-knight"></i><div id="insight-competencia"></div></div>
     </div>
@@ -440,6 +503,35 @@ tr:hover td{background:rgba(255,255,255,.02)}
     </div>
 
     <!-- ===================== CAMPO ===================== -->
+    <!-- ===================== COBERTURA OPERATIVA ===================== -->
+    <div class="page" data-page="cobertura">
+      <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);">
+        <div class="kpi t-ok"><div class="kpi-lbl">Locales planificados</div><div class="kpi-val" id="k-cob-planificados">—</div></div>
+        <div class="kpi t-acc"><div class="kpi-lbl">Locales visitados</div><div class="kpi-val" id="k-cob-visitados">—</div></div>
+        <div class="kpi t-er"><div class="kpi-lbl">Locales pendientes</div><div class="kpi-val" id="k-cob-pendientes">—</div></div>
+      </div>
+      <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);">
+        <div class="kpi t-ok"><div class="kpi-lbl">Cobertura general</div><div class="kpi-val" id="k-cob-cobertura">—%</div></div>
+        <div class="kpi t-wa"><div class="kpi-lbl">Horas trabajadas (total)</div><div class="kpi-val" id="k-cob-horas">—</div></div>
+        <div class="kpi t-acc"><div class="kpi-lbl">Promotores activos</div><div class="kpi-val" id="k-cob-promotores">—</div></div>
+      </div>
+      <div class="card card-p">
+        <div class="card-hdr"><div class="card-title">Cobertura diaria</div><div class="card-sub">Promedio de cobertura de todas las jornadas de cada día</div></div>
+        <div class="chart-h-lg"><canvas id="chart-cobertura-diaria"></canvas></div>
+      </div>
+      <div class="card card-p">
+        <div class="card-hdr"><div class="card-title">Cobertura por ciudad</div><div class="card-sub">% de visitas planificadas que efectivamente se realizaron, por ciudad</div></div>
+        <div class="chart-h"><canvas id="chart-cobertura-ciudad"></canvas></div>
+      </div>
+      <div class="tw">
+        <div class="tf"><div class="card-title">Detalle por promotor</div></div>
+        <table><thead><tr><th>Promotor</th><th>Supervisor</th><th>Ciudad</th><th>Locales asignados</th><th>Locales visitados</th><th>Cobertura</th><th>Tiempo prom.</th><th>Productividad</th></tr></thead>
+        <tbody id="tabla-cobertura-promotor"></tbody></table>
+      </div>
+      <div class="alert ok"><i class="fas fa-route"></i><div id="insight-cobertura"></div></div>
+    </div>
+
+    <!-- ===================== PRODUCTIVIDAD DEL EQUIPO ===================== -->
     <div class="page" data-page="campo">
       <div class="kpi-grid-3">
         <div class="kpi t-ok"><div class="kpi-lbl">Cobertura promedio</div><div class="kpi-val" id="k-campo-cobertura">—%</div></div>
@@ -501,6 +593,24 @@ const SHEET_URLS = {
   incidencias:  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRo4CmnwJPirqJAMi4DF_1qMkPxdLZNHFn8S2si0_mj0tubXGsCZdSwU9aoj6JzNA/pub?gid=253572383&single=true&output=csv",
   costos:       "https://docs.google.com/spreadsheets/d/e/2PACX-1vRo4CmnwJPirqJAMi4DF_1qMkPxdLZNHFn8S2si0_mj0tubXGsCZdSwU9aoj6JzNA/pub?gid=1310831359&single=true&output=csv",
   metas:        "https://docs.google.com/spreadsheets/d/e/2PACX-1vRo4CmnwJPirqJAMi4DF_1qMkPxdLZNHFn8S2si0_mj0tubXGsCZdSwU9aoj6JzNA/pub?gid=1735062354&single=true&output=csv",
+};
+
+// ---------------------------------------------------------------
+// Fuentes NUEVAS (Estructura_Dashboard_Trade_Marketing.xlsx) — usadas
+// específicamente para potenciar el Módulo 1 (Dashboard Ejecutivo) con
+// tendencia real de 3 meses y el modelo consolidado. Son OPCIONALES:
+// si no cargan, el Dashboard Ejecutivo cae de nuevo a calcular todo
+// desde las 9 fuentes originales de arriba, sin romper nada.
+// ---------------------------------------------------------------
+const SHEET_URLS_V2 = {
+  modelo:          "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ6NbybQFIMTD9s_UvurqKihBwfVMo49V05dM9SgMm6nLLJ-uGaX85KqfPn-yWr7w/pub?gid=1095683396&single=true&output=csv",
+  kpiDashboard:    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ6NbybQFIMTD9s_UvurqKihBwfVMo49V05dM9SgMm6nLLJ-uGaX85KqfPn-yWr7w/pub?gid=1483433004&single=true&output=csv",
+  resumenCiudades: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ6NbybQFIMTD9s_UvurqKihBwfVMo49V05dM9SgMm6nLLJ-uGaX85KqfPn-yWr7w/pub?gid=884046529&single=true&output=csv",
+  resumenCadenas:  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ6NbybQFIMTD9s_UvurqKihBwfVMo49V05dM9SgMm6nLLJ-uGaX85KqfPn-yWr7w/pub?gid=352555184&single=true&output=csv",
+  tendencias3m:    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ6NbybQFIMTD9s_UvurqKihBwfVMo49V05dM9SgMm6nLLJ-uGaX85KqfPn-yWr7w/pub?gid=1799571377&single=true&output=csv",
+  config:          "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ6NbybQFIMTD9s_UvurqKihBwfVMo49V05dM9SgMm6nLLJ-uGaX85KqfPn-yWr7w/pub?gid=1726236970&single=true&output=csv",
+  marcaciones:     "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ6NbybQFIMTD9s_UvurqKihBwfVMo49V05dM9SgMm6nLLJ-uGaX85KqfPn-yWr7w/pub?gid=1344690155&single=true&output=csv",
+  incidenciasV2:   "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ6NbybQFIMTD9s_UvurqKihBwfVMo49V05dM9SgMm6nLLJ-uGaX85KqfPn-yWr7w/pub?gid=1755448852&single=true&output=csv",
 };
 
 function fetchCSV(url) {
@@ -595,6 +705,36 @@ async function buildDashboard() {
     metas = (metC[0] && "Indicador" in metC[0]) ? metC : [];
   } catch (err) {
     console.warn("Tablas opcionales (Incidencias/Costos/Metas) no disponibles:", err);
+  }
+
+  // Fuentes NUEVAS opcionales (Estructura_Dashboard_Trade_Marketing.xlsx),
+  // usadas para el Dashboard Ejecutivo (Módulo 1). Si no cargan, ese módulo
+  // recalcula todo desde las 9 fuentes de siempre — nunca rompe el resto.
+  let modeloV2 = [], kpiDashboardV2 = [], resumenCiudadesV2 = [], resumenCadenasV2 = [], tendencias3mV2 = [], configV2 = [], marcacionesV2 = [], incidenciasV2 = [];
+  try {
+    const [modRaw, kpiRaw, rcRaw, rcadRaw, tendRaw, cfgRaw, marcRaw, incV2Raw] = await Promise.all([
+      fetchCSV(SHEET_URLS_V2.modelo), fetchCSV(SHEET_URLS_V2.kpiDashboard), fetchCSV(SHEET_URLS_V2.resumenCiudades),
+      fetchCSV(SHEET_URLS_V2.resumenCadenas), fetchCSV(SHEET_URLS_V2.tendencias3m), fetchCSV(SHEET_URLS_V2.config),
+      fetchCSV(SHEET_URLS_V2.marcaciones), fetchCSV(SHEET_URLS_V2.incidenciasV2),
+    ]);
+    const modC = clean(modRaw);
+    modeloV2 = (modC[0] && "ID_Local" in modC[0] && "OSA" in modC[0]) ? modC : [];
+    const kpiC = clean(kpiRaw);
+    kpiDashboardV2 = (kpiC[0] && "Indicador" in kpiC[0]) ? kpiC : [];
+    const rcC = clean(rcRaw);
+    resumenCiudadesV2 = (rcC[0] && "Ciudad" in rcC[0]) ? rcC : [];
+    const rcadC = clean(rcadRaw);
+    resumenCadenasV2 = (rcadC[0] && "Cadena" in rcadC[0]) ? rcadC : [];
+    const tendC = clean(tendRaw);
+    tendencias3mV2 = (tendC[0] && "Mes" in tendC[0]) ? tendC : [];
+    const cfgC = clean(cfgRaw);
+    configV2 = (cfgC[0] && "Parámetro" in cfgC[0]) ? cfgC : [];
+    const marcC = clean(marcRaw);
+    marcacionesV2 = (marcC[0] && "ID_Marcacion" in marcC[0]) ? marcC : [];
+    const incV2C = clean(incV2Raw);
+    incidenciasV2 = (incV2C[0] && "ID_Incidencia" in incV2C[0]) ? incV2C : [];
+  } catch (err) {
+    console.warn("Fuentes V2 (Dashboard Ejecutivo) no disponibles, se recalcula todo desde las fuentes originales:", err);
   }
 
   const esquemaEsperado = {
@@ -887,39 +1027,262 @@ async function buildDashboard() {
   const gridOpt = () => ({ grid: { color: "#262222", drawTicks: false }, ticks: { color: "#9c9494", font: { size: 11 } } });
   const colorForValue = (v, good = 80, warn = 65) => (v >= good ? OK : v >= warn ? WA : ER);
 
-  // Índices ejecutivos
-  const idxWrap = document.getElementById("indices-wrap");
-  const idxDefs = [
-    { lbl: "Índice General de Ejecución", val: idxEjecucion, good: true, formula: "OSA×0.35 + Planograma×0.35 + Cobertura×0.20 + (100−POP problema)×0.10" },
-    { lbl: "Índice de Riesgo Comercial", val: idxRiesgo, good: false, formula: "Quiebre total×0.4 + POP problema×0.3 + Ausentismo×0.3 (mayor = más riesgo)" },
-    { lbl: "Índice de Oportunidad", val: Math.min(100, idxOportunidad), good: true, formula: `Brecha entre OSA actual (${kpis.osa_disponible}%) y la mejor cadena (${round1(mejorOsaCadena)}%), a escala 0-100` },
-  ];
-  idxDefs.forEach(d => {
-    const color = d.good ? colorForValue(d.val, 80, 60) : (d.val <= 30 ? OK : d.val <= 55 ? WA : ER);
-    const div = document.createElement("div"); div.className = "idx-card";
-    div.innerHTML = `<div class="idx-lbl">${d.lbl}</div><div class="idx-val" style="color:${color}">${d.val}</div>
-      <div class="idx-bar-track"><div class="idx-bar-fill" style="width:${Math.min(100, d.val)}%;background:${color};"></div></div>
-      <div class="idx-formula">${d.formula}</div>`;
-    idxWrap.appendChild(div);
-  });
+  // ============================================================
+  // MÓDULO 1 — DASHBOARD EJECUTIVO
+  // ============================================================
 
-  new Chart(document.getElementById("chart-tendencia"), {
+  // ---------------- filtros del módulo (Ciudad / Cadena / Categoría) ----------------
+  const ciudadesEj = [...new Set(locales.map(l => l.Ciudad))].filter(Boolean).sort();
+  const cadenasEj = [...new Set(locales.map(l => l.Cadena))].filter(Boolean).sort();
+  const categoriasEj = [...new Set(productos.map(p => p.Categoría))].filter(Boolean).sort();
+  const selFeCiudad = document.getElementById("fe-ciudad");
+  const selFeCadena = document.getElementById("fe-cadena");
+  const selFeCategoria = document.getElementById("fe-categoria");
+  ciudadesEj.forEach(c => { const o = document.createElement("option"); o.value = c; o.textContent = c; selFeCiudad.appendChild(o); });
+  cadenasEj.forEach(c => { const o = document.createElement("option"); o.value = c; o.textContent = c; selFeCadena.appendChild(o); });
+  categoriasEj.forEach(c => { const o = document.createElement("option"); o.value = c; o.textContent = c; selFeCategoria.appendChild(o); });
+
+  function filasEjecutivo(f) {
+    let rele = relevamiento, audi2 = auditoria, asis2 = asistencia;
+    if (f.ciudad) {
+      rele = rele.filter(r => (localMap[r.ID_Local] || {}).Ciudad === f.ciudad);
+      audi2 = audi2.filter(a => (localMap[a.ID_Local] || {}).Ciudad === f.ciudad);
+    }
+    if (f.cadena) {
+      rele = rele.filter(r => (localMap[r.ID_Local] || {}).Cadena === f.cadena);
+      audi2 = audi2.filter(a => (localMap[a.ID_Local] || {}).Cadena === f.cadena);
+    }
+    if (f.categoria) rele = rele.filter(r => r.Categoría === f.categoria);
+    return { rele, audi2, asis2 };
+  }
+
+  let sparkCharts = [];
+  let chartEvolucion, chartBulletPlaceholder;
+
+  function renderModulo1(f) {
+    const { rele, audi2, asis2 } = filasEjecutivo(f);
+
+    // -------- recomputar KPIs base sobre el subconjunto filtrado --------
+    const totalRele2 = rele.length || 1;
+    const osaDisp2 = rele.filter(r => osaOf(r) === "Disponible").length;
+    const osaVal = round1((osaDisp2 / totalRele2) * 100);
+    const planoValues2 = audi2.map(a => num(a["Cumplimiento_Planograma_%"]));
+    const planoVal = planoValues2.length ? round1(planoValues2.reduce((a, b) => a + b, 0) / planoValues2.length) : 0;
+    const sosValues2 = audi2.map(a => num(a["Share_of_Shelf_%"])).filter(v => v > 0);
+    const sosVal = sosValues2.length ? round1(sosValues2.reduce((a, b) => a + b, 0) / sosValues2.length) : 0;
+    const coberturaValues2 = asis2.map(a => num(a["Cobertura_%"]));
+    const coberturaVal = coberturaValues2.length ? round1(coberturaValues2.reduce((a, b) => a + b, 0) / coberturaValues2.length) : 0;
+
+    // metas: config V2 si está, si no, tabla metas original
+    const metaMap2 = {};
+    if (configV2.length) {
+      configV2.forEach(c => { metaMap2[c["Parámetro"]] = num(c.Valor); });
+    } else if (metas.length) {
+      metas.forEach(m => {
+        if (/OSA/i.test(m.Indicador)) metaMap2["Meta_OSA"] = num(m.Objetivo);
+        if (/Planograma/i.test(m.Indicador)) metaMap2["Meta_Planograma"] = num(m.Objetivo);
+        if (/Cobertura/i.test(m.Indicador)) metaMap2["Meta_Cobertura"] = num(m.Objetivo);
+        if (/Share/i.test(m.Indicador)) metaMap2["Meta_Share"] = num(m.Objetivo);
+      });
+    }
+    const metaOSA = metaMap2["Meta_OSA"] ?? 90;
+    const metaPlano = metaMap2["Meta_Planograma"] ?? 85;
+    const metaCobertura = metaMap2["Meta_Cobertura"] ?? 95;
+    const metaShare = metaMap2["Meta_Share"] ?? 25;
+
+    // productividad: visitas por hora (60 / tiempo promedio de visita)
+    const tiempoVals2 = detalle.filter(d => d.Estado_Visita === "Realizada").map(d => num(d["Duración_Minutos"])).filter(v => v > 0);
+    const tiempoProm2 = tiempoVals2.length ? tiempoVals2.reduce((a, b) => a + b, 0) / tiempoVals2.length : 0;
+    const productividadVal = tiempoProm2 > 0 ? round1(60 / tiempoProm2) : 0;
+    const productividadNorm = Math.min(100, round1((productividadVal / 1.5) * 100));
+
+    // incidencias abiertas: usa la fuente V2 si está disponible, si no, la original
+    const incFuente = incidenciasV2.length ? incidenciasV2 : incidencias;
+    const incAbiertas = incFuente.filter(i => i.Estado === "Abierta").length;
+
+    // FEFO crítico: unidades próximas a vencer dentro de 7 días
+    const proximosEj = rele.filter(r => r["Próximos_a_Vencer"] === "Sí");
+    let fefoCritico = 0;
+    proximosEj.forEach(r => {
+      const fFecha = parseFechaParts(r.Fecha), fVenc = parseFechaParts(r.Fecha_Vencimiento);
+      if (!fFecha || !fVenc) return;
+      const d1 = new Date(fFecha.anio, fFecha.mes - 1, fFecha.dia), d2 = new Date(fVenc.anio, fVenc.mes - 1, fVenc.dia);
+      const dias = Math.round((d2 - d1) / 86400000);
+      if (dias <= 7) fefoCritico++;
+    });
+
+    // Índice General de Ejecución Comercial (pesos del brief): Cobertura 30% + OSA 30% + Planograma 20% + Share 10% + Productividad 10%
+    const scoreEjecutivo = round1(coberturaVal * 0.30 + osaVal * 0.30 + planoVal * 0.20 + sosVal * 0.10 + productividadNorm * 0.10);
+
+    // -------- históricos para sparkline: 3 meses reales si están, si no, semanal --------
+    const historiaOSA = tendencias3mV2.length ? tendencias3mV2.map(t => num(t["OSA_%"])) : tendencia.osa;
+    const historiaPlano = tendencias3mV2.length ? tendencias3mV2.map(t => num(t["Planograma_%"])) : tendencia.planograma;
+    const historiaShare = tendencias3mV2.length ? tendencias3mV2.map(t => num(t["Share_%"])) : tendencia.sos;
+    const historiaCobertura = tendencia.cobertura; // no hay cobertura mensual en 100_Tendencias, se usa la semanal siempre
+
+    // -------- render de las 8 tarjetas KPI --------
+    sparkCharts.forEach(c => c.destroy());
+    sparkCharts = [];
+    const kpiWrap = document.getElementById("kpis-ejecutivos-wrap");
+    kpiWrap.innerHTML = "";
+
+    const defsKpi = [
+      { id: "cobertura", lbl: "Cobertura", valor: coberturaVal, meta: metaCobertura, historia: historiaCobertura, unidad: "%" },
+      { id: "osa", lbl: "OSA", valor: osaVal, meta: metaOSA, historia: historiaOSA, unidad: "%" },
+      { id: "planograma", lbl: "Planograma", valor: planoVal, meta: metaPlano, historia: historiaPlano, unidad: "%" },
+      { id: "share", lbl: "Share of Shelf", valor: sosVal, meta: metaShare, historia: historiaShare, unidad: "%" },
+      { id: "indice", lbl: "Índice Comercial", valor: scoreEjecutivo, meta: 90, historia: null, unidad: "" },
+      { id: "incidencias", lbl: "Incidencias Abiertas", valor: incAbiertas, meta: null, historia: null, unidad: "", invertido: true },
+      { id: "fefo", lbl: "FEFO crítico (≤7 días)", valor: fefoCritico, meta: null, historia: null, unidad: "", invertido: true },
+      { id: "productividad", lbl: "Productividad", valor: productividadVal, meta: 1.5, historia: null, unidad: " vis/h" },
+    ];
+
+    defsKpi.forEach(d => {
+      const cumple = d.meta != null ? (d.invertido ? d.valor <= d.meta : d.valor >= d.meta) : null;
+      const dotColor = d.meta == null ? GREY : cumple ? OK : (d.invertido ? WA : (d.valor >= d.meta * 0.85 ? WA : ER));
+      let deltaHtml = "";
+      if (d.historia && d.historia.length >= 2) {
+        const delta = round1(d.historia[d.historia.length - 1] - d.historia[0]);
+        const cls = d.invertido ? (delta <= 0 ? "up" : "down") : (delta >= 0 ? "up" : "down");
+        const signo = delta > 0 ? "+" : "";
+        deltaHtml = `<span class="ke-delta ${cls}"><i class="fas fa-arrow-${delta >= 0 ? "up" : "down"}"></i> ${signo}${delta}</span>`;
+      }
+      const metaHtml = d.meta != null ? `Meta ${d.meta}${d.unidad}` : "";
+      const div = document.createElement("div");
+      div.className = "kpi-ej";
+      const sparkId = `spark-${d.id}`;
+      div.innerHTML = `
+        <div class="ke-top"><div class="ke-lbl">${d.lbl}</div><div class="ke-dot" style="background:${dotColor}"></div></div>
+        <div class="ke-val">${d.valor}${d.unidad}</div>
+        <div class="ke-row2">${deltaHtml}<span>${metaHtml}</span></div>
+        ${d.historia && d.historia.length >= 2 ? `<div class="ke-spark"><canvas id="${sparkId}"></canvas></div>` : ""}
+      `;
+      kpiWrap.appendChild(div);
+      if (d.historia && d.historia.length >= 2) {
+        const sc = new Chart(document.getElementById(sparkId), {
+          type: "line",
+          data: { labels: d.historia.map((_, i) => i), datasets: [{ data: d.historia, borderColor: dotColor, backgroundColor: "transparent", tension: .35, pointRadius: 0, borderWidth: 2 }] },
+          options: { plugins: { legend: { display: false }, tooltip: { enabled: false } }, scales: { x: { display: false }, y: { display: false } }, elements: { line: { borderJoinStyle: "round" } } },
+        });
+        sparkCharts.push(sc);
+      }
+    });
+
+    // -------- Evolución Comercial (línea múltiple) --------
+    const labelsEvo = tendencias3mV2.length ? tendencias3mV2.map(t => ({ 5: "Mayo", 6: "Junio", 7: "Julio" }[Number(t.Mes)] || t.Mes)) : tendencia.labels;
+    document.getElementById("evolucion-sub").textContent = tendencias3mV2.length ? "Cobertura, OSA y Planograma — mayo a julio (3 meses reales)" : "Cobertura, OSA y Planograma — semana a semana dentro del mes";
+    if (chartEvolucion) chartEvolucion.destroy();
+    chartEvolucion = new Chart(document.getElementById("chart-evolucion"), {
+      type: "line",
+      data: { labels: labelsEvo, datasets: [
+        { label: "Cobertura %", data: historiaCobertura, borderColor: OK, backgroundColor: "transparent", tension: .35, pointRadius: 4, pointBackgroundColor: OK },
+        { label: "OSA %", data: historiaOSA, borderColor: ACC, backgroundColor: "rgba(212,162,76,.12)", tension: .35, fill: true, pointRadius: 4, pointBackgroundColor: ACC },
+        { label: "Planograma %", data: historiaPlano, borderColor: BL, backgroundColor: "transparent", tension: .35, pointRadius: 4, pointBackgroundColor: BL },
+      ] },
+      options: { plugins: { legend: { position: "top", align: "end", labels: { boxWidth: 10, boxHeight: 10, usePointStyle: true, color: "#9c9494", font: { size: 11.5 } } } }, scales: { y: { min: 0, max: 100, ...gridOpt() }, x: { grid: { display: false }, ticks: { color: "#9c9494" } } } },
+    });
+
+    // -------- Cumplimiento vs. Meta (bullet chart, CSS) --------
+    const bulletData = [
+      { lbl: "Cobertura", actual: coberturaVal, meta: metaCobertura },
+      { lbl: "OSA", actual: osaVal, meta: metaOSA },
+      { lbl: "Planograma", actual: planoVal, meta: metaPlano },
+      { lbl: "Share of Shelf", actual: sosVal, meta: metaShare },
+    ];
+    const bulletWrap = document.getElementById("bullet-wrap");
+    bulletWrap.innerHTML = "";
+    bulletData.forEach(b => {
+      const color = colorForValue(b.actual, b.meta, b.meta * 0.85);
+      const row = document.createElement("div");
+      row.className = "bullet-row";
+      row.innerHTML = `
+        <div class="bullet-lbl">${b.lbl}</div>
+        <div class="bullet-track">
+          <div class="bullet-band" style="left:0%; width:60%; background:rgba(232,129,95,.10);"></div>
+          <div class="bullet-band" style="left:60%; width:25%; background:rgba(232,160,69,.10);"></div>
+          <div class="bullet-band" style="left:85%; width:15%; background:rgba(60,179,168,.10);"></div>
+          <div class="bullet-fill" style="width:${Math.min(100, b.actual)}%; background:${color};"></div>
+          <div class="bullet-target" style="left:${Math.min(100, b.meta)}%;" title="Meta: ${b.meta}%"></div>
+        </div>
+        <div class="bullet-val" style="color:${color}">${b.actual}%</div>
+      `;
+      bulletWrap.appendChild(row);
+    });
+  }
+
+  function currentFiltersEj() { return { ciudad: selFeCiudad.value, cadena: selFeCadena.value, categoria: selFeCategoria.value }; }
+  selFeCiudad.addEventListener("change", () => renderModulo1(currentFiltersEj()));
+  selFeCadena.addEventListener("change", () => renderModulo1(currentFiltersEj()));
+  selFeCategoria.addEventListener("change", () => renderModulo1(currentFiltersEj()));
+  document.getElementById("fe-clear").addEventListener("click", () => { selFeCiudad.value = ""; selFeCadena.value = ""; selFeCategoria.value = ""; renderModulo1(currentFiltersEj()); });
+  renderModulo1({ ciudad: "", cadena: "", categoria: "" });
+
+  // ---------------- COBERTURA OPERATIVA ----------------
+  const totalPlanificados = asistencia.reduce((a, r) => a + num(r.Locales_Planificados), 0);
+  const totalVisitadosCob = asistencia.reduce((a, r) => a + num(r.Locales_Visitados), 0);
+  const totalPendientesCob = asistencia.reduce((a, r) => a + num(r.Locales_Pendientes), 0);
+  const horasTrabajadasTotal = asistencia.reduce((a, r) => a + parseTiempoHoras(r.Tiempo_Total_Trabajo), 0);
+  const promotoresActivosCount = new Set(asistencia.map(a => a.ID_Promotor)).size;
+
+  document.getElementById("k-cob-planificados").textContent = fmtInt(totalPlanificados);
+  document.getElementById("k-cob-visitados").textContent = fmtInt(totalVisitadosCob);
+  document.getElementById("k-cob-pendientes").textContent = fmtInt(totalPendientesCob);
+  document.getElementById("k-cob-cobertura").textContent = kpis.cobertura_prom + "%";
+  document.getElementById("k-cob-horas").textContent = fmtInt(horasTrabajadasTotal) + " hs";
+  document.getElementById("k-cob-promotores").textContent = promotoresActivosCount;
+
+  // cobertura diaria (línea)
+  const coberturaPorDia = groupAvg(asistencia, a => a.Fecha, a => num(a["Cobertura_%"]));
+  const ordenFechas = coberturaPorDia.labels.map((l, i) => [l, coberturaPorDia.values[i]]).sort((a, b) => {
+    const pa = parseFechaParts(a[0]), pb = parseFechaParts(b[0]);
+    if (!pa || !pb) return 0;
+    return new Date(pa.anio, pa.mes - 1, pa.dia) - new Date(pb.anio, pb.mes - 1, pb.dia);
+  });
+  new Chart(document.getElementById("chart-cobertura-diaria"), {
     type: "line",
-    data: { labels: tendencia.labels, datasets: [
-      { label: "OSA %", data: tendencia.osa, borderColor: ACC, backgroundColor: "rgba(212,162,76,.12)", tension: .35, fill: true, pointRadius: 4, pointBackgroundColor: ACC },
-      { label: "Cobertura %", data: tendencia.cobertura, borderColor: OK, backgroundColor: "transparent", tension: .35, pointRadius: 4, pointBackgroundColor: OK },
-      { label: "Planograma %", data: tendencia.planograma, borderColor: BL, backgroundColor: "transparent", tension: .35, pointRadius: 4, pointBackgroundColor: BL },
-    ]},
-    options: { plugins: { legend: { position: "top", align: "end", labels: { boxWidth: 10, boxHeight: 10, usePointStyle: true, color: "#9c9494", font: { size: 11.5 } } } }, scales: { y: { min: 0, max: 100, ...gridOpt() }, x: { grid: { display: false }, ticks: { color: "#9c9494" } } } },
+    data: { labels: ordenFechas.map(e => e[0]), datasets: [{ label: "Cobertura %", data: ordenFechas.map(e => e[1]), borderColor: OK, backgroundColor: "rgba(60,179,168,.12)", tension: .3, fill: true, pointRadius: 3, pointBackgroundColor: OK }] },
+    options: { plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 100, ...gridOpt() }, x: { grid: { display: false }, ticks: { color: "#9c9494", maxRotation: 60, minRotation: 60, font: { size: 9.5 } } } } },
   });
 
-  if (tendencia.osa.length) {
-    const idx = osaCategoria.values.indexOf(Math.min(...osaCategoria.values));
-    document.getElementById("insight-resumen").innerHTML = `<strong>${osaCategoria.labels[idx] || "—"}</strong> es la categoría con menor disponibilidad (${osaCategoria.values[idx] || 0}%). El cumplimiento de planograma promedio es ${kpis.planograma_prom}% y el ausentismo del equipo ${kpis.ausentismo}% — estas tres cifras juntas marcan dónde priorizar el próximo ciclo de visitas.`;
+  // cobertura por ciudad (a partir de DETALLE_VISITAS_LOCAL: % de filas planificadas que se realizaron)
+  const coberturaCiudad = groupRatio(detalle, d => (localMap[d.ID_Local] || {}).Ciudad, d => d.Estado_Visita === "Realizada");
+  new Chart(document.getElementById("chart-cobertura-ciudad"), { type: "bar", data: { labels: coberturaCiudad.labels, datasets: [{ data: coberturaCiudad.values, backgroundColor: coberturaCiudad.values.map(v => colorForValue(v, 90, 75)), borderRadius: 6, maxBarThickness: 26 }] }, options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { min: 0, max: 100, ...gridOpt() }, y: { grid: { display: false }, ticks: { color: "#f2eeee", font: { size: 11 } } } } } });
+
+  // tabla detalle por promotor
+  const promotoresIds = [...new Set(asistencia.map(a => a.ID_Promotor))];
+  const tablaCobProm = document.getElementById("tabla-cobertura-promotor");
+  promotoresIds.forEach(pid => {
+    const nombre = (asistencia.find(a => a.ID_Promotor === pid) || {}).Nombre_Promotor || pid;
+    const visitasProm = detalle.filter(d => d.ID_Promotor === pid);
+    const localesAsignados = new Set(visitasProm.map(d => d.ID_Local)).size;
+    const visitasRealizadasProm = visitasProm.filter(d => d.Estado_Visita === "Realizada");
+    const localesVisitados = new Set(visitasRealizadasProm.map(d => d.ID_Local)).size;
+    // supervisor y ciudad más frecuentes entre los locales de este promotor
+    const supCount = {}, ciuCount = {};
+    visitasProm.forEach(d => {
+      const l = localMap[d.ID_Local]; if (!l) return;
+      supCount[l.Supervisor] = (supCount[l.Supervisor] || 0) + 1;
+      ciuCount[l.Ciudad] = (ciuCount[l.Ciudad] || 0) + 1;
+    });
+    const supervisor = Object.entries(supCount).sort((a, b) => b[1] - a[1])[0]?.[0] || "—";
+    const ciudadProm = Object.entries(ciuCount).sort((a, b) => b[1] - a[1])[0]?.[0] || "—";
+    const coberturaProm2 = rankingPromotores.labels.includes(nombre) ? rankingPromotores.values[rankingPromotores.labels.indexOf(nombre)] : null;
+    const tiempoValuesProm = visitasRealizadasProm.map(d => num(d["Duración_Minutos"])).filter(v => v > 0);
+    const tiempoPromProm = tiempoValuesProm.length ? round1(tiempoValuesProm.reduce((a, b) => a + b, 0) / tiempoValuesProm.length) : null;
+    const horasPromotor = asistencia.filter(a => a.ID_Promotor === pid).reduce((a, r) => a + parseTiempoHoras(r.Tiempo_Total_Trabajo), 0);
+    const productividad = horasPromotor > 0 ? round1(visitasRealizadasProm.length / horasPromotor) : 0;
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${nombre}</td><td>${supervisor}</td><td>${ciudadProm}</td><td>${localesAsignados}</td><td>${localesVisitados}</td><td>${coberturaProm2 != null ? coberturaProm2 + "%" : "—"}</td><td>${tiempoPromProm != null ? tiempoPromProm + " min" : "—"}</td><td>${productividad} visitas/h</td>`;
+    tablaCobProm.appendChild(tr);
+  });
+
+  if (coberturaCiudad.values.length) {
+    const idxPeorCiu = coberturaCiudad.values.indexOf(Math.min(...coberturaCiudad.values));
+    document.getElementById("insight-cobertura").innerHTML = `<strong>${coberturaCiudad.labels[idxPeorCiu]}</strong> tiene la cobertura de visitas más baja (${coberturaCiudad.values[idxPeorCiu]}%). De ${fmtInt(totalPlanificados)} visitas planificadas en el período, se realizaron ${fmtInt(totalVisitadosCob)} y quedaron ${fmtInt(totalPendientesCob)} pendientes.`;
   }
 
   // ---------------- Disponibilidad: filtros + heatmap + tabla de productos ----------------
-  let chartOsaCat, chartOsaCad, chartSkus, chartOsaMarca, chartOsaCiudad;
+  let chartOsaCat, chartOsaCad, chartSkus, chartOsaMarca, chartOsaCiudad, chartStockComp, chartSkuSinStock;
   const cadenasList = [...new Set(locales.map(l => l.Cadena))].filter(Boolean).sort();
   const categoriasList = [...new Set(productos.map(p => p.Categoría))].filter(Boolean).sort();
   const ciudadesList = [...new Set(locales.map(l => l.Ciudad))].filter(Boolean).sort();
@@ -932,6 +1295,41 @@ async function buildDashboard() {
   categoriasList.forEach(c => { const o = document.createElement("option"); o.value = c; o.textContent = c; selCategoria.appendChild(o); });
   ciudadesList.forEach(c => { const o = document.createElement("option"); o.value = c; o.textContent = c; selCiudad.appendChild(o); });
 
+  // Coordenadas aproximadas (x,y sobre un lienzo 460x600) de las ciudades relevadas.
+  // Están derivadas de su posición geográfica real relativa dentro de Paraguay, pero
+  // el grupo de Gran Asunción se separó levemente para que los puntos no se solapen.
+  // Es un mapa de referencia esquemático, no un mapa geográfico a escala.
+  const CIUDAD_COORDS = {
+    "Asunción": { x: 255, y: 395 },
+    "San Lorenzo": { x: 300, y: 415 },
+    "Fernando de la Mora": { x: 278, y: 428 },
+    "Lambaré": { x: 248, y: 438 },
+    "Luque": { x: 310, y: 385 },
+    "Capiatá": { x: 322, y: 432 },
+    "Ciudad del Este": { x: 424, y: 439 },
+    "Encarnación": { x: 361, y: 562 },
+  };
+  const PARAGUAY_PATH = "M 80,20 L 380,15 L 430,180 L 460,300 L 424,439 L 400,480 L 361,562 L 300,590 L 180,560 L 100,480 L 60,350 L 40,200 L 60,80 Z";
+
+  function renderMapaCiudades(osaCiudadF) {
+    const osaMap = {};
+    osaCiudadF.labels.forEach((l, i) => { osaMap[l] = osaCiudadF.values[i]; });
+    let marcas = "";
+    Object.entries(CIUDAD_COORDS).forEach(([nombre, pos]) => {
+      const val = osaMap[nombre];
+      const color = val != null ? colorForValue(val) : "#4b4444";
+      const r = val != null ? 9 : 5;
+      marcas += `<circle cx="${pos.x}" cy="${pos.y}" r="${r}" fill="${color}" stroke="#0d0c0c" stroke-width="2"></circle>`;
+      const etiqueta = val != null ? `${nombre} (${val}%)` : nombre;
+      marcas += `<text x="${pos.x + r + 6}" y="${pos.y + 4}" font-size="12" fill="#f2eeee" font-family="Outfit, sans-serif">${etiqueta}</text>`;
+    });
+    const svg = `<svg viewBox="0 0 460 600" style="width:100%;max-width:420px;height:auto;display:block;">
+      <path d="${PARAGUAY_PATH}" fill="#171d33" stroke="rgba(255,255,255,0.15)" stroke-width="2"></path>
+      ${marcas}
+    </svg>`;
+    document.getElementById("mapa-ciudades-wrap").innerHTML = svg;
+  }
+
   function renderDisponibilidad(f) {
     let rows = relevamiento;
     if (f.cadena) rows = rows.filter(r => (localMap[r.ID_Local] || {}).Cadena === f.cadena);
@@ -942,6 +1340,7 @@ async function buildDashboard() {
     const osaCatF = groupRatio(rows, r => r.Categoría, r => osaOf(r) === "Disponible");
     const osaCadF = groupRatio(rows, r => (localMap[r.ID_Local] || {}).Cadena, r => osaOf(r) === "Disponible");
     const osaCiudadF = groupRatio(rows, r => (localMap[r.ID_Local] || {}).Ciudad, r => osaOf(r) === "Disponible");
+    renderMapaCiudades(osaCiudadF);
     const marcaCountsF = {};
     rows.forEach(r => { if (!marcaCountsF[r.Marca]) marcaCountsF[r.Marca] = { n: 0, disp: 0 }; marcaCountsF[r.Marca].n++; if (osaOf(r) === "Disponible") marcaCountsF[r.Marca].disp++; });
     const osaMarcaF = Object.entries(marcaCountsF).filter(([, v]) => v.n >= 4).map(([k, v]) => [k, round1((v.disp / v.n) * 100)]).sort((a, b) => a[1] - b[1]);
@@ -959,6 +1358,27 @@ async function buildDashboard() {
     chartOsaCiudad = new Chart(document.getElementById("chart-osa-ciudad"), { type: "bar", data: { labels: osaCiudadF.labels, datasets: [{ data: osaCiudadF.values, backgroundColor: osaCiudadF.values.map(v => colorForValue(v)), borderRadius: 6, maxBarThickness: 24 }] }, options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { min: 0, max: 100, ...gridOpt() }, y: { grid: { display: false }, ticks: { color: "#f2eeee", font: { size: 11 } } } } } });
     if (chartSkus) chartSkus.destroy();
     chartSkus = new Chart(document.getElementById("chart-skus-quiebre"), { type: "bar", data: { labels: topSkusF.map(s => s.Marca + " · " + s.Producto), datasets: [{ data: topSkusF.map(s => s.osa), backgroundColor: ER, borderRadius: 6, maxBarThickness: 22 }] }, options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { min: 0, max: 100, ...gridOpt() }, y: { grid: { display: false }, ticks: { color: "#f2eeee", font: { size: 10.5 } } } } } });
+
+    // stock góndola vs. depósito, por categoría (promedio)
+    const stockPorCategoria = {};
+    rows.forEach(r => { const cat = r.Categoría; if (!cat) return; if (!stockPorCategoria[cat]) stockPorCategoria[cat] = { gSum: 0, dSum: 0, n: 0 }; stockPorCategoria[cat].gSum += num(r.Stock_Góndola); stockPorCategoria[cat].dSum += num(r.Stock_Depósito); stockPorCategoria[cat].n++; });
+    const catsStock = Object.keys(stockPorCategoria);
+    if (chartStockComp) chartStockComp.destroy();
+    chartStockComp = new Chart(document.getElementById("chart-stock-comparacion"), {
+      type: "bar",
+      data: { labels: catsStock, datasets: [
+        { label: "Stock góndola (prom.)", data: catsStock.map(c => round1(stockPorCategoria[c].gSum / stockPorCategoria[c].n)), backgroundColor: OK, borderRadius: 5, maxBarThickness: 28 },
+        { label: "Stock depósito (prom.)", data: catsStock.map(c => round1(stockPorCategoria[c].dSum / stockPorCategoria[c].n)), backgroundColor: BL, borderRadius: 5, maxBarThickness: 28 },
+      ] },
+      options: { plugins: { legend: { position: "top", labels: { color: "#9c9494", boxWidth: 10, boxHeight: 10 } } }, scales: { y: { ...gridOpt(), beginAtZero: true }, x: { grid: { display: false }, ticks: { color: "#f2eeee", font: { size: 10.5 } } } } },
+    });
+
+    // top SKUs sin stock en góndola (Stock_Góndola = 0)
+    const sinStockCount = {};
+    rows.filter(r => num(r.Stock_Góndola) === 0).forEach(r => { const key = r.Marca + " · " + r.Producto; sinStockCount[key] = (sinStockCount[key] || 0) + 1; });
+    const sinStockTop = Object.entries(sinStockCount).sort((a, b) => b[1] - a[1]).slice(0, 8);
+    if (chartSkuSinStock) chartSkuSinStock.destroy();
+    chartSkuSinStock = new Chart(document.getElementById("chart-sku-sin-stock"), { type: "bar", data: { labels: sinStockTop.map(e => e[0]), datasets: [{ data: sinStockTop.map(e => e[1]), backgroundColor: ER, borderRadius: 6, maxBarThickness: 22 }] }, options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { ...gridOpt(), beginAtZero: true, ticks: { color: "#9c9494", stepSize: 1 } }, y: { grid: { display: false }, ticks: { color: "#f2eeee", font: { size: 10.5 } } } } } });
 
     // heatmap cadena x categoría (siempre muestra todas las cadenas/categorías, solo cambia el color según el filtro de mes/cadena/categoría aplicado a los datos de fondo)
     const heatData = {};
@@ -1034,12 +1454,34 @@ async function buildDashboard() {
   const fefoColors = [ER, WA, ACC, OK];
   new Chart(document.getElementById("chart-fefo"), { type: "bar", data: { labels: fefoLabels, datasets: [{ data: fefoValues, backgroundColor: fefoColors, borderRadius: 6, maxBarThickness: 50 }] }, options: { plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => fmtInt(c.parsed.y) + " unidades" } } }, scales: { y: { ...gridOpt(), beginAtZero: true }, x: { grid: { display: false }, ticks: { color: "#f2eeee" } } } } });
 
+  const mermaCategoria = {};
+  relevamiento.forEach(r => { const cat = r.Categoría; if (!cat) return; mermaCategoria[cat] = (mermaCategoria[cat] || 0) + num(r.Unidades_Averiadas); });
+  const mermaEntries = Object.entries(mermaCategoria).sort((a, b) => b[1] - a[1]);
+  new Chart(document.getElementById("chart-merma-categoria"), { type: "bar", data: { labels: mermaEntries.map(e => e[0]), datasets: [{ data: mermaEntries.map(e => e[1]), backgroundColor: WA, borderRadius: 6, maxBarThickness: 40 }] }, options: { plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => fmtInt(c.parsed.y) + " unidades averiadas" } } }, scales: { y: { ...gridOpt(), beginAtZero: true }, x: { grid: { display: false }, ticks: { color: "#f2eeee", font: { size: 10.5 } } } } } });
+
   document.getElementById("insight-vencimientos").innerHTML = `Hay <strong>${fmtInt(unidadesTotales)} unidades</strong> por vencer con un valor comercial de <strong>${fmtGs(valorEnRiesgo)}</strong> todavía en juego. Activar promociones dirigidas sobre los ítems de la tabla antes de su vencimiento puede recuperar la mayor parte de ese valor.`;
 
   new Chart(document.getElementById("chart-planograma-cadena"), { type: "bar", data: { labels: planoCadena.labels, datasets: [{ data: planoCadena.values, backgroundColor: planoCadena.values.map(v => colorForValue(v, 80, 70)), borderRadius: 6, maxBarThickness: 30 }] }, options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { min: 0, max: 100, ...gridOpt() }, y: { grid: { display: false }, ticks: { color: "#f2eeee", font: { size: 11.5 } } } } } });
   new Chart(document.getElementById("chart-pop"), { type: "doughnut", data: { labels: popEstado.labels, datasets: [{ data: popEstado.values, backgroundColor: [OK, WA, ER, GREY], borderColor: "#161414", borderWidth: 2 }] }, options: { cutout: "62%", plugins: { legend: { position: "bottom", labels: { boxWidth: 9, boxHeight: 9, color: "#9c9494", font: { size: 10 }, padding: 10 } } } } });
 
   document.getElementById("insight-pop").innerHTML = `<strong>${kpis.pop_problema}%</strong> del material POP relevado tiene algún problema (dañado, desactualizado o faltante). Incluir su reemplazo como tarea fija de la próxima ronda, no como excepción.`;
+
+  // Radar: marca propia vs. competencia, solo con métricas que realmente medimos de ambos lados
+  const precioIndiceComp = precioPropioProm > 0 ? round1((precioCompProm / precioPropioProm) * 100) : 100;
+  new Chart(document.getElementById("chart-radar-competencia"), {
+    type: "radar",
+    data: {
+      labels: ["Precio (100=nuestro prom.)", "Promociones activas %", "Espacio de góndola propio %"],
+      datasets: [
+        { label: "Nosotros", data: [100, ofertasActivasPct, sosProm], borderColor: ACC, backgroundColor: "rgba(212,162,76,.18)", pointBackgroundColor: ACC },
+        { label: "Competencia", data: [precioIndiceComp, compConPromoPct, round1(100 - sosProm)], borderColor: ER, backgroundColor: "rgba(232,129,95,.15)", pointBackgroundColor: ER },
+      ],
+    },
+    options: {
+      plugins: { legend: { position: "top", labels: { color: "#9c9494", boxWidth: 10, boxHeight: 10 } } },
+      scales: { r: { min: 0, max: 100, grid: { color: "#262222" }, angleLines: { color: "#262222" }, pointLabels: { color: "#f2eeee", font: { size: 11 } }, ticks: { color: "#8993AC", backdropColor: "transparent" } } },
+    },
+  });
 
   document.getElementById("k-campo-cobertura").textContent = kpis.cobertura_prom + "%";
   document.getElementById("k-campo-ausentismo").textContent = kpis.ausentismo + "%";
@@ -1125,6 +1567,19 @@ async function buildDashboard() {
   document.getElementById("k-comp-lanz").textContent = compLanzamientoPct + "%";
   document.getElementById("k-comp-sos").textContent = sosProm + "%";
   new Chart(document.getElementById("chart-competencia"), { type: "bar", data: { labels: competencia.labels, datasets: [{ data: competencia.values, backgroundColor: GREY, borderRadius: 6, maxBarThickness: 28 }] }, options: { plugins: { legend: { display: false } }, scales: { y: { ...gridOpt(), beginAtZero: true }, x: { grid: { display: false }, ticks: { color: "#9c9494", font: { size: 10.5 } } } } } });
+
+  new Chart(document.getElementById("chart-precio-comp"), { type: "bar", data: { labels: ["Nuestro precio (prom.)", "Precio competencia (prom.)"], datasets: [{ data: [precioPropioProm, precioCompProm], backgroundColor: [ACC, ER], borderRadius: 6, maxBarThickness: 50 }] }, options: { plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => fmtGs(c.parsed.y) } } }, scales: { y: { ...gridOpt(), beginAtZero: true, ticks: { color: "#9c9494", callback: v => fmtInt(v) } }, x: { grid: { display: false }, ticks: { color: "#f2eeee" } } } } });
+
+  const tiposPromo = groupCount(auditoria.filter(a => a.Promoción_Competencia && a.Promoción_Competencia !== "Sin promoción activa"), a => a.Promoción_Competencia);
+  new Chart(document.getElementById("chart-tipos-promo"), { type: "doughnut", data: { labels: tiposPromo.labels, datasets: [{ data: tiposPromo.values, backgroundColor: [ACC, OK, WA, ER, BL, GREY], borderColor: "#161414", borderWidth: 2 }] }, options: { cutout: "62%", plugins: { legend: { position: "bottom", labels: { boxWidth: 9, boxHeight: 9, color: "#9c9494", font: { size: 9.5 }, padding: 8 } } } } });
+
+  const tablaCompDetalle = document.getElementById("tabla-competencia-detalle");
+  auditoria.slice(0, 20).forEach(a => {
+    const nomLocal = (localMap[a.ID_Local] || {}).Nombre_Local || a.ID_Local;
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${nomLocal}</td><td>${a.Marca_Competencia || "—"}</td><td>${fmtGs(parseGs(a.Precio_Competencia))}</td><td>${a.Promoción_Competencia || "—"}</td><td><span class="pill ${a.Nuevo_Lanzamiento === "Sí" ? "wa" : "ok"}">${a.Nuevo_Lanzamiento || "No"}</span></td>`;
+    tablaCompDetalle.appendChild(tr);
+  });
   new Chart(document.getElementById("chart-sos-tendencia"), { type: "line", data: { labels: tendencia.labels, datasets: [{ label: "Share of Shelf %", data: tendencia.sos, borderColor: ACC, backgroundColor: "rgba(212,162,76,.12)", tension: .35, fill: true, pointRadius: 4, pointBackgroundColor: ACC }] }, options: { plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 60, ...gridOpt() }, x: { grid: { display: false }, ticks: { color: "#9c9494" } } } } });
   const deltaSos = tendencia.sos.length >= 2 ? round1(tendencia.sos[tendencia.sos.length - 1] - tendencia.sos[0]) : 0;
   document.getElementById("insight-competencia").innerHTML =

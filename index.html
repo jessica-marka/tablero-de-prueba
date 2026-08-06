@@ -1613,17 +1613,6 @@ async function buildDashboard() {
     document.getElementById("insight-osa").innerHTML = `<strong>${osaCadena.labels[idx]}</strong> tiene la disponibilidad más baja de todas las cadenas (${osaCadena.values[idx]}%), por debajo del promedio general (${kpis.osa_disponible}%). Priorizar frecuencia de reposición ahí antes de sumar más puntos de venta.`;
   }
 
-  // ---------------- chips de variación semana a semana (última semana vs. anterior) ----------------
-  function renderDelta(id, val) {
-    const el = document.getElementById(id);
-    if (val > 0.05) { el.className = "delta-chip up"; el.innerHTML = `<i class="fas fa-arrow-up"></i> +${val}`; }
-    else if (val < -0.05) { el.className = "delta-chip down"; el.innerHTML = `<i class="fas fa-arrow-down"></i> ${val}`; }
-    else { el.className = "delta-chip flat"; el.innerHTML = `<i class="fas fa-minus"></i> 0`; }
-  }
-  const nS = tendencia.osa.length;
-  renderDelta("d-osa", nS >= 2 ? round1(tendencia.osa[nS - 1] - tendencia.osa[nS - 2]) : 0);
-  renderDelta("d-plano", nS >= 2 ? round1(tendencia.planograma[nS - 1] - tendencia.planograma[nS - 2]) : 0);
-  renderDelta("d-cobertura", nS >= 2 ? round1(tendencia.cobertura[nS - 1] - tendencia.cobertura[nS - 2]) : 0);
 
   document.getElementById("k-venc-unidades").textContent = fmtInt(unidadesTotales);
   document.getElementById("k-venc-registros").textContent = "en " + proximos.length + " relevamientos";

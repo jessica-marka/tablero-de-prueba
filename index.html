@@ -307,12 +307,12 @@ tr:hover td{background:rgba(255,255,255,.02)}
       </div>
     <div class="grid-2">
         <div class="tw">
-          <div class="tf"><div class="card-title">Los 10 locales más críticos</div></div>
+          <div class="tf"><div class="card-title">Los 10 locales con mayor prioridad de atención</div></div>
           <table><thead><tr><th>Local</th><th>Ciudad</th><th>Disponibilidad</th><th>Planograma</th><th>Prioridad</th></tr></thead>
           <tbody id="tabla-locales-criticos"></tbody></table>
         </div>
         <div class="tw">
-          <div class="tf"><div class="card-title">SKUs más críticos</div></div>
+          <div class="tf"><div class="card-title">SKUs con oportunidad de mejora</div></div>
           <table><thead><tr><th>SKU</th><th>Marca</th><th>Categoría</th><th>Stock</th><th>Locales afectados</th><th>Disponibilidad</th><th>Pedido sugerido</th></tr></thead>
           <tbody id="tabla-sku-criticos"></tbody></table>
         </div>
@@ -1024,12 +1024,13 @@ async function buildDashboard() {
   document.getElementById("nb-alertas").textContent = alertasCliente.filter(a => a.sev === "critico").length;
   document.getElementById("nb-alertas").style.display = alertasCliente.some(a => a.sev === "critico") ? "inline-block" : "none";
 
+  const nCriticasCliente = alertasCliente.filter(a => a.sev === "critico").length;
   document.getElementById("exec-summary").innerHTML =
     `La operación releva <b>${fmtInt(totalRele)} controles</b> en <b>${locales.length} locales</b> durante el mes. ` +
     `Hoy el cliente encuentra el producto en góndola el <b>${kpis.osa_disponible}% de las veces</b>` +
-    (deltaOsa < 0 ? `, y esa cifra viene <b>bajando</b> (${deltaOsa} puntos desde la primera semana)` : deltaOsa > 0 ? `, y viene <b>mejorando</b> (+${deltaOsa} puntos desde la primera semana)` : `, estable en el mes`) +
-    `. Hay <b>${fmtGs(valorEnRiesgo)}</b> en productos por vencer que todavía se pueden recuperar con una promoción a tiempo, y el ${kpis.pop_problema}% de las exhibiciones tiene algún problema visual. ` +
-    `${nCriticas > 0 ? `Se detectaron <b>${nCriticas} alerta${nCriticas > 1 ? "s" : ""} crítica${nCriticas > 1 ? "s" : ""}</b> que conviene resolver esta semana.` : "No hay alertas críticas abiertas en este momento."}`;
+    (deltaOsa < 0 ? `, con margen de optimización respecto a la primera semana (${deltaOsa} puntos)` : deltaOsa > 0 ? `, mostrando una mejora sostenida (+${deltaOsa} puntos desde la primera semana)` : `, de forma estable durante el mes`) +
+    `. Se identificaron <b>${fmtInt(unidadesTotales)} unidades</b> próximas a vencer con oportunidad de recuperación mediante promociones a tiempo, y el ${kpis.pop_problema}% de las exhibiciones presenta margen de optimización visual. ` +
+    `${nCriticasCliente > 0 ? `Se recomienda priorizar <b>${nCriticasCliente} punto${nCriticasCliente > 1 ? "s" : ""}</b> esta semana.` : "No hay puntos de atención prioritaria en este momento."}`;
 
   const feed = document.getElementById("alertas-feed");
   alertasCliente.forEach(a => {
@@ -1590,7 +1591,7 @@ async function buildDashboard() {
 
   if (osaCadena.values.length) {
     const idx = osaCadena.values.indexOf(Math.min(...osaCadena.values));
-    document.getElementById("insight-osa").innerHTML = `<strong>${osaCadena.labels[idx]}</strong> tiene la disponibilidad más baja de todas las cadenas (${osaCadena.values[idx]}%), por debajo del promedio general (${kpis.osa_disponible}%). Priorizar frecuencia de reposición ahí antes de sumar más puntos de venta.`;
+    document.getElementById("insight-osa").innerHTML = `<strong>${osaCadena.labels[idx]}</strong> presenta la mayor oportunidad de mejora en disponibilidad (${osaCadena.values[idx]}%), por debajo del promedio general (${kpis.osa_disponible}%). Se recomienda fortalecer la frecuencia de reposición ahí antes de sumar más puntos de venta.`;
   }
 
 
@@ -1616,12 +1617,12 @@ async function buildDashboard() {
   const mermaEntries = Object.entries(mermaCategoria).sort((a, b) => b[1] - a[1]);
   new Chart(document.getElementById("chart-merma-categoria"), { type: "bar", data: { labels: mermaEntries.map(e => e[0]), datasets: [{ data: mermaEntries.map(e => e[1]), backgroundColor: WA, borderRadius: 6, maxBarThickness: 40 }] }, options: { plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => fmtInt(c.parsed.y) + " unidades averiadas" } } }, scales: { y: { ...gridOpt(), beginAtZero: true }, x: { grid: { display: false }, ticks: { color: "#f2eeee", font: { size: 10.5 } } } } } });
 
-  document.getElementById("insight-vencimientos").innerHTML = `Hay <strong>${fmtInt(unidadesTotales)} unidades</strong> por vencer con un valor comercial de <strong>${fmtGs(valorEnRiesgo)}</strong> todavía en juego. Activar promociones dirigidas sobre los ítems de la tabla antes de su vencimiento puede recuperar la mayor parte de ese valor.`;
+  document.getElementById("insight-vencimientos").innerHTML = `Se identificaron <strong>${fmtInt(unidadesTotales)} unidades</strong> próximas a vencer con oportunidad de recuperación. Se recomienda activar promociones dirigidas sobre los ítems de la tabla antes de su vencimiento.`;
 
   new Chart(document.getElementById("chart-planograma-cadena"), { type: "bar", data: { labels: planoCadena.labels, datasets: [{ data: planoCadena.values, backgroundColor: planoCadena.values.map(v => colorForValue(v, 80, 70)), borderRadius: 6, maxBarThickness: 30 }] }, options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { min: 0, max: 100, ...gridOpt() }, y: { grid: { display: false }, ticks: { color: "#f2eeee", font: { size: 11.5 } } } } } });
   new Chart(document.getElementById("chart-pop"), { type: "doughnut", data: { labels: popEstado.labels, datasets: [{ data: popEstado.values, backgroundColor: [OK, WA, ER, GREY], borderColor: "#161414", borderWidth: 2 }] }, options: { cutout: "62%", plugins: { legend: { position: "bottom", labels: { boxWidth: 9, boxHeight: 9, color: "#9c9494", font: { size: 10 }, padding: 10 } } } } });
 
-  document.getElementById("insight-pop").innerHTML = `<strong>${kpis.pop_problema}%</strong> del material POP relevado tiene algún problema (dañado, desactualizado o faltante). Incluir su reemplazo como tarea fija de la próxima ronda, no como excepción.`;
+  document.getElementById("insight-pop").innerHTML = `<strong>${kpis.pop_problema}%</strong> del material POP relevado presenta oportunidad de actualización (dañado, desactualizado o faltante). Se recomienda incluir su reemplazo como tarea fija de la próxima ronda.`;
 
   // Radar: marca propia vs. competencia, solo con métricas que realmente medimos de ambos lados
   const precioIndiceComp = precioPropioProm > 0 ? round1((precioCompProm / precioPropioProm) * 100) : 100;
@@ -1733,7 +1734,7 @@ async function buildDashboard() {
   const deltaSos = tendencia.sos.length >= 2 ? round1(tendencia.sos[tendencia.sos.length - 1] - tendencia.sos[0]) : 0;
   document.getElementById("insight-competencia").innerHTML =
     `El <strong>${compConPromoPct}%</strong> de las auditorías registra una promoción activa de la competencia, y el <strong>${compLanzamientoPct}%</strong> detecta un producto nuevo en góndola — la competencia está activa, no pasiva. ` +
-    `La Participación en Góndola propia promedio es ${sosProm}%` + (deltaSos < -2 ? `, y viene <strong>cayendo</strong> (${deltaSos} puntos en el mes) — señal de que se está cediendo espacio físico de góndola.` : deltaSos > 2 ? `, y viene <strong>subiendo</strong> (+${deltaSos} puntos) — se está ganando espacio.` : `, estable en el mes.`) +
+    `La Participación en Góndola propia promedio es ${sosProm}%` + (deltaSos < -2 ? `, con oportunidad de refuerzo respecto al mes (${deltaSos} puntos) — vale la pena reforzar la presencia física en góndola.` : deltaSos > 2 ? `, y viene <strong>subiendo</strong> (+${deltaSos} puntos) — se está ganando espacio.` : `, estable en el mes.`) +
     ` <strong>${competencia.labels[0] || "—"}</strong> es la marca competidora más mencionada en las auditorías.`;
 
   // ---------------- SCORE POR SUPERVISOR ----------------
@@ -1775,7 +1776,7 @@ async function buildDashboard() {
   if (rankingCadenas.length) {
     const peor = rankingCadenas[0];
     const shareQuiebres = round1((relevamiento.filter(r => (localMap[r.ID_Local] || {}).Cadena === peor.cadena && osaOf(r) !== "Disponible").length / (relevamiento.filter(r => osaOf(r) !== "Disponible").length || 1)) * 100);
-    insightsList.push(`<strong>${peor.cadena}</strong> concentra el <strong>${shareQuiebres}%</strong> de todos los quiebres relevados en el mes, siendo la cadena con peor desempeño combinado (OSA ${peor.osa}%, planograma ${peor.planograma}%).`);
+    insightsList.push(`<strong>${peor.cadena}</strong> concentra el <strong>${shareQuiebres}%</strong> de todos los quiebres relevados en el mes, lo que representa una oportunidad de mejora en la combinación de disponibilidad (${peor.osa}%) y planograma (${peor.planograma}%).`);
   }
   if (rankingCadenas.length > 1) {
     const mejor = rankingCadenas[rankingCadenas.length - 1];
@@ -1786,9 +1787,9 @@ async function buildDashboard() {
   const ciudadPlanoMap = {}; ciudadPlano.labels.forEach((l, i) => ciudadPlanoMap[l] = ciudadPlano.values[i]);
   ciudadOsa.labels.forEach((ciu, i) => {
     const osaC = ciudadOsa.values[i], planoC = ciudadPlanoMap[ciu];
-    if (planoC != null && osaC >= 80 && planoC < 65) insightsList.push(`La ciudad <strong>${ciu}</strong> tiene buena disponibilidad (${osaC}%) pero bajo cumplimiento de planograma (${planoC}%) — el problema ahí no es de stock, es de ejecución en el punto de venta.`);
+    if (planoC != null && osaC >= 80 && planoC < 65) insightsList.push(`La ciudad <strong>${ciu}</strong> tiene buena disponibilidad (${osaC}%) pero bajo cumplimiento de planograma (${planoC}%) — la oportunidad de mejora ahí está en la ejecución en el punto de venta, no en el stock.`);
   });
-  if (topSkusQuiebre.length) insightsList.push(`El producto con peor disponibilidad es <strong>${topSkusQuiebre[0].Marca} — ${topSkusQuiebre[0].Producto}</strong> (${topSkusQuiebre[0].osa}%), muy por debajo del promedio general (${kpis.osa_disponible}%).`);
+  if (topSkusQuiebre.length) insightsList.push(`El producto con peor disponibilidad es <strong>${topSkusQuiebre[0].Marca} — ${topSkusQuiebre[0].Producto}</strong> (${topSkusQuiebre[0].osa}%), por debajo del promedio general (${kpis.osa_disponible}%), con margen de optimización.`);
   insightsList.push(`El cumplimiento de planograma explica gran parte de la brecha de Participación en Góndola: las auditorías con planograma por debajo de 65% muestran una Participación en Góndola promedio de ${round1(auditoria.filter(a => num(a["Cumplimiento_Planograma_%"]) < 65).reduce((s, a) => s + num(a["Share_of_Shelf_%"]), 0) / (auditoria.filter(a => num(a["Cumplimiento_Planograma_%"]) < 65).length || 1))}%, contra ${round1(auditoria.filter(a => num(a["Cumplimiento_Planograma_%"]) >= 65).reduce((s, a) => s + num(a["Share_of_Shelf_%"]), 0) / (auditoria.filter(a => num(a["Cumplimiento_Planograma_%"]) >= 65).length || 1))}% cuando el planograma se cumple.`);
   insightsList.push(`Los locales con material POP en buen estado muestran, en promedio, mejor Participación en Góndola que los que tienen POP dañado o faltante — la exhibición física y el material publicitario se refuerzan mutuamente.`);
 

@@ -238,14 +238,14 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <span id="live-txt">Datos en vivo</span>
   </div>
   <div class="sb-nav">
-    <div class="sb-sect">Executive</div>
-    <div class="ni active" data-p="resumen" onclick="goPage('resumen',this)"><i class="fas fa-gauge-high"></i><span class="ni-label">Dashboard Ejecutivo</span></div>
-    <div class="ni" data-p="insights" onclick="goPage('insights',this)"><i class="fas fa-magnifying-glass-chart"></i><span class="ni-label">Insights Detallados</span></div>
+    <div class="sb-sect">Ejecutivo</div>
+    <div class="ni active" data-p="resumen" onclick="goPage('resumen',this)"><i class="fas fa-gauge-high"></i><span class="ni-label">Resumen Ejecutivo</span></div>
+    <div class="ni" data-p="insights" onclick="goPage('insights',this)"><i class="fas fa-magnifying-glass-chart"></i><span class="ni-label">Conclusiones Detalladas</span></div>
     <div class="sb-sect">Operación</div>
     <div class="ni" data-p="operacion" onclick="goPage('operacion',this)"><i class="fas fa-people-group"></i><span class="ni-label">Ejecución Comercial</span></div>
-    <div class="sb-sect">Trade</div>
+    <div class="sb-sect">Comercial</div>
     <div class="ni" data-p="disponibilidad" onclick="goPage('disponibilidad',this)"><i class="fas fa-boxes-stacked"></i><span class="ni-label">Disponibilidad</span><span class="ni-badge acc" id="nb-venc">0</span></div>
-    <div class="ni" data-p="ejecucion" onclick="goPage('ejecucion',this)"><i class="fas fa-clipboard-check"></i><span class="ni-label">Trade Marketing</span></div>
+    <div class="ni" data-p="ejecucion" onclick="goPage('ejecucion',this)"><i class="fas fa-clipboard-check"></i><span class="ni-label">Ejecución en PDV</span></div>
     <div class="sb-sect">Competencia</div>
     <div class="ni" data-p="competencia" onclick="goPage('competencia',this)"><i class="fas fa-chess-knight"></i><span class="ni-label">Competencia y Precios</span></div>
     <div class="sb-sect">Alertas</div>
@@ -264,7 +264,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
 <div class="main">
   <div class="topbar">
     <div>
-      <div class="tb-title" id="tb-title">Dashboard Ejecutivo</div>
+      <div class="tb-title" id="tb-title">Resumen Ejecutivo</div>
       <div class="tb-sub">+Marka · Panel comercial demo · Julio 2026</div>
     </div>
     <div style="margin-left:auto;display:flex;gap:16px;align-items:center">
@@ -283,7 +283,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
       </div>
     <div class="kpi-grid-ejecutivo" id="kpis-ejecutivos-wrap"></div>
     <div class="card card-p">
-        <div class="card-hdr"><div class="card-title">Evolución Comercial</div><div class="card-sub" id="evolucion-sub">Cobertura, OSA y Planograma en el tiempo</div></div>
+        <div class="card-hdr"><div class="card-title">Evolución Comercial</div><div class="card-sub" id="evolucion-sub">Cobertura, Disponibilidad en Góndola y Planograma en el tiempo</div></div>
         <div class="chart-h-lg"><canvas id="chart-evolucion"></canvas></div>
       </div>
     <div class="card card-p">
@@ -296,7 +296,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
       </div>
     <div class="grid-2">
         <div class="card card-p">
-          <div class="card-hdr"><div class="card-title">Mapa Estratégico</div><div class="card-sub">Clic en una ciudad para ver su detalle. Rojo OSA&lt;80 · Ámbar 80-90 · Verde 90+</div></div>
+          <div class="card-hdr"><div class="card-title">Mapa Estratégico</div><div class="card-sub">Clic en una ciudad para ver su detalle. Rojo Disponibilidad&lt;80 · Ámbar 80-90 · Verde 90+</div></div>
           <div id="mapa-ejecutivo-wrap" style="display:flex;justify-content:center;"></div>
         </div>
         <div class="card card-p">
@@ -304,25 +304,21 @@ tr:hover td{background:rgba(255,255,255,.02)}
           <div id="detalle-ciudad-wrap"><div class="alert acc" style="margin-top:0;"><i class="fas fa-hand-pointer"></i><div>Seleccioná una ciudad en el mapa para ver sus locales, promotores, SKUs e incidencias.</div></div></div>
         </div>
       </div>
-    <div class="card card-p">
-        <div class="card-hdr"><div class="card-title">Índice Ejecutivo</div><div class="card-sub">Índice General de Ejecución Comercial · Cobertura 30% + OSA 30% + Planograma 20% + Participación en Góndola 10% + Productividad 10%</div></div>
-        <div id="score-ejecutivo-wrap"></div>
-      </div>
     <div class="grid-2">
         <div class="tw">
           <div class="tf"><div class="card-title">Los 10 locales más críticos</div></div>
-          <table><thead><tr><th>Local</th><th>Ciudad</th><th>OSA</th><th>Planograma</th><th>Incidencias</th><th>Prioridad</th></tr></thead>
+          <table><thead><tr><th>Local</th><th>Ciudad</th><th>Disponibilidad</th><th>Planograma</th><th>Incidencias</th><th>Prioridad</th></tr></thead>
           <tbody id="tabla-locales-criticos"></tbody></table>
         </div>
         <div class="tw">
           <div class="tf"><div class="card-title">SKUs más críticos</div></div>
-          <table><thead><tr><th>SKU</th><th>Marca</th><th>Categoría</th><th>Stock</th><th>OSA</th><th>Pedido sugerido</th></tr></thead>
+          <table><thead><tr><th>SKU</th><th>Marca</th><th>Categoría</th><th>Stock</th><th>Disponibilidad</th><th>Pedido sugerido</th></tr></thead>
           <tbody id="tabla-sku-criticos"></tbody></table>
         </div>
       </div>
         <div class="grid-3">
     <div class="card card-p">
-        <div class="card-hdr"><div class="card-title">Ranking de cadenas</div><div class="card-sub">Índice compuesto: OSA + cumplimiento de planograma. De menor a mayor.</div></div>
+        <div class="card-hdr"><div class="card-title">Ranking de cadenas</div><div class="card-sub">Índice compuesto: Disponibilidad en Góndola + cumplimiento de planograma. De menor a mayor.</div></div>
         <div id="ranking-cadenas"></div>
       </div>
     <div class="card card-p">
@@ -330,12 +326,12 @@ tr:hover td{background:rgba(255,255,255,.02)}
         <div id="ranking-locales"></div>
       </div>
         <div class="card card-p">
-          <div class="card-hdr"><div class="card-title">Top Ciudades</div><div class="card-sub">Por disponibilidad (OSA), de menor a mayor</div></div>
+          <div class="card-hdr"><div class="card-title">Top Ciudades</div><div class="card-sub">Por disponibilidad en góndola, de menor a mayor</div></div>
           <div id="ranking-ciudades-ejecutivo"></div>
         </div>
         </div>
     <div class="card card-p">
-        <div class="card-hdr"><div class="card-title">Insights Automáticos</div></div>
+        <div class="card-hdr"><div class="card-title">Conclusiones Automáticas</div></div>
         <div id="insights-ejecutivo-wrap"></div>
       </div>
     <div class="tw">
@@ -394,7 +390,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
         </div>
       </div>
     <div class="card card-p">
-        <div class="card-hdr"><div class="card-title">Índice por supervisor</div><div class="card-sub">Promedio de OSA y planograma de los locales a cargo de cada supervisor</div></div>
+        <div class="card-hdr"><div class="card-title">Índice por supervisor</div><div class="card-sub">Promedio de Disponibilidad en Góndola y planograma de los locales a cargo de cada supervisor</div></div>
         <div id="ranking-supervisores"></div>
       </div>
     <div class="tw">
@@ -417,17 +413,17 @@ tr:hover td{background:rgba(255,255,255,.02)}
       </div>
     <div class="grid-2">
         <div class="card card-p">
-          <div class="card-hdr"><div class="card-title">OSA % por categoría</div><div class="card-sub">Porcentaje de relevamientos con producto disponible</div></div>
+          <div class="card-hdr"><div class="card-title">Disponibilidad en Góndola % por categoría</div><div class="card-sub">Porcentaje de relevamientos con producto disponible</div></div>
           <div class="chart-h"><canvas id="chart-osa-categoria"></canvas></div>
         </div>
         <div class="card card-p">
-          <div class="card-hdr"><div class="card-title">OSA % por cadena</div><div class="card-sub">De menor a mayor disponibilidad</div></div>
+          <div class="card-hdr"><div class="card-title">Disponibilidad en Góndola % por cadena</div><div class="card-sub">De menor a mayor disponibilidad</div></div>
           <div class="chart-h"><canvas id="chart-osa-cadena"></canvas></div>
         </div>
       </div>
     <div class="grid-2">
         <div class="card card-p">
-          <div class="card-hdr"><div class="card-title">OSA % por marca</div><div class="card-sub">Marcas con muestra suficiente (≥4 relevamientos)</div></div>
+          <div class="card-hdr"><div class="card-title">Disponibilidad en Góndola % por marca</div><div class="card-sub">Marcas con muestra suficiente (≥4 relevamientos)</div></div>
           <div class="chart-h"><canvas id="chart-osa-marca"></canvas></div>
         </div>
         <div class="card card-p">
@@ -460,7 +456,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <div class="tw">
         <div class="tf"><div class="card-title">Detalle por producto (ordenado: peor disponibilidad primero)</div></div>
         <table>
-          <thead><tr><th>Categoría</th><th>Producto</th><th>Relevamientos</th><th>OSA %</th><th>Valor en riesgo por vencer</th></tr></thead>
+          <thead><tr><th>Categoría</th><th>Producto</th><th>Relevamientos</th><th>Disponibilidad %</th><th>Valor en riesgo por vencer</th></tr></thead>
           <tbody id="tabla-productos"></tbody>
         </table>
       </div>
@@ -566,7 +562,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <div class="card card-p">
         <div class="card-hdr"><div class="card-title">Glosario rápido</div><div class="card-sub">Para leer el resto del panel sin necesitar conocer los términos técnicos</div></div>
         <div class="glossary">
-          <div><b>Disponibilidad en góndola (OSA)</b> — de cada 100 visitas a un local, cuántas veces el cliente final encontró el producto en el estante, listo para comprar.</div>
+          <div><b>Disponibilidad en góndola</b> — de cada 100 visitas a un local, cuántas veces el cliente final encontró el producto en el estante, listo para comprar.</div>
           <div><b>Quiebre de stock</b> — el producto no está en el estante en ese momento (puede haber en el depósito, o directamente no haber nada).</div>
           <div><b>Cumplimiento de planograma</b> — qué tan bien está ordenada la góndola según lo acordado con la cadena (ubicación, orden, cantidad de espacio por producto).</div>
           <div><b>Material POP</b> — carteles, exhibidores y elementos publicitarios en el punto de venta (folletos, colgantes, islas).</div>
@@ -1140,17 +1136,8 @@ async function buildDashboard() {
     const historiaShare = tendencias3mV2.length ? tendencias3mV2.map(t => num(t["Share_%"])) : tendencia.sos;
     const historiaCobertura = tendencia.cobertura; // no hay cobertura mensual en 100_Tendencias, se usa la semanal siempre
 
-    // -------- conteo de locales críticos (score OSA+Planograma < 65) para el KPI --------
-    const osaLocalKpi = groupRatio(rele, r => r.ID_Local, r => osaOf(r) === "Disponible");
-    const osaLocalKpiMap = {}; osaLocalKpi.labels.forEach((l, i) => { osaLocalKpiMap[l] = osaLocalKpi.values[i]; });
-    const planoLocalKpiRaw = {};
-    audi2.forEach(a => { if (!planoLocalKpiRaw[a.ID_Local]) planoLocalKpiRaw[a.ID_Local] = { sum: 0, n: 0 }; planoLocalKpiRaw[a.ID_Local].sum += num(a["Cumplimiento_Planograma_%"]); planoLocalKpiRaw[a.ID_Local].n++; });
-    const localesCriticosCount = Object.keys(osaLocalKpiMap).filter(idLocal => {
-      const osaL = osaLocalKpiMap[idLocal];
-      const planoL = planoLocalKpiRaw[idLocal] ? planoLocalKpiRaw[idLocal].sum / planoLocalKpiRaw[idLocal].n : null;
-      const score = planoL != null ? (osaL + planoL) / 2 : osaL;
-      return score < 65;
-    }).length;
+    // -------- conteo de locales con quiebres (al menos 1 SKU sin disponibilidad) para el KPI --------
+    const localesConQuiebreCount = new Set(rele.filter(r => osaOf(r) !== "Disponible").map(r => r.ID_Local)).size;
 
     // -------- render de las 8 tarjetas KPI --------
     sparkCharts.forEach(c => c.destroy());
@@ -1160,13 +1147,11 @@ async function buildDashboard() {
 
     const defsKpi = [
       { id: "cobertura", lbl: "Cobertura", valor: coberturaVal, meta: metaCobertura, historia: historiaCobertura, unidad: "%" },
-      { id: "osa", lbl: "OSA", valor: osaVal, meta: metaOSA, historia: historiaOSA, unidad: "%" },
+      { id: "osa", lbl: "Disponibilidad en Góndola", valor: osaVal, meta: metaOSA, historia: historiaOSA, unidad: "%" },
       { id: "planograma", lbl: "Planograma", valor: planoVal, meta: metaPlano, historia: historiaPlano, unidad: "%" },
       { id: "share", lbl: "Participación en Góndola", valor: sosVal, meta: metaShare, historia: historiaShare, unidad: "%" },
       { id: "productividad", lbl: "Productividad", valor: productividadVal, meta: 1.5, historia: null, unidad: " vis/h" },
-      { id: "indice", lbl: "Score Ejecutivo", valor: scoreEjecutivo, meta: 90, historia: null, unidad: "" },
-      { id: "incidencias", lbl: "Incidencias Abiertas", valor: incAbiertas, meta: 0, historia: null, unidad: "", invertido: true },
-      { id: "locales_criticos", lbl: "Locales Críticos", valor: localesCriticosCount, meta: 2, historia: null, unidad: "", invertido: true },
+      { id: "locales_criticos", lbl: "Locales con Quiebres", valor: localesConQuiebreCount, meta: 2, historia: null, unidad: "", invertido: true },
     ];
 
     defsKpi.forEach(d => {
@@ -1202,13 +1187,13 @@ async function buildDashboard() {
 
     // -------- Evolución Comercial (línea múltiple) --------
     const labelsEvo = tendencias3mV2.length ? tendencias3mV2.map(t => ({ 5: "Mayo", 6: "Junio", 7: "Julio" }[Number(t.Mes)] || t.Mes)) : tendencia.labels;
-    document.getElementById("evolucion-sub").textContent = tendencias3mV2.length ? "Cobertura, OSA y Planograma — mayo a julio (3 meses reales)" : "Cobertura, OSA y Planograma — semana a semana dentro del mes";
+    document.getElementById("evolucion-sub").textContent = tendencias3mV2.length ? "Cobertura, Disponibilidad en Góndola y Planograma — mayo a julio (3 meses reales)" : "Cobertura, Disponibilidad en Góndola y Planograma — semana a semana dentro del mes";
     if (chartEvolucion) chartEvolucion.destroy();
     chartEvolucion = new Chart(document.getElementById("chart-evolucion"), {
       type: "line",
       data: { labels: labelsEvo, datasets: [
         { label: "Cobertura %", data: historiaCobertura, borderColor: OK, backgroundColor: "transparent", tension: .35, pointRadius: 4, pointBackgroundColor: OK },
-        { label: "OSA %", data: historiaOSA, borderColor: ACC, backgroundColor: "rgba(212,162,76,.12)", tension: .35, fill: true, pointRadius: 4, pointBackgroundColor: ACC },
+        { label: "Disponibilidad en Góndola %", data: historiaOSA, borderColor: ACC, backgroundColor: "rgba(212,162,76,.12)", tension: .35, fill: true, pointRadius: 4, pointBackgroundColor: ACC },
         { label: "Planograma %", data: historiaPlano, borderColor: BL, backgroundColor: "transparent", tension: .35, pointRadius: 4, pointBackgroundColor: BL },
       ] },
       options: { plugins: { legend: { position: "top", align: "end", labels: { boxWidth: 10, boxHeight: 10, usePointStyle: true, color: "#9c9494", font: { size: 11.5 } } } }, scales: { y: { min: 0, max: 100, ...gridOpt() }, x: { grid: { display: false }, ticks: { color: "#9c9494" } } } },
@@ -1240,25 +1225,6 @@ async function buildDashboard() {
       `;
       bulletWrap.appendChild(row);
     });
-
-    // -------- Score Ejecutivo (Índice General de Ejecución Comercial) --------
-    const scoreClase = scoreEjecutivo >= 90 ? "excelente" : scoreEjecutivo >= 75 ? "seguimiento" : "inmediata";
-    const scoreEtiqueta = scoreEjecutivo >= 90 ? "🟢 Excelente" : scoreEjecutivo >= 75 ? "🟡 Requiere seguimiento" : "🔴 Acción inmediata";
-    const scoreColor = scoreEjecutivo >= 90 ? OK : scoreEjecutivo >= 75 ? WA : ER;
-    const componentesScore = [
-      ["Cobertura (30%)", coberturaVal], ["OSA (30%)", osaVal], ["Planograma (20%)", planoVal],
-      ["Participación en Góndola (10%)", sosVal], ["Productividad (10%)", productividadNorm],
-    ];
-    document.getElementById("score-ejecutivo-wrap").innerHTML = `
-      <div class="score-big-wrap">
-        <div>
-          <div class="score-big-num" style="color:${scoreColor}">${scoreEjecutivo}</div>
-          <div class="score-big-badge ${scoreClase}">${scoreEtiqueta}</div>
-        </div>
-        <div class="score-components">
-          ${componentesScore.map(([lbl, val]) => `<div class="score-comp-row"><span>${lbl}</span><div class="score-comp-track"><div class="score-comp-fill" style="width:${Math.min(100, val)}%;"></div></div><span>${round1(val)}</span></div>`).join("")}
-        </div>
-      </div>`;
 
     // -------- Mapa Estratégico (clicable) --------
     const CIUDAD_COORDS_EJ = {
@@ -1844,7 +1810,7 @@ async function buildDashboard() {
   // ---------------- PLAN DE ACCIÓN (derivado del motor de alertas) ----------------
   const sevToPrio = { critico: "alta", atencion: "media", positivo: "baja" };
   const sevToResp = {
-    critico: "Gerencia Comercial / Trade Marketing", atencion: "Supervisor de zona", positivo: "Equipo comercial",
+    critico: "Gerencia Comercial", atencion: "Supervisor de zona", positivo: "Equipo comercial",
   };
   const sevToTiempo = { critico: "Esta semana", atencion: "Próximas 2 semanas", positivo: "Este mes" };
   const tablaPlan = document.getElementById("tabla-plan");

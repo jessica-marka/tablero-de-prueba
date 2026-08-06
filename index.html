@@ -1077,12 +1077,6 @@ async function buildDashboard() {
     feed.innerHTML = `<div class="alert ok"><i class="fas fa-circle-check"></i><div>No se detectaron situaciones que requieran atención inmediata con los datos actuales.</div></div>`;
   }
 
-  document.getElementById("k-osa").textContent = kpis.osa_disponible + "%";
-  document.getElementById("k-osa-sub").textContent = (kpis.osa_quiebre_gondola + kpis.osa_quiebre_total).toFixed(1) + "% con quiebre";
-  document.getElementById("k-plano").textContent = kpis.planograma_prom + "%";
-  document.getElementById("k-cobertura").textContent = kpis.cobertura_prom + "%";
-  document.getElementById("k-ausentismo-sub").textContent = kpis.ausentismo + "% de ausentismo";
-  document.getElementById("k-pop").textContent = kpis.pop_problema + "%";
   document.getElementById("nb-venc").textContent = proximos.length;
 
   Chart.defaults.font.family = "'Outfit', sans-serif"; Chart.defaults.color = "#9c9494"; Chart.defaults.borderColor = "#262222";

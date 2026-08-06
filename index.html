@@ -331,6 +331,10 @@ tr:hover td{background:rgba(255,255,255,.02)}
           <div id="ranking-ciudades-ejecutivo"></div>
         </div>
         </div>
+    <div class="card card-p" id="detalle-expandido-card" style="display:none;">
+        <div class="card-hdr"><div class="card-title" id="detalle-expandido-titulo">Detalle</div><div class="card-sub">Clic en un local o una ciudad de arriba para ver el detalle acá</div></div>
+        <div id="detalle-expandido-wrap"></div>
+      </div>
     <div class="card card-p">
         <div class="card-hdr"><div class="card-title">Conclusiones Automáticas</div></div>
         <div id="insights-ejecutivo-wrap"></div>
@@ -895,7 +899,7 @@ async function buildDashboard() {
     .map(nom => {
       const plano = round1(planoLocalRaw[nom].sum / planoLocalRaw[nom].n);
       const local = locales.find(l => l.Nombre_Local === nom) || {};
-      return { local: nom, cadena: local.Cadena || "—", ciudad: local.Ciudad || "—", osa: osaLocalMap[nom], planograma: plano, score: round1((osaLocalMap[nom] + plano) / 2) };
+      return { local: nom, idLocal: local.ID_Local, cadena: local.Cadena || "—", ciudad: local.Ciudad || "—", osa: osaLocalMap[nom], planograma: plano, score: round1((osaLocalMap[nom] + plano) / 2) };
     })
     .sort((a, b) => a.score - b.score)
     .slice(0, 8);
@@ -1277,12 +1281,43 @@ async function buildDashboard() {
       rankCiudadWrap.innerHTML = "";
       const ciudadesOrdenadas = osaCiudadEj.labels.map((l, i) => ({ ciudad: l, osa: osaCiudadEj.values[i] })).sort((a, b) => a.osa - b.osa);
       ciudadesOrdenadas.forEach((c, i) => {
-        const row = document.createElement("div"); row.className = "rank-row";
+        const row = document.createElement("div"); row.className = "rank-row"; row.style.cursor = "pointer";
         const color = colorForValue(c.osa, 90, 80);
-        row.innerHTML = `<div class="pos">${String(i + 1).padStart(2, "0")}</div><div class="name">${c.ciudad}</div><div class="metric">OSA<b>${c.osa}%</b></div><div class="metric"></div><div class="score" style="color:${color}">${c.osa}</div>`;
+        row.innerHTML = `<div class="pos">${String(i + 1).padStart(2, "0")}</div><div class="name">${c.ciudad}</div><div class="metric">Disponibilidad<b>${c.osa}%</b></div><div class="metric"></div><div class="score" style="color:${color}">${c.osa}</div>`;
+        row.addEventListener("click", () => window.mostrarLocalesCiudad && window.mostrarLocalesCiudad(c.ciudad));
         rankCiudadWrap.appendChild(row);
       });
     }
+
+    // -------- Punto 17: clic en una ciudad del ranking despliega todos sus locales --------
+    window.mostrarLocalesCiudad = function (ciudad) {
+      const card = document.getElementById("detalle-expandido-card");
+      const titulo = document.getElementById("detalle-expandido-titulo");
+      const wrap = document.getElementById("detalle-expandido-wrap");
+      card.style.display = "block";
+      titulo.textContent = "Locales en " + ciudad;
+
+      const localesCiudad = locales.filter(l => l.Ciudad === ciudad);
+      const filas = localesCiudad.map(l => {
+        const releLocal = relevamiento.filter(r => r.ID_Local === l.ID_Local);
+        const total = releLocal.length;
+        const disp = releLocal.filter(r => osaOf(r) === "Disponible").length;
+        const osaL = total ? round1((disp / total) * 100) : null;
+        const audiLocal = auditoria.filter(a => a.ID_Local === l.ID_Local);
+        const planoVals = audiLocal.map(a => num(a["Cumplimiento_Planograma_%"]));
+        const planoL = planoVals.length ? round1(planoVals.reduce((a, b) => a + b, 0) / planoVals.length) : null;
+        const quiebresL = new Set(releLocal.filter(r => osaOf(r) !== "Disponible").map(r => r.ID_SKU)).size;
+        return { local: l.Nombre_Local, cadena: l.Cadena, osa: osaL, planograma: planoL, quiebres: quiebresL };
+      }).sort((a, b) => (a.osa ?? 100) - (b.osa ?? 100));
+
+      let html = `<div class="tw"><table><thead><tr><th>Local</th><th>Cadena</th><th>Disponibilidad en Góndola</th><th>Planograma</th><th>Quiebres</th></tr></thead><tbody>`;
+      filas.forEach(f => {
+        html += `<tr><td>${f.local}</td><td>${f.cadena}</td><td>${f.osa != null ? `<span class="pill ${f.osa >= 80 ? "ok" : f.osa >= 65 ? "wa" : "er"}">${f.osa}%</span>` : "—"}</td><td>${f.planograma != null ? f.planograma + "%" : "—"}</td><td>${f.quiebres}</td></tr>`;
+      });
+      html += `</tbody></table></div>`;
+      wrap.innerHTML = html;
+      card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    };
 
     // -------- Ranking Ejecutivo: locales críticos y SKU críticos --------
     const osaLocalEj = groupRatio(rele, r => r.ID_Local, r => osaOf(r) === "Disponible");
@@ -1691,11 +1726,37 @@ async function buildDashboard() {
 
   const rankLocalWrap = document.getElementById("ranking-locales");
   rankingLocales.forEach((l, i) => {
-    const row = document.createElement("div"); row.className = "rank-row";
+    const row = document.createElement("div"); row.className = "rank-row"; row.style.cursor = "pointer";
     const color = colorForValue(l.score, 80, 65);
-    row.innerHTML = `<div class="pos">${String(i + 1).padStart(2, "0")}</div><div class="name">${l.local}<div style="font-size:10.5px;color:var(--tx3);font-weight:400;">${l.cadena} · ${l.ciudad}</div></div><div class="metric">OSA<b>${l.osa}%</b></div><div class="metric">Planograma<b>${l.planograma}%</b></div><div class="score" style="color:${color}">${l.score}</div>`;
+    row.innerHTML = `<div class="pos">${String(i + 1).padStart(2, "0")}</div><div class="name">${l.local}<div style="font-size:10.5px;color:var(--tx3);font-weight:400;">${l.cadena} · ${l.ciudad}</div></div><div class="metric">Disponibilidad<b>${l.osa}%</b></div><div class="metric">Planograma<b>${l.planograma}%</b></div><div class="score" style="color:${color}">${l.score}</div>`;
+    row.addEventListener("click", () => window.mostrarDetalleLocal && window.mostrarDetalleLocal(l.idLocal, l));
     rankLocalWrap.appendChild(row);
   });
+
+  // -------- Punto 16: panel explicativo al hacer clic en un local ("¿por qué aparece este local?") --------
+  window.mostrarDetalleLocal = function (idLocal, l) {
+    const card = document.getElementById("detalle-expandido-card");
+    const titulo = document.getElementById("detalle-expandido-titulo");
+    const wrap = document.getElementById("detalle-expandido-wrap");
+    card.style.display = "block";
+    titulo.textContent = "¿Por qué aparece " + l.local + "?";
+
+    const releLocal = relevamiento.filter(r => r.ID_Local === idLocal);
+    const productosAgotados = new Set(releLocal.filter(r => osaOf(r) !== "Disponible").map(r => r.ID_SKU)).size;
+    const productosAveriados = releLocal.reduce((a, r) => a + num(r.Unidades_Averiadas), 0);
+    const audiLocal = auditoria.filter(a => a.ID_Local === idLocal);
+    const popIncompleto = audiLocal.some(a => ["Instalado - Dañado", "Instalado - Desactualizado", "No instalado"].includes(a.Estado_POP));
+
+    const motivos = [
+      `Disponibilidad en góndola: <b>${l.osa}%</b>`,
+      `Cumplimiento de planograma: <b>${l.planograma}%</b>`,
+      `Material POP: <b>${popIncompleto ? "incompleto" : "completo"}</b>`,
+      `Productos con oportunidad de reposición: <b>${productosAgotados}</b>`,
+      `Unidades averiadas registradas: <b>${fmtInt(productosAveriados)}</b>`,
+    ];
+    wrap.innerHTML = `<div style="display:flex;flex-direction:column;gap:10px;">${motivos.map(m => `<div style="font-size:13px;padding:8px 0;border-bottom:1px solid var(--bd);">${m}</div>`).join("")}</div>`;
+    card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  };
 
   // ---------------- PRICING ----------------
   document.getElementById("k-precio-prom").textContent = fmtGs(precioPropioProm);

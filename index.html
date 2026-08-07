@@ -637,14 +637,13 @@ const SHEET_URLS = {
 // desde las 9 fuentes originales de arriba, sin romper nada.
 // ---------------------------------------------------------------
 const SHEET_URLS_V2 = {
-  modelo:          "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ6NbybQFIMTD9s_UvurqKihBwfVMo49V05dM9SgMm6nLLJ-uGaX85KqfPn-yWr7w/pub?gid=1095683396&single=true&output=csv",
-  kpiDashboard:    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ6NbybQFIMTD9s_UvurqKihBwfVMo49V05dM9SgMm6nLLJ-uGaX85KqfPn-yWr7w/pub?gid=1483433004&single=true&output=csv",
-  resumenCiudades: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ6NbybQFIMTD9s_UvurqKihBwfVMo49V05dM9SgMm6nLLJ-uGaX85KqfPn-yWr7w/pub?gid=884046529&single=true&output=csv",
-  resumenCadenas:  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ6NbybQFIMTD9s_UvurqKihBwfVMo49V05dM9SgMm6nLLJ-uGaX85KqfPn-yWr7w/pub?gid=352555184&single=true&output=csv",
-  tendencias3m:    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ6NbybQFIMTD9s_UvurqKihBwfVMo49V05dM9SgMm6nLLJ-uGaX85KqfPn-yWr7w/pub?gid=1799571377&single=true&output=csv",
-  config:          "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ6NbybQFIMTD9s_UvurqKihBwfVMo49V05dM9SgMm6nLLJ-uGaX85KqfPn-yWr7w/pub?gid=1726236970&single=true&output=csv",
-  marcaciones:     "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ6NbybQFIMTD9s_UvurqKihBwfVMo49V05dM9SgMm6nLLJ-uGaX85KqfPn-yWr7w/pub?gid=1344690155&single=true&output=csv",
-  incidenciasV2:   "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ6NbybQFIMTD9s_UvurqKihBwfVMo49V05dM9SgMm6nLLJ-uGaX85KqfPn-yWr7w/pub?gid=1755448852&single=true&output=csv",
+  modelo:          "https://docs.google.com/spreadsheets/d/e/2PACX-1vRo4CmnwJPirqJAMi4DF_1qMkPxdLZNHFn8S2si0_mj0tubXGsCZdSwU9aoj6JzNA/pub?gid=1125168501&single=true&output=csv",
+  kpiDashboard:    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRo4CmnwJPirqJAMi4DF_1qMkPxdLZNHFn8S2si0_mj0tubXGsCZdSwU9aoj6JzNA/pub?gid=511452468&single=true&output=csv",
+  resumenCiudades: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRo4CmnwJPirqJAMi4DF_1qMkPxdLZNHFn8S2si0_mj0tubXGsCZdSwU9aoj6JzNA/pub?gid=1399429370&single=true&output=csv",
+  resumenCadenas:  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRo4CmnwJPirqJAMi4DF_1qMkPxdLZNHFn8S2si0_mj0tubXGsCZdSwU9aoj6JzNA/pub?gid=787641241&single=true&output=csv",
+  tendencias3m:    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRo4CmnwJPirqJAMi4DF_1qMkPxdLZNHFn8S2si0_mj0tubXGsCZdSwU9aoj6JzNA/pub?gid=1286794952&single=true&output=csv",
+  marcaciones:     "https://docs.google.com/spreadsheets/d/e/2PACX-1vRo4CmnwJPirqJAMi4DF_1qMkPxdLZNHFn8S2si0_mj0tubXGsCZdSwU9aoj6JzNA/pub?gid=1577410362&single=true&output=csv",
+  incidenciasV2:   "https://docs.google.com/spreadsheets/d/e/2PACX-1vRo4CmnwJPirqJAMi4DF_1qMkPxdLZNHFn8S2si0_mj0tubXGsCZdSwU9aoj6JzNA/pub?gid=2053862481&single=true&output=csv",
 };
 
 function fetchCSV(url) {
@@ -753,14 +752,15 @@ async function buildDashboard() {
     console.warn("Tablas opcionales (Incidencias/Costos/Metas) no disponibles:", err);
   }
 
-  // Fuentes NUEVAS opcionales (Estructura_Dashboard_Trade_Marketing.xlsx),
-  // usadas para el Dashboard Ejecutivo (Módulo 1). Si no cargan, ese módulo
-  // recalcula todo desde las 9 fuentes de siempre — nunca rompe el resto.
-  let modeloV2 = [], kpiDashboardV2 = [], resumenCiudadesV2 = [], resumenCadenasV2 = [], tendencias3mV2 = [], configV2 = [], marcacionesV2 = [], incidenciasV2 = [];
+  // Fuentes NUEVAS opcionales (ahora en la misma planilla de 9 hojas, hojas
+  // adicionales 90-100 + 01_Marcaciones + 04_Incidencias), usadas para el
+  // Dashboard Ejecutivo (Módulo 1). Si no cargan, ese módulo recalcula todo
+  // desde las 9 fuentes de siempre — nunca rompe el resto.
+  let modeloV2 = [], kpiDashboardV2 = [], resumenCiudadesV2 = [], resumenCadenasV2 = [], tendencias3mV2 = [], marcacionesV2 = [], incidenciasV2 = [];
   try {
-    const [modRaw, kpiRaw, rcRaw, rcadRaw, tendRaw, cfgRaw, marcRaw, incV2Raw] = await Promise.all([
+    const [modRaw, kpiRaw, rcRaw, rcadRaw, tendRaw, marcRaw, incV2Raw] = await Promise.all([
       fetchCSV(SHEET_URLS_V2.modelo), fetchCSV(SHEET_URLS_V2.kpiDashboard), fetchCSV(SHEET_URLS_V2.resumenCiudades),
-      fetchCSV(SHEET_URLS_V2.resumenCadenas), fetchCSV(SHEET_URLS_V2.tendencias3m), fetchCSV(SHEET_URLS_V2.config),
+      fetchCSV(SHEET_URLS_V2.resumenCadenas), fetchCSV(SHEET_URLS_V2.tendencias3m),
       fetchCSV(SHEET_URLS_V2.marcaciones), fetchCSV(SHEET_URLS_V2.incidenciasV2),
     ]);
     const modC = clean(modRaw);
@@ -773,8 +773,6 @@ async function buildDashboard() {
     resumenCadenasV2 = (rcadC[0] && "Cadena" in rcadC[0]) ? rcadC : [];
     const tendC = clean(tendRaw);
     tendencias3mV2 = (tendC[0] && "Mes" in tendC[0]) ? tendC : [];
-    const cfgC = clean(cfgRaw);
-    configV2 = (cfgC[0] && "Parámetro" in cfgC[0]) ? cfgC : [];
     const marcC = clean(marcRaw);
     marcacionesV2 = (marcC[0] && "ID_Marcacion" in marcC[0]) ? marcC : [];
     const incV2C = clean(incV2Raw);
@@ -1131,21 +1129,15 @@ async function buildDashboard() {
     const coberturaValues2 = asis2.map(a => num(a["Cobertura_%"]));
     const coberturaVal = coberturaValues2.length ? round1(coberturaValues2.reduce((a, b) => a + b, 0) / coberturaValues2.length) : 0;
 
-    // metas: METAS_SERVICIO (la planilla que el equipo edita activamente) tiene
-    // prioridad siempre. 102_Config queda solo como respaldo para valores que
-    // METAS_SERVICIO no tenga — así un cambio hecho ahí se refleja al toque.
+    // metas: única fuente ahora es METAS_SERVICIO (ya no existe 102_Config
+    // como fuente separada — todo vive en la misma planilla de 9 hojas).
     const metaMap2 = {};
-    if (configV2.length) {
-      configV2.forEach(c => { metaMap2[c["Parámetro"]] = num(c.Valor); });
-    }
-    if (metas.length) {
-      metas.forEach(m => {
-        if (/OSA/i.test(m.Indicador)) metaMap2["Meta_OSA"] = num(m.Objetivo);
-        if (/Planograma/i.test(m.Indicador)) metaMap2["Meta_Planograma"] = num(m.Objetivo);
-        if (/Cobertura/i.test(m.Indicador)) metaMap2["Meta_Cobertura"] = num(m.Objetivo);
-        if (/Share/i.test(m.Indicador)) metaMap2["Meta_Share"] = num(m.Objetivo);
-      });
-    }
+    metas.forEach(m => {
+      if (/OSA/i.test(m.Indicador)) metaMap2["Meta_OSA"] = num(m.Objetivo);
+      if (/Planograma/i.test(m.Indicador)) metaMap2["Meta_Planograma"] = num(m.Objetivo);
+      if (/Cobertura/i.test(m.Indicador)) metaMap2["Meta_Cobertura"] = num(m.Objetivo);
+      if (/Share/i.test(m.Indicador)) metaMap2["Meta_Share"] = num(m.Objetivo);
+    });
     const metaOSA = metaMap2["Meta_OSA"] ?? 90;
     const metaPlano = metaMap2["Meta_Planograma"] ?? 85;
     const metaCobertura = metaMap2["Meta_Cobertura"] ?? 95;

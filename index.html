@@ -1131,11 +1131,14 @@ async function buildDashboard() {
     const coberturaValues2 = asis2.map(a => num(a["Cobertura_%"]));
     const coberturaVal = coberturaValues2.length ? round1(coberturaValues2.reduce((a, b) => a + b, 0) / coberturaValues2.length) : 0;
 
-    // metas: config V2 si está, si no, tabla metas original
+    // metas: METAS_SERVICIO (la planilla que el equipo edita activamente) tiene
+    // prioridad siempre. 102_Config queda solo como respaldo para valores que
+    // METAS_SERVICIO no tenga — así un cambio hecho ahí se refleja al toque.
     const metaMap2 = {};
     if (configV2.length) {
       configV2.forEach(c => { metaMap2[c["Parámetro"]] = num(c.Valor); });
-    } else if (metas.length) {
+    }
+    if (metas.length) {
       metas.forEach(m => {
         if (/OSA/i.test(m.Indicador)) metaMap2["Meta_OSA"] = num(m.Objetivo);
         if (/Planograma/i.test(m.Indicador)) metaMap2["Meta_Planograma"] = num(m.Objetivo);

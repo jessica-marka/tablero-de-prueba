@@ -280,6 +280,10 @@ tr:hover td{background:rgba(255,255,255,.02)}
         <select id="fe-ciudad"><option value="">Todas las ciudades</option></select>
         <select id="fe-cadena"><option value="">Todas las cadenas</option></select>
         <select id="fe-categoria"><option value="">Todas las categorías</option></select>
+        <span style="font-size:11px;color:var(--tx3);">Desde</span>
+        <input type="date" id="fe-fecha-inicio" style="background:var(--bg4);color:var(--tx);border:1px solid var(--bd2);border-radius:8px;padding:7px 10px;font-size:12.5px;">
+        <span style="font-size:11px;color:var(--tx3);">Hasta</span>
+        <input type="date" id="fe-fecha-fin" style="background:var(--bg4);color:var(--tx);border:1px solid var(--bd2);border-radius:8px;padding:7px 10px;font-size:12.5px;">
         <button id="fe-clear"><i class="fas fa-xmark" style="margin-right:6px;"></i>Limpiar</button>
       </div>
     <div class="kpi-grid-ejecutivo" id="kpis-ejecutivos-wrap"></div>
@@ -413,7 +417,10 @@ tr:hover td{background:rgba(255,255,255,.02)}
         <select id="f-cadena"><option value="">Todas las cadenas</option></select>
         <select id="f-categoria"><option value="">Todas las categorías</option></select>
         <select id="f-ciudad"><option value="">Todas las ciudades</option></select>
-        <select id="f-mes"><option value="todos">Todo el mes</option><option value="1">Semana 1</option><option value="2">Semana 2</option><option value="3">Semana 3</option><option value="4">Semana 4</option><option value="5">Semana 5</option></select>
+        <span style="font-size:11px;color:var(--tx3);">Desde</span>
+        <input type="date" id="f-fecha-inicio" style="background:var(--bg4);color:var(--tx);border:1px solid var(--bd2);border-radius:8px;padding:7px 10px;font-size:12.5px;">
+        <span style="font-size:11px;color:var(--tx3);">Hasta</span>
+        <input type="date" id="f-fecha-fin" style="background:var(--bg4);color:var(--tx);border:1px solid var(--bd2);border-radius:8px;padding:7px 10px;font-size:12.5px;">
         <button id="f-clear"><i class="fas fa-xmark" style="margin-right:6px;"></i>Limpiar</button>
       </div>
     <div class="grid-2">
@@ -671,6 +678,18 @@ function parseFechaParts(fechaStr) {
 }
 function monthOf(fechaStr) { const p = parseFechaParts(fechaStr); return p ? p.mes : null; }
 function weekOf(fechaStr) { const p = parseFechaParts(fechaStr); return p ? Math.ceil(p.dia / 7) : null; }
+// Filtro de rango de fechas real (Fecha inicio / Fecha fin) — soporta ambos
+// formatos que la planilla ha usado, vía parseFechaParts(). inicio/fin vienen
+// de <input type="date">, siempre en formato "YYYY-MM-DD".
+function fechaEnRango(fechaStr, inicio, fin) {
+  if (!inicio && !fin) return true;
+  const p = parseFechaParts(fechaStr);
+  if (!p) return true;
+  const d = new Date(p.anio, p.mes - 1, p.dia);
+  if (inicio && d < new Date(inicio)) return false;
+  if (fin && d > new Date(fin)) return false;
+  return true;
+}
 function round1(x) { return Math.round(x * 10) / 10; }
 function parseTiempoHoras(t) { if (!t) return 0; const p = String(t).split(":"); if (p.length < 2) return 0; return parseInt(p[0], 10) + parseInt(p[1], 10) / 60; }
 function fmtInt(n) { return new Intl.NumberFormat('es-PY').format(Math.round(n)); }
@@ -1086,6 +1105,12 @@ async function buildDashboard() {
       det2 = det2.filter(d => (localMap[d.ID_Local] || {}).Cadena === f.cadena);
     }
     if (f.categoria) rele = rele.filter(r => r.Categoría === f.categoria);
+    if (f.fechaInicio || f.fechaFin) {
+      rele = rele.filter(r => fechaEnRango(r.Fecha, f.fechaInicio, f.fechaFin));
+      audi2 = audi2.filter(a => fechaEnRango(a.Fecha, f.fechaInicio, f.fechaFin));
+      asis2 = asis2.filter(a => fechaEnRango(a.Fecha, f.fechaInicio, f.fechaFin));
+      det2 = det2.filter(d => fechaEnRango(d.Fecha, f.fechaInicio, f.fechaFin));
+    }
     return { rele, audi2, asis2, det2 };
   }
 
@@ -1391,11 +1416,15 @@ async function buildDashboard() {
     }
   }
 
-  function currentFiltersEj() { return { ciudad: selFeCiudad.value, cadena: selFeCadena.value, categoria: selFeCategoria.value }; }
+  const inpFeFechaInicio = document.getElementById("fe-fecha-inicio");
+  const inpFeFechaFin = document.getElementById("fe-fecha-fin");
+  function currentFiltersEj() { return { ciudad: selFeCiudad.value, cadena: selFeCadena.value, categoria: selFeCategoria.value, fechaInicio: inpFeFechaInicio.value, fechaFin: inpFeFechaFin.value }; }
   selFeCiudad.addEventListener("change", () => renderModulo1(currentFiltersEj()));
   selFeCadena.addEventListener("change", () => renderModulo1(currentFiltersEj()));
   selFeCategoria.addEventListener("change", () => renderModulo1(currentFiltersEj()));
-  document.getElementById("fe-clear").addEventListener("click", () => { selFeCiudad.value = ""; selFeCadena.value = ""; selFeCategoria.value = ""; renderModulo1(currentFiltersEj()); });
+  inpFeFechaInicio.addEventListener("change", () => renderModulo1(currentFiltersEj()));
+  inpFeFechaFin.addEventListener("change", () => renderModulo1(currentFiltersEj()));
+  document.getElementById("fe-clear").addEventListener("click", () => { selFeCiudad.value = ""; selFeCadena.value = ""; selFeCategoria.value = ""; inpFeFechaInicio.value = ""; inpFeFechaFin.value = ""; renderModulo1(currentFiltersEj()); });
   // La llamada inicial se hace al FINAL de buildDashboard (ver más abajo), porque
   // el Centro de Alertas / Insights / Oportunidades de este módulo reutilizan el
   // motor de alertas y de insights, que se calculan más adelante en el script.
@@ -1473,7 +1502,8 @@ async function buildDashboard() {
   const selCadena = document.getElementById("f-cadena");
   const selCategoria = document.getElementById("f-categoria");
   const selCiudad = document.getElementById("f-ciudad");
-  const selMes = document.getElementById("f-mes");
+  const inpFechaInicio = document.getElementById("f-fecha-inicio");
+  const inpFechaFin = document.getElementById("f-fecha-fin");
   cadenasList.forEach(c => { const o = document.createElement("option"); o.value = c; o.textContent = c; selCadena.appendChild(o); });
   categoriasList.forEach(c => { const o = document.createElement("option"); o.value = c; o.textContent = c; selCategoria.appendChild(o); });
   ciudadesList.forEach(c => { const o = document.createElement("option"); o.value = c; o.textContent = c; selCiudad.appendChild(o); });
@@ -1518,7 +1548,7 @@ async function buildDashboard() {
     if (f.cadena) rows = rows.filter(r => (localMap[r.ID_Local] || {}).Cadena === f.cadena);
     if (f.categoria) rows = rows.filter(r => r.Categoría === f.categoria);
     if (f.ciudad) rows = rows.filter(r => (localMap[r.ID_Local] || {}).Ciudad === f.ciudad);
-    if (f.mes !== "todos") rows = rows.filter(r => weekOf(r.Fecha) === Number(f.mes));
+    if (f.fechaInicio || f.fechaFin) rows = rows.filter(r => fechaEnRango(r.Fecha, f.fechaInicio, f.fechaFin));
 
     const osaCatF = groupRatio(rows, r => r.Categoría, r => osaOf(r) === "Disponible");
     const osaCadF = groupRatio(rows, r => (localMap[r.ID_Local] || {}).Cadena, r => osaOf(r) === "Disponible");
@@ -1595,13 +1625,14 @@ async function buildDashboard() {
     });
   }
 
-  function currentFilters() { return { cadena: selCadena.value, categoria: selCategoria.value, ciudad: selCiudad.value, mes: selMes.value }; }
+  function currentFilters() { return { cadena: selCadena.value, categoria: selCategoria.value, ciudad: selCiudad.value, fechaInicio: inpFechaInicio.value, fechaFin: inpFechaFin.value }; }
   selCadena.addEventListener("change", () => renderDisponibilidad(currentFilters()));
   selCategoria.addEventListener("change", () => renderDisponibilidad(currentFilters()));
   selCiudad.addEventListener("change", () => renderDisponibilidad(currentFilters()));
-  selMes.addEventListener("change", () => renderDisponibilidad(currentFilters()));
-  document.getElementById("f-clear").addEventListener("click", () => { selCadena.value = ""; selCategoria.value = ""; selCiudad.value = ""; selMes.value = "todos"; renderDisponibilidad(currentFilters()); });
-  renderDisponibilidad({ cadena: "", categoria: "", ciudad: "", mes: "todos" });
+  inpFechaInicio.addEventListener("change", () => renderDisponibilidad(currentFilters()));
+  inpFechaFin.addEventListener("change", () => renderDisponibilidad(currentFilters()));
+  document.getElementById("f-clear").addEventListener("click", () => { selCadena.value = ""; selCategoria.value = ""; selCiudad.value = ""; inpFechaInicio.value = ""; inpFechaFin.value = ""; renderDisponibilidad(currentFilters()); });
+  renderDisponibilidad({ cadena: "", categoria: "", ciudad: "", fechaInicio: "", fechaFin: "" });
 
   // ---------- Mapa de Cobertura (Ejecución Comercial) — mismo patrón visual que los otros mapas ----------
   (function renderMapaCobertura() {
@@ -1991,7 +2022,7 @@ async function buildDashboard() {
 
   // Llamada inicial del Módulo 1 (Dashboard Ejecutivo) — se hace acá porque
   // reutiliza el motor de alertas y de insights, ya calculados en este punto.
-  renderModulo1({ ciudad: "", cadena: "", categoria: "" });
+  renderModulo1({ ciudad: "", cadena: "", categoria: "", fechaInicio: "", fechaFin: "" });
 
   document.getElementById("sb-upd").textContent = "Actualizado: " + new Date().toLocaleString("es-PY");
   document.getElementById("loading-screen").style.display = "none";
